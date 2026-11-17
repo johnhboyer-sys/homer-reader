@@ -143,10 +143,21 @@ export function eachHit(
  * in a Both search, both terms anywhere in the same chapter (John, 15 Nov).
  * A result left with no hit drops out. */
 export function chapterJoin(results: SearchResult[], places: ChapterPlaces): SearchResult[] {
+  return chapterKeep(results, places, (grk, eng) => grk && eng);
+}
+
+/** The hits of `results` in chapters where one language has hits and the
+ * other none: "or" in a Both search, the exclusive or (John, 16 Nov). */
+export function chapterOnly(results: SearchResult[], places: ChapterPlaces): SearchResult[] {
+  return chapterKeep(results, places, (grk, eng) => grk !== eng);
+}
+
+// The hits in the chapters `want` keeps, told whether each language has a hit there.
+function chapterKeep(results: SearchResult[], places: ChapterPlaces, want: (grk: boolean, eng: boolean) => boolean): SearchResult[] {
   const grk = new Set<string>();
   const eng = new Set<string>();
   for (const r of results) eachHit(r, places, (at, lang) => (lang === 'grk' ? grk : eng).add(at.key));
-  const keep = (at: ChapterAt) => grk.has(at.key) && eng.has(at.key);
+  const keep = (at: ChapterAt) => want(grk.has(at.key), eng.has(at.key));
   return results.flatMap(r => {
     let left = r;
     if (r.grkMatch) {
@@ -196,9 +207,20 @@ export function allWordsJoin(results: SearchResult[], places: ChapterPlaces): Se
     if (r.engMatch && r.engHits?.some(h => h.units)) {
       const engHits = r.engHits.flatMap(h => {
         if (!h.units) return [h];
+        // A term of several words stands where its first word does (Codex
+        // review of e03973358): each word goes with the run it begins or
+        // continues, and only a run's first word places the term.
+        const heads = h.matches ? [...h.matches].sort((x, y) => x - y) : null;
+        const headOf = (w: number) => {
+          if (!heads) return w;
+          let k = heads.length - 1;
+          while (k >= 0 && heads[k] > w) k--;
+          return k >= 0 ? heads[k] : w;
+        };
+        const lists = heads ? h.units.map(list => list.filter(w => headOf(w) === w)) : h.units;
         const at = (w: number) => places.eng(r, h.translation, w);
-        const ok = full(h.units, new Set(h.positions), at);
-        const inside = (w: number) => ok.has(at(w).key);
+        const ok = full(lists, new Set(h.positions), at);
+        const inside = (w: number) => ok.has(at(headOf(w)).key);
         const positions = h.positions.filter(inside);
         const matches = h.matches?.filter(inside);
         return positions.length ? [{ ...h, positions, ...(matches ? { matches } : {}) }] : [];

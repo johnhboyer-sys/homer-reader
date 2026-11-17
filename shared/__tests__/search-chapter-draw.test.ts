@@ -139,3 +139,126 @@ it('does not stretch a one-word term over the next term\'s words', async () => {
   await vi.waitFor(() => expect(headings(c)).toEqual(['Lines 1–20', 'Lines 21–22']));
   expect(engMarks(c)).toEqual(['rosy', 'well being']);
 });
+
+// 9–16: aristotle-reader's cases from 47444b1f5c (PRs #198, #200), on Homer's
+// scenes. 9–11. The switch: and | and/or | or (John, 16 Nov). Scene 1-10 has
+// Greek (token 3) and English (word 0); scene 11-22 has Greek alone (token 15).
+const splitOf = (c: Element) => [...c.querySelectorAll('.sx-split .i')]
+  .map(i => `${text(i.querySelector('.i-t'))} ${text(i.querySelector('small'))}${i.classList.contains('off') ? ' off' : ''}`);
+async function openSplit(op: string) {
+  const { loadOffsets, loadEngChapters } = await import('../lib/search');
+  vi.mocked(loadOffsets).mockResolvedValue(offsetsOf(10));
+  vi.mocked(loadEngChapters).mockResolvedValue({ english: { '0': [[0, '1-10'], [2, '11-22']] } });
+  const r: SearchResult = { ...base, grkMatch: true, engMatch: true, grkPositions: [3, 15],
+    engHits: [{ translation: 'murray', positions: [0] }] };
+  return open(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Two.'), [r], `g=α&e=virtue${op}`);
+}
+it('"and" counts the scenes with both, and lights only that row', async () => {
+  const c = await openSplit('');
+  await vi.waitFor(() => expect(splitOf(c)).toEqual(['Greek and English 1', 'Greek only 1 off', 'English only 0 off']));
+  expect(text(c.querySelector('.result-count'))).toMatch(/^1 scene\s*1 hit\b/);
+  expect(text(c.querySelector('details.opt.join summary b'))).toBe('and');
+});
+it('"and/or" (op=or) counts every scene with a hit', async () => {
+  const c = await openSplit('&op=or');
+  await vi.waitFor(() => expect(splitOf(c)).toEqual(['Greek and English 1', 'Greek only 1', 'English only 0']));
+  expect(text(c.querySelector('.result-count'))).toMatch(/^2 scenes\s*2 hits\b/);
+  expect(text(c.querySelector('details.opt.join summary b'))).toBe('and/or');
+});
+it('"or" (op=xor) counts the scenes with one language, not both', async () => {
+  const c = await openSplit('&op=xor');
+  await vi.waitFor(() => expect(splitOf(c)).toEqual(['Greek and English 1 off', 'Greek only 1', 'English only 0']));
+  expect(text(c.querySelector('.result-count'))).toMatch(/^1 scene\s*1 hit\b/);
+  expect(text(c.querySelector('details.opt.join summary b'))).toBe('or');
+  expect(headings(c)).toEqual(['Lines 11–22']);
+});
+
+// 12. A new search opens on "and/or" (John, 16 Nov): typed into a blank page
+// and run with the switch untouched, it counts every scene with a hit, and
+// its link names the op.
+it('runs a new Greek and English search as "and/or" by default', async () => {
+  const { loadOffsets, loadEngChapters, search } = await import('../lib/search');
+  const { fetchBook, fetchChapters } = await import('../lib/data');
+  vi.mocked(loadOffsets).mockResolvedValue(offsetsOf(10));
+  vi.mocked(loadEngChapters).mockResolvedValue({ english: { '0': [[0, '1-10'], [2, '11-22']] } });
+  vi.mocked(fetchBook).mockResolvedValue(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Two.'));
+  vi.mocked(fetchChapters).mockResolvedValue({});
+  vi.mocked(search).mockResolvedValue({ results: [{ ...base, grkMatch: true, engMatch: true, grkPositions: [3, 15],
+    engHits: [{ translation: 'murray', positions: [0] }] }], failedWorks: [] });
+  window.history.replaceState(null, '', '/search/?w=iliad');
+  const { container: c } = render(Search);
+  await fireEvent.input(c.querySelector('#grk-input')!, { target: { value: 'α' } });
+  await fireEvent.input(c.querySelector('#eng-input')!, { target: { value: 'virtue' } });
+  await vi.waitFor(() => expect(text(c.querySelector('details.opt.join summary b'))).toBe('and/or'));
+  await fireEvent.click(c.querySelector('button.search-btn')!);
+  await vi.waitFor(() => expect(text(c.querySelector('.result-count'))).toMatch(/^2 scenes\s*2 hits\b/));
+  expect(new URLSearchParams(window.location.search).get('op')).toBe('or');
+});
+
+// 13. "and" with no scene holding both languages finds nothing, and the
+// split still says where the hits are (Codex review, 16 Nov).
+it('keeps the split rows when "and" finds no scene with both', async () => {
+  const { loadOffsets, loadEngChapters, search } = await import('../lib/search');
+  const { fetchBook, fetchChapters } = await import('../lib/data');
+  vi.mocked(loadOffsets).mockResolvedValue(offsetsOf(10));
+  vi.mocked(loadEngChapters).mockResolvedValue({ english: { '0': [[0, '1-10'], [2, '11-22']] } });
+  vi.mocked(fetchBook).mockResolvedValue(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Two.'));
+  vi.mocked(fetchChapters).mockResolvedValue({});
+  // Greek in scene 2 only; English in scene 1 only.
+  vi.mocked(search).mockResolvedValue({ results: [{ ...base, grkMatch: true, engMatch: true, grkPositions: [15],
+    engHits: [{ translation: 'murray', positions: [0] }] }], failedWorks: [] });
+  window.history.replaceState(null, '', '/search/?w=iliad&g=α&e=virtue&op=and');
+  const { container: c } = render(Search);
+  await vi.waitFor(() => expect(c.textContent).toMatch(/No scenes found/));
+  await vi.waitFor(() => expect(splitOf(c)).toEqual(['Greek and English 0', 'Greek only 1 off', 'English only 1 off']));
+});
+
+// 14–15. English searched: one list, a work with its scenes, under it each
+// translation with its hits there (John, 16 Nov). Scene 1 has Murray's
+// word 0; scene 2 Butler's two words (Butler's slot has no scene starts, so
+// its words fall in the scene the section's Greek opens in: scene 1).
+const nestOf = (c: Element) => [...c.querySelectorAll('.sx-nest .i:not(.i-all)')]
+  .map(i => `${i.classList.contains('sub') ? '  ' : ''}${text(i.querySelector('.i-t'))} ${text(i.querySelector('small'))}`);
+async function openNest() {
+  const { loadOffsets, loadEngChapters } = await import('../lib/search');
+  vi.mocked(loadOffsets).mockResolvedValue(offsetsOf(10));
+  vi.mocked(loadEngChapters).mockResolvedValue({ english: { '0': [[0, '1-10'], [2, '11-22']] } });
+  const r: SearchResult = { ...base, grkMatch: false, engMatch: true, grkPositions: [],
+    engHits: [{ translation: 'murray', positions: [0, 2] }, { translation: 'butler', positions: [1, 4, 6] }] };
+  return open(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Virtue two.'), [r], 'e=virtue');
+}
+it('lists each work with its scenes, and its translations with their hits', async () => {
+  const c = await openNest();
+  await vi.waitFor(() => expect(nestOf(c)).toEqual(['Iliad 2 scenes', '  Butler 3', '  Murray 2']));
+  expect(c.querySelector('.sx-trans')).toBeNull();
+});
+it('narrows to a translation in its work, and lifts it when chosen again', async () => {
+  const c = await openNest();
+  await vi.waitFor(() => expect(nestOf(c)).toHaveLength(3));
+  const butler = () => [...c.querySelectorAll<HTMLElement>('.sx-nest .i.sub')].find(i => /Butler/.test(i.textContent ?? ''))!;
+  await fireEvent.click(butler());
+  await vi.waitFor(() => expect(new URLSearchParams(window.location.search).get('t')).toBe('butler'));
+  expect(new URLSearchParams(window.location.search).get('wf')).toBe('iliad');
+  await vi.waitFor(() => expect(text(c.querySelector('.result-count'))).toMatch(/^1 scene\s*3 hits\b/));
+  expect(butler()).toHaveAttribute('aria-pressed', 'true');
+  expect(nestOf(c)).toEqual(['Iliad 2 scenes', '  Butler 3', '  Murray 2']);
+  await fireEvent.click(butler());
+  await vi.waitFor(() => expect(new URLSearchParams(window.location.search).get('t')).toBeNull());
+  expect(new URLSearchParams(window.location.search).get('wf')).toBeNull();
+});
+
+// 16. A translation chosen in no one work (an old link's t=): its row is on
+// in its work, and choosing it lifts the filter (Codex review, 16 Nov).
+it('marks a translation chosen across works, and lifts it when chosen', async () => {
+  const { loadOffsets, loadEngChapters } = await import('../lib/search');
+  vi.mocked(loadOffsets).mockResolvedValue(offsetsOf(10));
+  vi.mocked(loadEngChapters).mockResolvedValue({ english: { '0': [[0, '1-10'], [2, '11-22']] } });
+  const r: SearchResult = { ...base, grkMatch: false, engMatch: true, grkPositions: [],
+    engHits: [{ translation: 'murray', positions: [0, 2] }, { translation: 'butler', positions: [1, 4, 6] }] };
+  const c = await open(book(Array.from({ length: 22 }, (_, i) => line(i + 1, 'α')), 'Virtue one. Virtue two.'), [r], 'e=virtue&t=butler');
+  const butler = () => [...c.querySelectorAll<HTMLElement>('.sx-nest .i.sub')].find(i => /Butler/.test(i.textContent ?? ''))!;
+  await vi.waitFor(() => expect(butler()).toHaveAttribute('aria-pressed', 'true'));
+  await fireEvent.click(butler());
+  await vi.waitFor(() => expect(new URLSearchParams(window.location.search).get('t')).toBeNull());
+  expect(new URLSearchParams(window.location.search).get('wf')).toBeNull();
+});

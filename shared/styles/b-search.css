@@ -961,16 +961,35 @@
   .search-page .inst-body .gw::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
 }
 
-/* Citations only (d17): places alone, a work's name once, then its books. */
-.search-page .cite-group + .cite-group { border-top: 2px solid var(--ink); margin-top: 26px; padding-top: 6px; }
-.search-page .cite-group.cite-more { border-top: 1px solid var(--line); margin-top: 0; padding-top: 0; }
-.search-page .cite-group .book-header { padding: 6px 0 4px; }
-.search-page .cite-group .work-name { display: block; }
-.search-page .cite-group .sx-book { min-height: 28px; border-top: 0; font-size: 15px; color: var(--mid); }
-.search-page .cite-list { display: flex; flex-wrap: wrap; gap: 0 22px; margin: 4px 0 8px; }
-.search-page .cite { display: inline-flex; align-items: baseline; gap: 4px; min-height: 44px; line-height: 44px; font: 500 16px/44px var(--sans); color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; }
-.search-page .cite small { font: 500 14px/1 var(--sans); color: var(--mid); }
-.search-page .cite:hover { color: var(--red-ink); }
+/* The 100 page (John, 16 Nov, after the TLG): each row its reference and the
+   words around its first hit, on one line; a tap opens the row in place as
+   the other page sizes draw it, under a head of its reference, the reader's
+   link, and the rest of the line, which shuts it again. */
+.search-page li.instance.cmp { display: block; padding: 0; }
+.search-page li.instance.cmp-open { display: block; padding-top: 0; }
+.search-page .cmp-row { display: flex; align-items: baseline; gap: 16px; width: 100%; min-height: 44px; padding: 10px 0; border: 0; background: none; text-align: left; color: var(--ink); cursor: pointer; font: inherit; }
+.search-page .cmp-row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.search-page .cmp-ref { flex: none; width: 104px; font: 500 16px/1.4 var(--sans); font-variant-numeric: tabular-nums; color: var(--ink); }
+.search-page .cmp-row:hover .cmp-ref { color: var(--red-ink); }
+.search-page .cmp-sum { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 18px/1.4 var(--read); }
+.search-page .cmp-sum mark { padding: 0; background: var(--hl); color: inherit; }
+.search-page .cmp-x { flex: none; width: 10px; height: 10px; margin-right: 6px; border-right: 2px solid var(--mid); border-bottom: 2px solid var(--mid); transform: translateY(-3px) rotate(45deg); }
+.search-page .cmp-open .cmp-x { transform: translateY(2px) rotate(-135deg); }
+.search-page .cmp-open .cmp-head { align-items: center; padding: 0; cursor: default; }
+.search-page .cmp-head .cmp-ref { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+.search-page .cmp-head .cmp-ref:hover { color: var(--red-ink); }
+.search-page .cmp-head .cmp-ref:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.search-page .cmp-shut { flex: 1 1 auto; display: flex; justify-content: flex-end; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); cursor: pointer; }
+.search-page .cmp-shut:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.search-page .cmp-open .inst-ref { display: none; }
+@media not all and (min-width: 961px) {
+  @media not all and (max-height: 500px) {
+    .search-page .cmp-row { flex-wrap: wrap; gap: 4px 12px; }
+    .search-page .cmp-ref { width: auto; }
+    .search-page .cmp-sum { order: 3; flex-basis: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; }
+    .search-page .cmp-x { margin-left: auto; }
+  }
+}
 
 /* ── The rail, and the narrow screen's sheet (S4b) ──────────────────────── */
 /* The hits and their controls. On a desktop the controls are the rail beside
@@ -1312,6 +1331,16 @@
   .search-page .sx-forms .fx-foot .fx-apply:hover { background: var(--red-ink); color: var(--on-accent); }
   .search-page .sx-forms .fx-foot .fx-apply:disabled { display: none; }
   .search-page .sx-forms .fx-foot .more:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* Phrases (John, 16 Nov): a phrase, its hits, and a box to exclude it under
+     the column's one label; a phrase excluded keeps its row, its words grey. */
+  .search-page .sx-phr .ph-head { display: flex; justify-content: flex-end; padding: 6px 0 2px; border-bottom: 1px solid var(--line); }
+  .search-page .sx-phr .ph-head span { width: 58px; font: 500 14px/1.2 var(--sans); color: var(--mid); text-align: center; }
+  .search-page .sx-phr .fx { gap: 6px; cursor: pointer; }
+  .search-page .sx-phr .fx .ph-t { flex: 1 1 auto; min-width: 0; padding: 8px 0; }
+  .search-page .sx-phr .fx small { flex: none; margin-left: 0; font-variant-numeric: tabular-nums; }
+  .search-page .sx-phr .ph-b { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 58px; min-height: 44px; }
+  .search-page .sx-phr .fx.aside .ph-t { color: var(--mid); }
 
   /* Grammar, with the grammar view: a line per category, its values as chips. */
   .search-page .sx-facets .gx-group { padding: 4px 0; border-bottom: 1px solid var(--line); }
@@ -1798,7 +1827,7 @@
   .search-page :is(.sx-close, .sx-back):focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   /* A filter's own screen fills the window under the site header; its
      list scrolls, and ends where the foot band begins (§5.9). */
-  .search-page .sx-panel.open.sheet:is([data-screen="works"], [data-screen="trans"], [data-screen="forms"], [data-screen="grammar"]) {
+  .search-page .sx-panel.open.sheet:is([data-screen="works"], [data-screen="trans"], [data-screen="phrases"], [data-screen="forms"], [data-screen="grammar"]) {
     top: 52px;
     max-height: none;
   }
@@ -2034,7 +2063,7 @@
 .search-page .d6-opts { display: flex; flex-wrap: wrap; align-items: center; min-width: 0; gap: 0 28px; margin-top: 6px; }
 .search-page .d6-opts > details.opt { margin: 0; }
 .search-page .seg { display: inline-flex; align-items: center; min-width: 0; padding: 0; border: 0; }
-.search-page .seg button { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border: 0; background: none; color: var(--mid); font: 500 16px/1.3 var(--sans); white-space: nowrap; cursor: pointer; }
+.search-page .seg button { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--mid); font: 500 16px/1.3 var(--sans); white-space: nowrap; cursor: pointer; }
 .search-page .seg button:first-child { padding-left: 14px; margin-left: -14px; }
 .search-page .seg button:last-child { padding-right: 0; }
 .search-page .seg button:not(:first-child)::before { content: ''; position: absolute; top: 50%; left: 0; height: 16px; margin-top: -8px; border-left: 1px solid var(--line); }
@@ -2042,7 +2071,7 @@
 .search-page .seg button[aria-checked="true"] > span { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px var(--red-ink); }
 .search-page .seg button:hover > span { color: var(--ink); }
 .search-page .d6-in { display: flex; align-items: flex-start; min-width: 0; gap: 0 12px; }
-.search-page .d6-in > .lbl { display: inline-flex; align-items: center; min-height: 40px; color: var(--mid); font: 500 16px/1.3 var(--sans); }
+.search-page .d6-in > .lbl { display: inline-flex; align-items: center; min-height: 44px; color: var(--mid); font: 500 16px/1.3 var(--sans); }
 .search-page .d6-in .seg button:first-child { padding-left: 12px; margin-left: -12px; }
 .search-page .d6-act { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; margin-top: 12px; }
 .search-page .d6.no-opts .d6-act { margin-top: 20px; }
@@ -2108,7 +2137,7 @@
 .search-page .d6 .lg { display: contents; }
 .search-page .d6 .sq-row { height: auto; min-height: 58px; align-items: baseline; }
 .search-page .d6 textarea.query-input { box-sizing: border-box; width: 100%; min-height: 58px; text-overflow: clip; }
-.search-page .query-clear { flex: none; align-self: center; min-width: 40px; min-height: 40px; padding: 0; border: 0; background: none; color: var(--mid); font: 500 16px/1 var(--sans); cursor: pointer; }
+.search-page .query-clear { flex: none; align-self: center; min-width: 44px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--mid); font: 500 16px/1 var(--sans); cursor: pointer; }
 .search-page .query-clear:focus-visible, .search-page .seg button:focus-visible, .search-page .g-sw:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .search-page .d6 .phone-option { display: none; }
 .search-page .d6-opts-g .form-seg { order: 3; }
@@ -2281,3 +2310,29 @@ body:has(.search-page) { background: var(--page-bg); }
 .search-page .sx-speaker .prox-sel { max-width: 100%; font-size: 16px; }
 .search-page .sx-speaker .prox-selv { overflow: hidden; text-overflow: ellipsis; }
 .search-page .sx-chap .draft-badge { margin-right: 4px; }
+/* A Both search's chapters by language, under the count (John, 16 Nov):
+   the rows the and | and/or | or switch lists are lit, the rest grey. */
+.search-page .sx-split { margin: 12px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.search-page .sx-split .i { display: flex; align-items: center; gap: 12px; min-height: 44px; border-bottom: 1px solid var(--line); font: 600 16px/1.25 var(--sans); color: var(--ink); }
+.search-page .sx-split .i:last-child { border-bottom: 0; }
+.search-page .sx-split .i-t { flex: 1 1 auto; min-width: 0; }
+.search-page .sx-split .i small { flex: none; font: 600 16px/1 var(--sans); color: inherit; font-variant-numeric: tabular-nums; }
+.search-page .sx-split .i.off { font-weight: 500; color: var(--mid); }
+@media not all and (min-width: 961px) {
+  .search-page .sx-split { margin-top: 0; border-top: 0; }
+}
+
+/* Works with their translations under them (John, 16 Nov): a work counts
+   its chapters ("84 chap."), a translation its hits there, set in. */
+.search-page .sx-nest .i small .unit { font-weight: 500; color: var(--mid); }
+.search-page .sx-nest .i.sub { padding-left: 20px; font-weight: 500; color: var(--mid); }
+.search-page .sx-nest .i.sub small { color: var(--mid); }
+.search-page .sx-nest .i.on small .unit,
+.search-page .sx-nest .i.sub.on,
+.search-page .sx-nest .i.sub.on small { color: var(--bg); }
+.search-page .sx-nest .i.sub.on { padding-left: 32px; }
+.search-page .sx-panel.open .sx-nest .i.sub { width: calc(100% - 36px); margin-left: 36px; padding-left: 0; }
+.search-page .sx-panel.open .sx-nest .i.sub.on,
+.search-page .sx-panel.open .sx-nest .i.sub.on small,
+.search-page .sx-panel.open .sx-nest .i.on small .unit { color: var(--mid); }
+.search-page .sx-panel.open .sx-nest .i.sub { font-weight: 500; color: var(--mid); }

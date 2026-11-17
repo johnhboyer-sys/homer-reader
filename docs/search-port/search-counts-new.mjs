@@ -51,6 +51,12 @@ const queries = [
   ['Both, and: θάλασσα + sea', { g: 'θάλασσα', e: 'sea', op: 'and' }],
   ['Both, and: θάλασσα + sea (Murray, exact form)', { g: 'θάλασσα', e: 'sea', op: 'and', t: 'murray', ef: '0' }],
   ['Both, or: θάλασσα + sea', { g: 'θάλασσα', e: 'sea', op: 'or' }],
+  // The switch reads and | and/or | or (aristotle-reader 47444b1f5c): a link
+  // from before it with no op still means "and"; a search typed into a blank
+  // page with the switch untouched is "and/or"; op=xor is one language, not both.
+  ['Both, a link with no op (and): θάλασσα + sea', { g: 'θάλασσα', e: 'sea' }],
+  ['Both, typed into a blank page (and/or): θάλασσα + sea', { typed: { g: 'θάλασσα', e: 'sea' } }],
+  ['Both, xor (or: one language, not both): θάλασσα + sea', { g: 'θάλασσα', e: 'sea', op: 'xor' }],
   ['Work and book: Ὀδυσσεύς, Od. 9', { g: 'Ὀδυσσεύς', w: 'odyssey', b: '9' }],
   ['Speaker: θεός spoken by Achilles', { g: 'θεός', spk: 'achilles' }],
   ['Speeches only: θεός', { g: 'θεός', so: '1' }],
@@ -71,13 +77,22 @@ try {
   for (const [name, params] of queries) {
     try {
       const qs = new URLSearchParams();
-      for (const [k, v] of Object.entries(params)) for (const x of [v].flat()) qs.append(k, x);
-      const url = new URL(`/search/?${qs}`, flag('--base')).href;
+      if (!params.typed) for (const [k, v] of Object.entries(params)) for (const x of [v].flat()) qs.append(k, x);
+      let url = new URL(`/search/?${qs}`, flag('--base')).href;
       await page.goto(url);
+      if (params.typed) {
+        await page.fill('#grk-input', params.typed.g);
+        await page.fill('#eng-input', params.typed.e);
+        await page.click('button.search-btn');
+        await page.waitForURL(u => u.search.includes('e='));
+        url = page.url();
+      }
       await page.waitForFunction(() => {
         const err = document.querySelector('.search-error');
         if (err?.textContent?.trim()) throw new Error(err.textContent.trim());
-        return /scenes? ·|scenes?$|No scenes found/.test(document.querySelector('[role="status"]')?.textContent?.trim() ?? '');
+        // Pages are rows, counted as the books load: "page 1 of …" until they have.
+        const status = document.querySelector('[role="status"]')?.textContent?.trim() ?? '';
+        return /scenes? ·|scenes?$|No scenes found/.test(status) && !/of …/.test(status);
       }, null, { timeout: 120000 });
       await page.waitForLoadState('networkidle', { timeout: 120000 });
       // Settled: the same bar on four reads 500 ms apart.

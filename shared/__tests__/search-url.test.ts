@@ -3,8 +3,7 @@ import { DEFAULT_LANG_OP, LANG_OP_WHEN_URL_HAS_NO_OP, decodeSearchUrl, emptyUrlS
 import { WORKS } from '../lib/works';
 
 const ALL = WORKS.map(w => w.id);
-// `base` reads as an address with no `op` does; the fresh-search default join is tested apart.
-const base = (over: Partial<UrlSearch> = {}): UrlSearch => ({ ...emptyUrlSearch(ALL), langOp: LANG_OP_WHEN_URL_HAS_NO_OP, ...over });
+const base = (over: Partial<UrlSearch> = {}): UrlSearch => ({ ...emptyUrlSearch(ALL), ...over });
 const roundTrip = (s: UrlSearch) => decodeSearchUrl(encodeSearchUrl(s, ALL), ALL);
 
 describe('search URL', () => {
@@ -92,7 +91,7 @@ describe('search URL', () => {
   });
 
   it('drops unknown works and bad values for their defaults', () => {
-    const s = decodeSearchUrl('?g=a&gm=nonsense&em=&m=headword&op=xor&w=iliad,Nope&cw=3', ALL);
+    const s = decodeSearchUrl('?g=a&gm=nonsense&em=&m=headword&op=nand&w=iliad,Nope&cw=3', ALL);
     expect(s).toEqual(base({ grk: 'a', works: ['iliad'] }));
   });
 
@@ -100,6 +99,29 @@ describe('search URL', () => {
     const s = base({ lemmas: ['logos', 'areth'], eng: 'reason', langOp: 'or' });
     expect(roundTrip(s)).toEqual(s);
     expect(encodeSearchUrl(s, ALL)).toBe('l=logos,areth&e=reason&op=or');
+  });
+
+  it('opens on and/or, and reads an old Greek and English link with no op as "and"', () => {
+    expect(emptyUrlSearch(ALL).langOp).toBe('or');
+    expect(decodeSearchUrl('', ALL).langOp).toBe('or');
+    expect(decodeSearchUrl('?e=virtue', ALL).langOp).toBe('or');
+    expect(decodeSearchUrl('?g=a&e=virtue', ALL).langOp).toBe('and');
+    expect(decodeSearchUrl('?l=areth&e=virtue', ALL).langOp).toBe('and');
+  });
+
+  it('names the op in every Greek and English link it writes', () => {
+    for (const op of ['and', 'or', 'xor'] as const) {
+      const s = base({ grk: 'a', eng: 'virtue', langOp: op });
+      expect(encodeSearchUrl(s, ALL)).toContain(`op=${op}`);
+      expect(roundTrip(s)).toEqual(s);
+    }
+  });
+
+  it('round-trips the exclusive or, and keeps op=or the inclusive one', () => {
+    const s = base({ grk: 'ἀρετή', eng: 'virtue', langOp: 'xor' });
+    expect(roundTrip(s)).toEqual(s);
+    expect(encodeSearchUrl(s, ALL)).toContain('op=xor');
+    expect(decodeSearchUrl('?g=a&e=b&op=or', ALL).langOp).toBe('or');
   });
 
   it('round-trips a proximity search, and it supersedes the boxes', () => {

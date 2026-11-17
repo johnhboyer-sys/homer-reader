@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Offsets, SearchResult } from '../lib/search';
-import { allWordsJoin, chapterJoin, chapterPlaces, measure } from '../lib/chapter-pages';
+import { allWordsJoin, chapterJoin, chapterOnly, chapterPlaces, measure } from '../lib/chapter-pages';
 
 // One book of two 100-token sections; chapter 2 begins at token 105, five
 // words into 164b. The main translation's chapter 2 begins at word 3 of 164b.
@@ -107,8 +107,47 @@ describe('allWordsJoin: "All words" means every term in one scene', () => {
     expect(out).toMatchObject({ grkMatch: true, grkPositions: [10, 20], engMatch: false, engHits: [] });
   });
 
+  // Codex review of e03973358: "bed-but go" took "but" (scene 2) for the
+  // first term, with "go" in scene 2, though "bed-but" begins in scene 1. A
+  // term of several words stands where its first word does.
+  it('places a term of several words by its first word', () => {
+    const across = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [19, 20, 21], matches: [19, 21], units: [[19, 20], [21]] }] });
+    expect(allWordsJoin([across], scenes)).toEqual([]);
+    const within = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]] }] });
+    const [out] = allWordsJoin([within], scenes);
+    expect(out.engHits).toEqual([{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]] }]);
+  });
+
   it('leaves a search with no term lists (any word, a phrase, one word) as it was', () => {
     const r = bookRes({ grkMatch: true, grkPositions: [10, 150] });
     expect(allWordsJoin([r], scenes)).toEqual([r]);
+  });
+});
+
+describe('chapterOnly: one language and not both (the exclusive or)', () => {
+  it('keeps the chapters with one language and drops those with both', () => {
+    // 164a: Greek alone in chapter 1. 164b: English word 1 (chapter 1, before
+    // word 3), and Greek 10 with English 5 in chapter 2.
+    const results = [res('164a', [4]), res('164b', [10], [1, 5])];
+    const out = chapterOnly(results, places);
+    // Chapter 1 has Greek (164a) and English (164b word 1): both, so it goes.
+    // Chapter 2 has both: it goes too.
+    expect(out).toEqual([]);
+  });
+
+  it('keeps a Greek-only chapter and an English-only one, each with its own hits', () => {
+    // Chapter 1: Greek at 164a 4 only. Chapter 2: English at 164b word 5 only.
+    const results = [res('164a', [4]), res('164b', [], [5])];
+    const out = chapterOnly(results, places);
+    expect(out.map(r => r.meta.column)).toEqual(['164a', '164b']);
+    expect(measure(out, places)).toMatchObject({ chapters: 2, both: 0, grkOnly: 1, engOnly: 1, grkHits: 1, engHits: 1 });
+  });
+
+  it('cuts a section across a chapter start to the half with one language', () => {
+    // 164b: Greek 2 (chapter 1) and Greek 10 (chapter 2); English word 5
+    // (chapter 2). Chapter 1 is Greek alone; chapter 2 has both.
+    const [out] = chapterOnly([res('164b', [2, 10], [5])], places);
+    expect(out.grkPositions).toEqual([2]);
+    expect(out.engMatch).toBe(false);
   });
 });

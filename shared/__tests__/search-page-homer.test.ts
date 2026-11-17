@@ -134,7 +134,9 @@ describe('grammar, which needs one book', () => {
 });
 
 describe('joining the Greek and the English', () => {
-  it('offers "and/or" by default once both boxes hold a query, with "and" on offer', async () => {
+  // The switch reads and | and/or | or (John's ruling in aristotle-reader,
+  // 16 Nov); "or" is one language, not both, in a scene.
+  it('offers "and/or" by default once both boxes hold a query, with "and" and "or" on offer', async () => {
     const page = open('');
     const grk = page.container.querySelector('#grk-input') as HTMLTextAreaElement;
     const eng = page.container.querySelector('#eng-input') as HTMLTextAreaElement;
@@ -142,7 +144,7 @@ describe('joining the Greek and the English', () => {
     eng.value = 'sea'; await fireEvent.input(eng);
     expect(page.container.querySelector('.join summary')?.textContent).toMatch(/^Hits match\s*and\/or/);
     const radios = [...page.container.querySelectorAll<HTMLInputElement>('.join input[name="op"]')];
-    expect(radios.map(r => [r.value, r.checked])).toEqual([['or', true], ['and', false]]);
+    expect(radios.map(r => [r.value, r.checked])).toEqual([['and', false], ['or', true], ['xor', false]]);
   });
 
   it('a link that says op=or reads as and/or and counts either language', async () => {
@@ -192,6 +194,65 @@ describe('"All words" means every word in one scene', () => {
     const want = await scenesHolding('eng', ['swift', 'ships'], 'murray');
     console.info(`swift ships (Murray), all words: ${shown} scenes (by scene: ${want})`);
     expect(shown).toBe(want);
+  });
+});
+
+// Codex review of e03973358: "bed-but" begins in Il. 1 scene 8-32 and runs
+// into 33-42, where "go" is; the page counted 33-42 for both terms.
+describe('"All words" places a term of several words by its first word', () => {
+  it('does not count "bed-but go" in the scene "but" runs into', async () => {
+    open('e=bed-but%20go&ef=0&t=murray&w=iliad&b=1');
+    expect(await counted()).toMatch(/^No scenes found/);
+    expect([...document.querySelectorAll('.sx-chap-n')].map(h => h.textContent)).not.toContain('Lines 33–42');
+  });
+});
+
+// The English phrase list (aristotle-reader PR #202) on Homer's four
+// translations: each run holds the word searched, which it would not if the
+// words read for the list were out of step with the index; and setting the
+// top run aside takes its hits from the count.
+describe('the phrase list, in each translation', () => {
+  const rows = () => [...document.querySelectorAll('.sx-phr label.fx')].map(l => ({
+    phrase: l.querySelector('.ph-t')?.textContent?.trim() ?? '',
+    n: Number(l.querySelector('small')?.textContent ?? 0),
+    box: l.querySelector('input') as HTMLInputElement,
+  }));
+  const hits = () => Number(status().match(/· (\d+) hits?/)?.[1] ?? NaN);
+  it.each(['murray', 'butler', 'pope', 'kosmos'])('%s: "ships" in the Iliad', async t => {
+    open(`e=ships&ef=0&t=${t}&w=iliad`);
+    await counted();
+    const listed = await waitFor(() => { const r = rows(); expect(r.length).toBeGreaterThan(0); return r; }, { timeout: 60000 });
+    for (const r of listed) expect(r.phrase.split(' '), `${t}: ${r.phrase}`).toContain('ships');
+    const before = hits();
+    await fireEvent.click(listed[0].box);
+    await waitFor(() => expect(hits()).toBe(before - listed[0].n), { timeout: 30000 });
+    expect(new URLSearchParams(window.location.search).get('xp')).toBe(listed[0].phrase);
+  }, 120000);
+});
+
+// Pages are rows (aristotle-reader PR #201): exactly N a page, and the 100
+// page lists each row as its book.line and the words around its first hit,
+// opened in place to the passage.
+describe('pages by rows, and the 100 page', () => {
+  it('draws exactly 20 rows on a full page of θάλασσα', async () => {
+    open('g=θάλασσα&ps=20');
+    await counted();
+    await waitFor(() => expect(document.querySelectorAll('li.instance')).toHaveLength(20));
+  });
+
+  it('lists θάλασσα on the 100 page as citations with a summary, each opening in place', async () => {
+    open('g=θάλασσα&ps=100');
+    expect(await counted()).toMatch(/^94 scenes · 119 hits/);
+    // The page count shows once every book is laid out.
+    await waitFor(() => expect(status()).toMatch(/^94 scenes · 119 hits · page 1 of 2$/), { timeout: 30000 });
+    const rows = await waitFor(() => { const r = [...document.querySelectorAll('button.cmp-row')]; expect(r).toHaveLength(100); return r; });
+    for (const row of rows) {
+      expect(row.querySelector('.cmp-ref')?.textContent).toMatch(/^\d+\.\d+/);
+      expect(row.querySelector('.cmp-sum mark')?.textContent).toMatch(/θαλάσσ|θάλασσ/);
+    }
+    await fireEvent.click(rows[0]);
+    await waitFor(() => expect(document.querySelector('.cmp-head a.cmp-ref')?.getAttribute('href')).toMatch(/loc=/));
+    expect(document.querySelector('li.cmp-open .inst-snippet.greek mark')).not.toBeNull();
   });
 });
 

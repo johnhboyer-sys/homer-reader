@@ -100,7 +100,14 @@ it('describes the all-forms search for a picked lemma despite Form being as type
   await vi.waitFor(() => expect(search).toHaveBeenCalled());
   expect(vi.mocked(search).mock.calls[0][6]).toBe('headword');
   expect(screen.getByRole('button', { name: 'Lemma' })).toHaveAttribute('aria-pressed', 'true');
-  expect(container.querySelector('.sopt-sum')).toBeNull();
+  // Codex review of e03973358: the retired .sopt-sum proves nothing. What
+  // the page shows now: the dictionary word in the box, and no Form choice
+  // claiming "exact form" for a search of every form.
+  expect((container.querySelector('#grk-input') as HTMLTextAreaElement).value).toBe('ἀρετή');
+  const said = [...container.querySelectorAll('.d6 summary, .d6 [role="radiogroup"]')].map(e => e.textContent ?? '');
+  expect(said.some(t => /Greek match/.test(t))).toBe(true);
+  expect(said.filter(t => /exact form/.test(t))).toEqual([]);
+  expect(container.querySelector('.d6 [aria-label="Greek form"]')).toBeNull();
 });
 
 it.each(['Greek match', 'Greek form', 'English match', 'English form', 'Hits match'])(

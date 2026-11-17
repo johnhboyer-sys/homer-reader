@@ -42,7 +42,10 @@ const bookOf = (...greek: GreekLine[]): BookData => ({ book: 1, segments: [{
   english: { text: 'One two three.', notes: [], markers: [] },
 }] });
 
-it('keeps overlapping passages in their chapters and assigned pages', async () => {
+// Pages are rows now (John, 16 Nov): the two chapters' rows, one page.
+// Homer names a scene by its lines; this fixture's chapters "1" and "2"
+// read as scenes starting at lines 1 and 2.
+it('keeps overlapping passages in their chapters', async () => {
   const { loadOffsets } = await import('../lib/search');
   vi.mocked(loadOffsets).mockResolvedValue({ token_count: 22, seg_base_offset: [0],
     segments: [{ book: 1, column: '70a', line_runs: Array.from({ length: 22 }, (_, i) => [i + 1, 1]) }],
@@ -52,13 +55,10 @@ it('keeps overlapping passages in their chapters and assigned pages', async () =
     ] });
   const c = await open(bookOf(...Array.from({ length: 22 }, (_, i) => line(i + 1, 'α'))),
     [hit('70a', Array.from({ length: 22 }, (_, i) => i))], '&ps=20');
-  expect(c.querySelectorAll('.inst-snippet.greek mark')).toHaveLength(20);
-  // Homer names a scene by its lines; this fixture's chapters "1" and "2"
-  // read as scenes starting at lines 1 and 2.
-  expect([...c.querySelectorAll('.sx-chap')].map(text)).toEqual(['Line 1']);
-  await fireEvent.click(within(c.querySelector('.pager-bottom')!).getByRole('button', { name: 'Next page' }));
-  await vi.waitFor(() => expect(c.querySelectorAll('.inst-snippet.greek mark')).toHaveLength(2));
-  expect([...c.querySelectorAll('.sx-chap')].map(text)).toEqual(['Line 2']);
+  await vi.waitFor(() => expect([...c.querySelectorAll('.run-heading')].map(h =>
+    [text(h.querySelector('.sx-chap')), h.nextElementSibling!.querySelectorAll('.inst-snippet.greek mark').length]))
+    .toEqual([['Line 1', 20], ['Line 2', 2]]));
+  expect(c.querySelector('.pager-bottom')).toBeNull();
 });
 
 it.each([false, true])('keeps proximity windows separate with aligned Greek=%s', async aligned => {
@@ -96,4 +96,20 @@ it('gives pager arrows 44px targets and keeps the glyph and status in place', ()
   // Each button grows outwards by 12px; its inner edge stays beside the status.
   expect(css).toMatch(/\.pager-btn:first-child\s*\{[^}]*margin-left:\s*-12px/);
   expect(css).toMatch(/\.pager-next\s*\{[^}]*margin-right:\s*-12px/);
+});
+
+// Codex review of e03973358 (Homer): at 961px and over, the scope buttons and
+// the In label were 40px tall and the Clear button 40px square. No tap target
+// under 44px, at any width.
+it('gives the scope buttons, the In label and Clear 44px targets at every width', () => {
+  const css = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../styles/b-search.css'), 'utf8');
+  const rules = (sel: string) => [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(m => m[1].split(',').some(s => s.trim() === sel)).map(m => m[2]);
+  for (const sel of ['.search-page .seg button', '.search-page .d6-in > .lbl', '.search-page .query-clear']) {
+    const found = rules(sel);
+    expect(found.length, sel).toBeGreaterThan(0);
+    for (const body of found) expect(body, sel).not.toMatch(/min-(height|width):\s*(?:[0-3]?\d|4[0-3])px/);
+  }
+  expect(rules('.search-page .seg button').join()).toMatch(/min-height:\s*44px/);
+  expect(rules('.search-page .query-clear').join()).toMatch(/min-width:\s*44px; min-height:\s*44px/);
 });

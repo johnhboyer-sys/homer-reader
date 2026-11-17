@@ -29,14 +29,21 @@ function rowsOnPage(): string[] {
   return out;
 }
 
-export async function walk(query: string) {
+// Pages are rows (aristotle-reader PR #201, John, 16 Nov: "n results = n rows
+// per page"): every page but the last draws exactly `perPage` rows, and a
+// scene whose rows run past a page's end heads its part on the next page too,
+// and on no other.
+export async function walk(query: string, perPage = 40) {
   window.history.replaceState(null, '', `/search/?${query}`);
   render(Search);
   await waitFor(() => expect(status()).toMatch(/^\d+ scenes?/), { timeout: 60000 });
+  // The page count shows once every book is laid out ("page 1 of …" until then).
+  await waitFor(() => expect(status()).not.toMatch(/…/), { timeout: 120000 });
   const bar = status();
   const scenes = Number(bar.match(/^(\d+) scenes?/)![1]);
   const pages = Number(bar.match(/page \d+ of (\d+)/)?.[1] ?? 1);
-  const seen = new Map<string, number>();   // scene -> the page it was drawn on
+  const seen = new Map<string, number[]>();   // scene -> the pages it was drawn on
+  let rowsDrawn = 0;
   for (let p = 1; p <= pages; p++) {
     if (p > 1) {
       await fireEvent.click(document.querySelector<HTMLButtonElement>('button.pager-next')!);
@@ -47,11 +54,16 @@ export async function walk(query: string) {
       expect(r.length, `${query}: page ${p} of ${pages} drew no rows`).toBeGreaterThan(0);
       return r;
     }, { timeout: 30000 });
-    for (const key of new Set(rows)) {
-      expect(seen.get(key), `${query}: ${key} on pages ${seen.get(key)} and ${p}`).toBeUndefined();
-      seen.set(key, p);
-    }
+    if (p < pages) expect(rows.length, `${query}: page ${p} of ${pages}`).toBe(perPage);
+    else expect(rows.length, `${query}: last page`).toBeLessThanOrEqual(perPage);
+    rowsDrawn += rows.length;
+    const keys = [...new Set(rows)];
+    keys.forEach((key, j) => {
+      const before = seen.get(key);
+      // Only the page's first scene may have begun on the page before.
+      if (before) expect([j, before.at(-1)], `${query}: ${key} on pages ${before} and ${p}`).toEqual([0, p - 1]);
+      seen.set(key, [...(before ?? []), p]);
+    });
   }
-  return { bar, scenes, pages, drawn: seen.size };
+  return { bar, scenes, pages, drawn: seen.size, rowsDrawn };
 }
-

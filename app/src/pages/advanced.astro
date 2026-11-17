@@ -271,7 +271,9 @@ const jsonLd = {
         With both boxes filled, <em>Hits match</em> says how they join.
         <em>and/or</em>, the default, finds either: the Greek, the English, or
         both. <em>and</em> keeps only the scenes that hold both, anywhere in the
-        scene. Try <a href={`${base}/search/?g=θάλασσα&e=sea&op=and`}><span
+        scene; <em>or</em> keeps the scenes that hold one and not the other.
+        Under the count, the scenes are split three ways: Greek and English,
+        Greek only, English only. Try <a href={`${base}/search/?g=θάλασσα&e=sea&op=and`}><span
         lang="grc">θάλασσα</span> and <em>sea</em></a>.
       </p>
     </section>
@@ -281,10 +283,15 @@ const jsonLd = {
       <p>
         <em>Filter</em> narrows the hits in hand: to one poem, one
         translation, the speeches, some of the Greek forms found, or some
-        grammatical readings. <em>View</em> sets how they
+        grammatical readings. Where English was searched, each poem is listed
+        with its scenes and each translation under it with its hits, and
+        <em>Phrases</em> lists the three-word runs around the English hits,
+        five or more, each with a box to exclude it. <em>View</em> sets how they
         are shown: <em>Group by</em> work, form, or grammar; <em>Sort</em> in
         line order, by form, or commonest form first; <em>Context</em> of one
-        line, three lines, or citations only; and hits <em>Per page</em>.
+        line or three; and rows <em>Per page</em>, 20, 40, or 100. At 100 each
+        row is its citation and the words around its first hit, and opens in
+        place.
       </p>
       <p>
         <em>In</em>, beside the boxes, chooses both poems or one, and then a
@@ -297,7 +304,8 @@ const jsonLd = {
       <p>
         The address of a results page holds the whole search, so it can be
         bookmarked, shared, or saved under <em>Saved searches</em>. Only what
-        differs from the defaults is written.
+        differs from the defaults is written, and the join of a Greek and
+        English search always.
       </p>
       <dl class="guide-params">
         <dt><code>g</code>, <code>e</code></dt><dd>the Greek and the English query</dd>
@@ -306,17 +314,18 @@ const jsonLd = {
         <dt><code>acc=1</code></dt><dd>accents exactly</dd>
         <dt><code>ef=0</code></dt><dd>English only as typed</dd>
         <dt><code>l</code></dt><dd>the dictionary words picked under <em>Lemma</em></dd>
-        <dt><code>op</code></dt><dd><code>or</code> (and/or) or <code>and</code></dd>
+        <dt><code>op</code></dt><dd><code>or</code> (and/or), <code>and</code>, or <code>xor</code> (or: one, not both); a Greek and English link with none reads as <code>and</code></dd>
         <dt><code>w</code>, <code>b</code></dt><dd>one poem (<code>iliad</code>, <code>odyssey</code>) and a book in it</dd>
         <dt><code>c</code>, <code>cw</code>, <code>cu</code>, <code>co</code>, <code>cx</code></dt><dd>a proximity search: its terms, the distance, <code>cu=line</code> for the same line, <code>co=1</code> in this order, <code>cx=0</code> within a scene</dd>
         <dt><code>spo=1</code>, <code>spk</code></dt><dd>speeches only; one speaker's words</dd>
         <dt><code>t</code>, <code>wf</code></dt><dd>the hits narrowed to one translation, or one poem</dd>
-        <dt><code>xf</code>, <code>gf</code></dt><dd>forms set aside; readings ticked</dd>
-        <dt><code>v</code>, <code>so</code>, <code>ctx</code>, <code>ps</code></dt><dd>group by (<code>form</code>, <code>grammar</code>), sort (<code>form</code>, <code>freq</code>), context (<code>1</code>, <code>c</code>), per page (<code>20</code>, <code>100</code>)</dd>
+        <dt><code>xf</code>, <code>xp</code>, <code>gf</code></dt><dd>forms set aside; English phrases excluded; readings ticked</dd>
+        <dt><code>v</code>, <code>so</code>, <code>ctx</code>, <code>ps</code></dt><dd>group by (<code>form</code>, <code>grammar</code>), sort (<code>form</code>, <code>freq</code>), context (<code>1</code>), rows per page (<code>20</code>, <code>100</code>)</dd>
       </dl>
       <p class="guide-note">
         Links from the old search page still work: <code>so=1</code> reads as
-        <code>spo=1</code>, and <code>gr</code> as a grammar term.
+        <code>spo=1</code>, <code>gr</code> as a grammar term, and citations
+        only (<code>ctx=c</code>, <code>ps=c</code>) as the 100 page.
       </p>
     </section>
 

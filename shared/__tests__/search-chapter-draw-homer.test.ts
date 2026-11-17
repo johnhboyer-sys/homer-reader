@@ -3,7 +3,9 @@
 // queries are in search-chapter-draw-homer-heavy, in a worker of their own:
 // together these walk most of the corpus), walk every page, and check that each
 // draws at least one row and that the scenes drawn over all the pages are the
-// bar's count, each on one page only. (Aristotle's counting PR fixed a page
+// bar's count. Pages are rows since aristotle-reader PR #201: every page but
+// the last draws exactly 40, and a scene may run on to the next page (and no
+// further; see walk-pages.ts). (Aristotle's counting PR fixed a page
 // the pager counted but which drew no rows: shared/__tests__/
 // search-chapter-draw.test.ts at aristotle-reader 7ddd67b7ef.) Without the
 // data every test skips, loudly.

@@ -21,7 +21,11 @@ import { AUTHENTIC_IDS, HAS_SPEAKERS, getWork } from './works';
 //            2026), so an old cs=1 link opens with case ignored; never written
 //   xf       Greek forms set aside in the results' form panel: folded keys,
 //            comma-separated (default: none)
-//   op       or (default and: both queries)
+//   xp       English phrases set aside in the results' phrase list, comma-
+//            separated (default: none)
+//   op       how Greek and English join, by scene: and | or ("and/or", the
+//            default) | xor ("or": one language, not both). Written on every
+//            search with both; a link with both and no op reads as and
 //   w        works: absent = all; "auth" = the authentic works (works.ts
 //            authenticity unset or genuine); "EN,Cat" = these; "-Oec,MM" =
 //            all but these. Every older spelling still reads as before.
@@ -48,7 +52,7 @@ import { AUTHENTIC_IDS, HAS_SPEAKERS, getWork } from './works';
 //   ctx      how much text a hit shows: 1 (a line) | s (its whole section)
 //            (default 3 lines). Not cx, which is the proximity chapter switch
 //   so       the order of a results page: work | form | freq (default page)
-//   ps       hits per results page: 20 | 100 | c, citations only (default 40)
+//   ps       rows per results page: 20 | 100 (default 40); an old ps=c or ctx=c is 100
 //
 // Homer's own (not in the sister readers):
 //   b        the book searched, 1-24; read and written only when one poem is
@@ -113,6 +117,7 @@ export interface UrlSearch {
   workFilter: string | null; // the one work the hits are narrowed to
   lemmas: string[];        // the single-lemma search
   xforms: string[];        // forms set aside in the form panel, as folded keys
+  xphrases: string[];      // English phrases set aside in the phrase list
   combo: UrlCombo | null;  // a proximity search; it supersedes the rest
   speaker: SpeakerFilter | null; // whose words; null = anyone's
   view: ResultView;        // how the hits are grouped
@@ -130,17 +135,15 @@ export type SpeechFilter = { kind: 'speeches' } | { kind: 'speaker'; id: string 
 // John, 16 Nov 2026: Greek and English are joined by the inclusive or ("and/or")
 // on a fresh search; "and" stays on offer.
 export const DEFAULT_LANG_OP: LangOp = 'or';
-// What an address with NO `op` means. Held apart from the default above so old
-// links keep their reading until aristotle-reader settles it: 'and' is what
-// they meant when "and" was the default. Because of this, the encoder writes
-// `op` whenever the join differs from this value, and a new default search
-// carries `op=or` in its address.
+// What a Greek and English address with NO `op` means: 'and', what such a link
+// meant when "and" was the default (aristotle-reader's answer, 16 Nov). Every
+// address written since names its op.
 export const LANG_OP_WHEN_URL_HAS_NO_OP: LangOp = 'and';
 
 export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
   grk: '', eng: '', grkMode: 'all', engMode: 'all', matchMode: 'lemma',
   accent: false, punctuation: false, caseExact: false, langOp: DEFAULT_LANG_OP, engForms: true, works: [...allWorks], trans: null, workFilter: null,
-  lemmas: [], xforms: [], combo: null, speaker: null, view: 'page', facets: {},
+  lemmas: [], xforms: [], xphrases: [], combo: null, speaker: null, view: 'page', facets: {},
   context: '3', sort: 'page', pageSize: '40', book: null, speech: null,
 });
 
@@ -281,8 +284,9 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
       put('e', eng);
       if (s.engMode !== 'all') put('em', s.engMode);
       if (!s.engForms) put('ef', '0');
-      if ((s.lemmas.length || grk) && s.langOp !== LANG_OP_WHEN_URL_HAS_NO_OP) put('op', s.langOp);
+      if (s.lemmas.length || grk) put('op', s.langOp);
       if (s.trans) put('t', s.trans);
+      if (s.xphrases.length) put('xp', s.xphrases.join(','));
     }
   }
   if (combo && s.trans) put('t', s.trans);
@@ -336,14 +340,18 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   s.accent = p.get('acc') === '1';
   s.punctuation = p.get('pu') === '1';
   s.caseExact = false;   // cs is ignored: case never matters
-  const op = p.get('op');
-  s.langOp = op === 'or' || op === 'and' ? op : LANG_OP_WHEN_URL_HAS_NO_OP;
   s.engForms = p.get('ef') !== '0';
   s.trans = p.get('t') || null;
   const wf = p.get('wf');
   s.workFilter = wf && allWorks.includes(wf) ? wf : null;
   s.lemmas = list(p.get('l'));
+  // A search opens on "and/or" (John, 16 Nov). A link from before that, a
+  // Greek and English search with no op, meant "and" and still does; every
+  // link written since names its op. op=or stays the inclusive or.
+  const op = p.get('op');
+  s.langOp = op === 'and' || op === 'or' || op === 'xor' ? op : s.eng && (s.grk || s.lemmas.length) ? LANG_OP_WHEN_URL_HAS_NO_OP : DEFAULT_LANG_OP;
   s.xforms = list(p.get('xf'));
+  s.xphrases = s.eng ? list(p.get('xp')).map(x => x.toLowerCase().replace(/\s+/g, ' ')) : [];
 
   const decoded = p.getAll('c').map(decodeSlot);
   const slots = decodeSlots(decoded).slice(0, COMBO_TERMS_MAX);
@@ -389,10 +397,10 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
   s.context = pick(p.get('ctx'), RESULT_CONTEXTS, '3');
   s.sort = pick(p.get('so'), RESULT_SORTS, 'page');
   s.pageSize = pick(p.get('ps'), PAGE_SIZES, '40');
-  // Old citations URLs used Per page (ps=c, 400 a page). Citations only is now
-  // a Context choice and Per page is 20, 40, or 100 (John, 15 Nov), so such a
-  // link opens as citations at 40 a page.
-  if (p.get('ps') === 'c') s.context = 'c';
+  // Citations only (ctx=c, and before it ps=c) gave way to the 100 page,
+  // each row its reference and the words around its first hit (John, 16 Nov:
+  // "Yes, replace it"), so such a link opens there.
+  if (p.get('ctx') === 'c' || p.get('ps') === 'c') s.pageSize = '100';
   for (const pair of list(p.get('gf'))) {
     const [k, v, extra] = pair.split('.');
     // A name every object has ("constructor", "__proto__") is not a category,
