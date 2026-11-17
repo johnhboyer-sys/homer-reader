@@ -379,6 +379,28 @@ def test_gate_fails_when_a_scene_starts_inside_its_first_line(tmp_path):
     assert any("5-10" in p and "first word" in p for p in _gate(work))
 
 
+def test_gate_passes_a_scene_whose_first_line_has_no_tokens(tmp_path):
+    # Codex review of e03973358: line 5 holds no Greek token, so the scene
+    # 5-10 starts where line 5 would; the lookup skipped line 5 and reported
+    # the bound as starting at line 6.
+    work = _gated_work(tmp_path)
+    offsets = _load(work, "offsets.json")
+    offsets["segments"][0]["line_runs"][4] = [5, 0]
+    offsets["token_count"] = 27
+    (work / "search" / "offsets.json").write_text(json.dumps(offsets))
+    assert not any("offsets.json" in p for p in _gate(work))
+
+
+def test_gate_still_fails_a_bound_past_an_empty_first_line(tmp_path):
+    work = _gated_work(tmp_path)
+    offsets = _load(work, "offsets.json")
+    offsets["segments"][0]["line_runs"][4] = [5, 0]
+    offsets["token_count"] = 27
+    offsets["chapter_bounds"][1]["start"] = 13
+    (work / "search" / "offsets.json").write_text(json.dumps(offsets))
+    assert any("5-10" in p for p in _gate(work))
+
+
 def test_gate_fails_when_a_book_has_no_scene_bounds(tmp_path):
     work = _gated_work(tmp_path)
     offsets = _load(work, "offsets.json")

@@ -75,9 +75,14 @@ describe('search', () => {
     expect(grk.grkTerms).toEqual([[0], [1]]);
     const [eng] = (await search('', 'virtue habit', 'all', 'all', 'and', ['TAllUnits'])).results;
     expect(eng.engHits?.[0].units).toEqual([[0], [3]]);
-    // One term, or any word, or a phrase: nothing to join.
-    expect((await search('logos', 'virtue', 'all', 'all', 'or', ['TAllOne'])).results.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
-    expect((await search('logos areth', 'virtue habit', 'any', 'any', 'or', ['TAnyNone'])).results.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
+    // One term, or any word, or a phrase: nothing to join. Each finds
+    // something, or every() would pass on nothing (Codex review of e03973358).
+    const one = (await search('logos', 'virtue', 'all', 'all', 'or', ['TAllOne'])).results;
+    expect(one.length).toBeGreaterThan(0);
+    expect(one.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
+    const any = (await search('logos areth', 'virtue habit', 'any', 'any', 'or', ['TAnyNone'])).results;
+    expect(any.length).toBeGreaterThan(0);
+    expect(any.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
   });
 
   it('supports wildcards for Greek and English terms', async () => {

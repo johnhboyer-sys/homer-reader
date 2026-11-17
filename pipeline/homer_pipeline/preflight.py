@@ -1239,13 +1239,16 @@ def _validate_search_port(work_id: str, work_dir: Path, problems: list[Problem])
                 continue
             for b in bounds:
                 local = b["start"] - base[si]
+                first = b["chapter"].split("-")[0]
                 line = None
                 for n, count in segs[si]["line_runs"]:
-                    if local < count:
+                    # A first line with no token: the scene starts where that
+                    # line would (Codex review of e03973358).
+                    if local < count or (local == 0 and count == 0 and str(n) == first):
                         line = n
                         break
                     local -= count
-                if str(line) != b["chapter"].split("-")[0]:
+                if str(line) != first:
                     problems.append((work_id, "search/offsets.json",
                                      f"book {book}: bound {b['chapter']} starts at line {line}"))
                 elif local != 0:
