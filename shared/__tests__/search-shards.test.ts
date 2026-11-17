@@ -172,7 +172,7 @@ describe('what a query fetches', () => {
   it('a translation beyond the primary is found in the shards and named', async () => {
     const { results } = await search('', 'virtue mean', 'all', 'all', 'and', ['iliad']);
     expect(results.map((r) => [r.meta.id, r.engHits])).toEqual([
-      ['e2', [{ translation: 'pope', positions: [1, 2] }]],
+      ['e2', [{ translation: 'pope', positions: [1, 2], units: [[1], [2]] }]], // units: Homer's allWordsJoin
     ]);
   });
 

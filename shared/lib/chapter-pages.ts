@@ -174,6 +174,42 @@ export function chapterJoin(results: SearchResult[], places: ChapterPlaces): Sea
   });
 }
 
+/** "All words" of several terms, in Homer, where a search section is a whole
+ * book: every term in one scene, not anywhere in the book (John's scene
+ * ruling). The engine lists each term's words (grkTerms; an English hit's
+ * units, per translation); only the hits in a scene that holds every term
+ * stay, and a result left with none drops out. A word a filter already took
+ * (no longer in the hit's positions) does not count for its term. A result
+ * without the lists (any word, a phrase, one word) is left as it is. */
+export function allWordsJoin(results: SearchResult[], places: ChapterPlaces): SearchResult[] {
+  // The scenes in which every list has a word still among `live`.
+  const full = (lists: number[][], live: Set<number>, at: (p: number) => ChapterAt) => {
+    const each = lists.map(list => new Set(list.filter(p => live.has(p)).map(p => at(p).key)));
+    return new Set([...each[0] ?? []].filter(k => each.every(keys => keys.has(k))));
+  };
+  return results.flatMap(r => {
+    let left = r;
+    if (r.grkMatch && r.grkTerms) {
+      const ok = full(r.grkTerms, new Set(r.grkPositions), p => places.grk(r, p));
+      left = cutPositions(r, r.grkPositions.map(p => ok.has(places.grk(r, p).key)));
+    }
+    if (r.engMatch && r.engHits?.some(h => h.units)) {
+      const engHits = r.engHits.flatMap(h => {
+        if (!h.units) return [h];
+        const at = (w: number) => places.eng(r, h.translation, w);
+        const ok = full(h.units, new Set(h.positions), at);
+        const inside = (w: number) => ok.has(at(w).key);
+        const positions = h.positions.filter(inside);
+        const matches = h.matches?.filter(inside);
+        return positions.length ? [{ ...h, positions, ...(matches ? { matches } : {}) }] : [];
+      });
+      left = { ...left, engHits, engMatch: engHits.length > 0 };
+    }
+    const grkMatch = left.grkPositions.length > 0;
+    return grkMatch || left.engMatch ? [{ ...left, grkMatch }] : [];
+  });
+}
+
 /** The chapters the results reach and their hits: those with Greek, with
  * English, with both; and the Greek and English hits. */
 export interface Measure { chapters: number; both: number; grkOnly: number; engOnly: number; grkHits: number; engHits: number }

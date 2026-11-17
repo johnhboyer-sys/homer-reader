@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Offsets, SearchResult } from '../lib/search';
-import { chapterJoin, chapterPlaces, measure } from '../lib/chapter-pages';
+import { allWordsJoin, chapterJoin, chapterPlaces, measure } from '../lib/chapter-pages';
 
 // One book of two 100-token sections; chapter 2 begins at token 105, five
 // words into 164b. The main translation's chapter 2 begins at word 3 of 164b.
@@ -49,5 +49,66 @@ describe('chapterJoin: both terms anywhere in one chapter', () => {
   it('counts each translation\'s words where that translation puts them', () => {
     // Word 2 is chapter 1's, word 3 chapter 2's.
     expect(measure([res('164b', [], [2, 3])], places)).toMatchObject({ chapters: 2, engOnly: 2, engHits: 2 });
+  });
+});
+
+// Homer: one 200-token section is a whole book, and its two scenes start at
+// tokens 0 and 100; the main translation's second scene starts at word 20.
+const book: Offsets = {
+  token_count: 200,
+  seg_base_offset: [0],
+  segments: [{ book: 1, column: '1', line_runs: [[1, 200]] }],
+  book_bounds: [{ book: 1, start: 0 }],
+  chapter_bounds: [
+    { book: 1, chapter: '1-100', start: 0, accuracy: 'exact' },
+    { book: 1, chapter: '101-200', start: 100, accuracy: 'exact' },
+  ],
+};
+const scenes = chapterPlaces(new Map([['IL', book]]), new Map([['IL', { english: { '0': [[0, '1-100'], [20, '101-200']] } }]]));
+const bookRes = (extra: Partial<SearchResult>): SearchResult => ({
+  work: 'IL', meta: { id: '1', book: 1, column: '1' }, grkMatch: false, engMatch: false, grkPositions: [], ...extra,
+});
+
+describe('allWordsJoin: "All words" means every term in one scene', () => {
+  it('keeps the hits of a scene holding every Greek term, and drops a scene holding one', () => {
+    // Term 0 at 10; term 1 at 20 (scene 1) and 150 (scene 2).
+    const r = bookRes({ grkMatch: true, grkPositions: [10, 20, 150], grkTerms: [[10], [20, 150]] });
+    const [out] = allWordsJoin([r], scenes);
+    expect(out.grkPositions).toEqual([10, 20]);
+    expect(measure([out], scenes)).toMatchObject({ chapters: 1, grkHits: 2 });
+  });
+
+  it('drops a book whose terms stand in two scenes', () => {
+    const r = bookRes({ grkMatch: true, grkPositions: [10, 150], grkTerms: [[10], [150]] });
+    expect(allWordsJoin([r], scenes)).toEqual([]);
+  });
+
+  it('does not count a term\'s word a filter already took', () => {
+    // 20 was cut (say an accent filter): scene 1 holds term 0 alone.
+    const r = bookRes({ grkMatch: true, grkPositions: [10, 150], grkTerms: [[10], [20, 150]] });
+    expect(allWordsJoin([r], scenes)).toEqual([]);
+  });
+
+  it('holds English to the same rule, each translation where it puts its words', () => {
+    // Unit 0 at word 2; unit 1 at words 8 (scene 1) and 30 (scene 2).
+    const r = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [2, 8, 30], units: [[2], [8, 30]] }] });
+    const [out] = allWordsJoin([r], scenes);
+    expect(out.engHits).toEqual([{ translation: 'english', positions: [2, 8], units: [[2], [8, 30]] }]);
+    const apart = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [2, 30], units: [[2], [30]] }] });
+    expect(allWordsJoin([apart], scenes)).toEqual([]);
+  });
+
+  it('keeps the Greek when only the English falls apart, in an either-language search', () => {
+    const r = bookRes({
+      grkMatch: true, grkPositions: [10, 20], grkTerms: [[10], [20]],
+      engMatch: true, engHits: [{ translation: 'english', positions: [2, 30], units: [[2], [30]] }],
+    });
+    const [out] = allWordsJoin([r], scenes);
+    expect(out).toMatchObject({ grkMatch: true, grkPositions: [10, 20], engMatch: false, engHits: [] });
+  });
+
+  it('leaves a search with no term lists (any word, a phrase, one word) as it was', () => {
+    const r = bookRes({ grkMatch: true, grkPositions: [10, 150] });
+    expect(allWordsJoin([r], scenes)).toEqual([r]);
   });
 });

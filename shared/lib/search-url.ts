@@ -1,4 +1,4 @@
-import { AUTHENTIC_IDS, HAS_SPEAKERS } from './works';
+import { AUTHENTIC_IDS, HAS_SPEAKERS, getWork } from './works';
 // The search page's state as a query string, so a search can be shared,
 // bookmarked, reloaded and stepped through with the back button.
 //
@@ -49,6 +49,17 @@ import { AUTHENTIC_IDS, HAS_SPEAKERS } from './works';
 //            (default 3 lines). Not cx, which is the proximity chapter switch
 //   so       the order of a results page: work | form | freq (default page)
 //   ps       hits per results page: 20 | 100 | c, citations only (default 40)
+//
+// Homer's own (not in the sister readers):
+//   b        the book searched, 1-24; read and written only when one poem is
+//            searched (w=iliad or w=odyssey)
+//   spk      the words of one speaker (a characters.json id), by line, from
+//            the speech spans (speeches.json)
+//   spo      1 = words inside any speech. The old page wrote so=1, which
+//            clashes with the sort order above: so=1 still reads as spo=1
+//            (1 is no sort), and is never written
+//   gr       read only: the old page's one-book grammar search, "case:gen,
+//            number:pl". With no c, it reads as a lone grammar term (c=g:...)
 
 import {
   COMBO_TERMS_MAX,
@@ -109,7 +120,12 @@ export interface UrlSearch {
   context: ResultContext;  // how much text a hit shows
   sort: ResultSort;        // the order of a results page
   pageSize: PageSize;      // hits per results page
+  book: number | null;     // Homer: one book of the one poem searched
+  speech: SpeechFilter | null; // Homer: words inside speeches, or one speaker's
 }
+
+/** Homer's speech filter: inside any speech, or one speaker's lines. */
+export type SpeechFilter = { kind: 'speeches' } | { kind: 'speaker'; id: string };
 
 // John, 16 Nov 2026: Greek and English are joined by the inclusive or ("and/or")
 // on a fresh search; "and" stays on offer.
@@ -125,7 +141,7 @@ export const emptyUrlSearch = (allWorks: string[]): UrlSearch => ({
   grk: '', eng: '', grkMode: 'all', engMode: 'all', matchMode: 'lemma',
   accent: false, punctuation: false, caseExact: false, langOp: DEFAULT_LANG_OP, engForms: true, works: [...allWorks], trans: null, workFilter: null,
   lemmas: [], xforms: [], combo: null, speaker: null, view: 'page', facets: {},
-  context: '3', sort: 'page', pageSize: '40',
+  context: '3', sort: 'page', pageSize: '40', book: null, speech: null,
 });
 
 const MODES: SearchMode[] = ['all', 'any', 'phrase'];
@@ -276,6 +292,8 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
     put('sp', s.speaker.mode);
     put('sn', s.speaker.names.join(','));
   }
+  if (s.speech?.kind === 'speaker') put('spk', s.speech.id);
+  else if (s.speech?.kind === 'speeches') put('spo', '1');
   if (s.view !== 'page') put('v', s.view);
   const gf = Object.entries(s.facets).flatMap(([k, values]) => values.map(v => `${k}.${v}`));
   if (gf.length) put('gf', gf.join(','));
@@ -293,6 +311,7 @@ export function encodeSearchUrl(s: UrlSearch, allWorks: string[]): string {
       ? `-${outList.join(',')}`
       : inList.join(','));
   }
+  if (s.book !== null && s.works.length === 1 && allWorks.includes(s.works[0])) put('b', String(s.book));
   return serialize(out);
 }
 
@@ -342,6 +361,26 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
     };
   }
 
+  // The old one-book grammar link: a lone grammar term, as c=g: writes it.
+  const gr = p.get('gr');
+  if (!s.combo && gr) {
+    const grammar: GrammarQuery = {};
+    for (const pair of list(gr)) {
+      const [k, v, extra] = pair.split(':');
+      if (k && v && extra === undefined && !(k in Object.prototype) && !RETIRED_GRAMMAR.has(k)) grammar[k] = v;
+    }
+    if (Object.keys(grammar).length) {
+      s.combo = {
+        slots: [{ kind: 'grammatical', relation: 'near', text: '', picked: [], grammar }],
+        window: COMBO_WINDOW_DEFAULT, unit: 'words', ordered: false, crossChapter: true,
+      };
+    }
+  }
+
+  const spk = (p.get('spk') ?? '').trim();
+  if (spk && spk.length <= 80) s.speech = { kind: 'speaker', id: spk };
+  else if (p.get('spo') === '1' || p.get('so') === '1') s.speech = { kind: 'speeches' };
+
   const sp = p.get('sp');
   const names = list(p.get('sn'));
   if ((sp === 'only' || sp === 'except') && names.length) s.speaker = { mode: sp, names };
@@ -372,6 +411,9 @@ export function decodeSearchUrl(search: string | URLSearchParams, allWorks: stri
       ? allWorks.filter(id => !named.has(id))
       : allWorks.filter(id => named.has(id));
   }
+  const b = p.get('b');
+  const books = s.works.length === 1 ? getWork(s.works[0])?.books ?? 0 : 0;
+  if (b && /^\d{1,2}$/.test(b) && Number(b) >= 1 && Number(b) <= books) s.book = Number(b);
   return s;
 }
 

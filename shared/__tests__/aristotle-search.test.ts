@@ -498,7 +498,9 @@ describe('English search across a work’s translations', () => {
     // 1094a has "virtue" in Murray and "mean" in Butler: not a hit.
     const { results } = await search('', 'virtue mean', 'all', 'all', 'and', ['iliad']);
     expect(results.map((r) => r.meta.id)).toEqual(['1:1095a']);
-    expect(results[0].engHits).toEqual([{ translation: 'pope', positions: [1, 4] }]);
+    // Homer: an "All words" hit also lists each word's positions (units), so
+    // the page can hold the words to one scene (allWordsJoin).
+    expect(results[0].engHits).toEqual([{ translation: 'pope', positions: [1, 4], units: [[1], [4]] }]);
   });
 
   it('marks the run of a phrase in the translation that has it', async () => {

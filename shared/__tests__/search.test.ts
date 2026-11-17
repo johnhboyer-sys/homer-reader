@@ -70,6 +70,16 @@ describe('search', () => {
     expect((await search('areth logos', '', 'phrase', 'all', 'and', ['TPhraseHit'])).results).toHaveLength(0);
   });
 
+  it('lists each term\'s words for "all words" of several terms, for the scene join', async () => {
+    const [grk] = (await search('logos areth', '', 'all', 'all', 'and', ['TAllTerms'])).results;
+    expect(grk.grkTerms).toEqual([[0], [1]]);
+    const [eng] = (await search('', 'virtue habit', 'all', 'all', 'and', ['TAllUnits'])).results;
+    expect(eng.engHits?.[0].units).toEqual([[0], [3]]);
+    // One term, or any word, or a phrase: nothing to join.
+    expect((await search('logos', 'virtue', 'all', 'all', 'or', ['TAllOne'])).results.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
+    expect((await search('logos areth', 'virtue habit', 'any', 'any', 'or', ['TAnyNone'])).results.every(r => !r.grkTerms && !r.engHits?.some(h => h.units))).toBe(true);
+  });
+
   it('supports wildcards for Greek and English terms', async () => {
     const greek = (await search('tex*', '', 'all', 'all', 'and', ['TGreekWildcard'])).results;
     const english = (await search('', 'hap*', 'all', 'all', 'and', ['TEngWildcard'])).results;

@@ -32,8 +32,8 @@ const corpus = {
 const title = 'Advanced search: a guide';
 const description =
   'How to search the Iliad and Odyssey beyond a plain word: every form of a' +
-  ' word, wildcards, two words near each other, grammar as a filter, the' +
-  ' phrase index, and English search — with worked examples.';
+  ' word, wildcards, words near each other, grammar, speeches, Greek and' +
+  ' English together, and how the results are counted, with worked examples.';
 const canonical = Astro.site ? new URL(`${base}/advanced/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = {
@@ -77,21 +77,25 @@ const jsonLd = {
     <p class="guide-eyebrow">A guide</p>
     <h1>Advanced search</h1>
     <p class="guide-lede">
-      Six ways to ask the text a question a plain word search cannot answer.
+      Ways to ask the text a question a plain word search cannot answer.
       You need no Greek to use most of them. Every number on this page comes
-      from the {corpus.tokens} Greek words this site searches —
+      from the {corpus.tokens} Greek words this site searches:
       {corpus.iliadTokens} in the Iliad, {corpus.odysseyTokens} in the
       Odyssey. Check any of them against the search itself.
     </p>
 
     <nav class="guide-toc" aria-label="On this page">
       <ol>
-        <li><a href="#forms">Every form of a word</a> — one word, however it ends</li>
-        <li><a href="#wildcards">Wildcards</a> — find a word you only partly know</li>
-        <li><a href="#near">Two things near each other</a> — words close together in the verse</li>
-        <li><a href="#grammar">Grammar as a filter</a> — find a kind of word, not a spelling</li>
-        <li><a href="#phrases">The phrase index</a> — what Homer repeats</li>
-        <li><a href="#english">Search in English</a></li>
+        <li><a href="#counting">How the results are counted</a>: by scene</li>
+        <li><a href="#forms">Every form of a word</a>: one word, however it ends</li>
+        <li><a href="#wildcards">Wildcards</a>: a word you only partly know</li>
+        <li><a href="#near">Proximity</a>: words close together</li>
+        <li><a href="#grammar">Grammar</a>: a kind of word, not a spelling</li>
+        <li><a href="#speaker">Speeches</a>: whose words they are</li>
+        <li><a href="#english">English, and both together</a></li>
+        <li><a href="#results">Narrowing and showing the results</a></li>
+        <li><a href="#address">The search in the address</a></li>
+        <li><a href="#phrases">The phrase index</a>: what Homer repeats</li>
         <li><a href="#honesty">What these tools cannot tell you</a></li>
       </ol>
     </nav>
@@ -102,8 +106,28 @@ const jsonLd = {
         Greek changes the end of a word to show its job in the sentence, so a
         search for one spelling misses most of the places that word stands.
         Several of the tools below exist to fix that. You can also type Greek
-        in plain letters if you have no Greek keyboard — the search page has a
-        key to it, and shows both ways of typing.
+        in plain letters (Beta Code) if you have no Greek keyboard: the search
+        page has a key to it, and a Greek keyboard of its own.
+      </p>
+    </section>
+
+    <section id="counting">
+      <h2>How the results are counted</h2>
+      <p>
+        Results are counted and grouped by <strong>scene</strong>, the same
+        scenes the reader pages by, each headed by its lines and its summary.
+        The large number above the results is the scenes; beside it, the hits.
+        Pages break between scenes, so a scene is never split across two.
+      </p>
+      <p>
+        <em>All words</em> means every word in one scene, not anywhere in the
+        book. <em>Any word</em> means at least one of them; <em>Exact
+        phrase</em>, the words in a row, in order.
+      </p>
+      <p>
+        Each hit links to its line in the reader. <em>Show the whole
+        scene</em> opens the scene a hit stands in, Greek and English, with
+        the hits marked.
       </p>
     </section>
 
@@ -111,23 +135,23 @@ const jsonLd = {
       <h2>Every form of a word</h2>
       <p class="guide-q">Use this when you want one word wherever it stands, in whatever form it takes.</p>
       <p>
-        The Greek search box has a setting for this. Set it to
-        <em>any form of the word</em> and typing one form finds them all — type
-        the word as the text has it, in whatever ending it happens to show. Set
-        it to <em>only as I typed it</em> and the search matches that one
-        spelling alone.
+        The Greek box has a setting for this. <em>Any form of this word</em>,
+        the default, finds every form of the word you type:
+        <span lang="grc">θάλασσα</span> finds <span lang="grc">θαλάσσης</span>
+        and <span lang="grc">θάλασσαν</span>. <em>Only as I typed it</em>
+        matches that one spelling and no other.
       </p>
       <p>
-        There is also a search on its own for this: <em>Every form of one
-        word</em>. Open it, type one Greek word in any form, and it finds every
-        place the same word stands, however it is spelled there. It ignores the
-        main search boxes and answers on its own.
+        Where a form could belong to two words, turn on <em>Lemma</em> beside
+        the box: type the dictionary word, pick it from the list, and the
+        search finds that word alone, in all its forms. Try
+        <a href={`${base}/search/?l=epos`}>every form of
+        <span lang="grc">ἔπος</span></a>.
       </p>
       <p class="guide-note">
         A phrase can be widened the same way. After a search for an exact
-        phrase, a button offers to find that phrase again with each word
-        allowed to take any of its forms — useful when a phrase you searched
-        for exactly might also appear declined.
+        phrase, a button offers to find it again with each word allowed to
+        take any of its forms.
       </p>
     </section>
 
@@ -137,7 +161,7 @@ const jsonLd = {
       <p>
         Type <code>*</code> to stand for any run of letters, or <code>?</code>
         for exactly one letter. Both work in the middle of a word as well as at
-        the end — <code>pod*</code> finds every word beginning
+        the end: <code>pod*</code> finds every word beginning
         <span lang="grc">ποδ-</span>, and <code>an?r</code> finds
         <span lang="grc">ἀνήρ</span> without the accent mattering.
       </p>
@@ -150,45 +174,44 @@ const jsonLd = {
     </section>
 
     <section id="near">
-      <h2>Two things near each other</h2>
+      <h2>Proximity</h2>
       <p class="guide-q">Use this to find where two words, phrases, or kinds of word fall close together.</p>
       <p>
-        Open <em>Two things near each other</em> and add a term for each thing
-        you are looking for. Each term can be a phrase, an exact spelling, a
-        word in any of its forms, or a piece of grammar (see below), and you
-        can mix them freely.
+        <em>Proximity</em>, beside the Search button, opens a term for each
+        thing you are looking for. A term can be a word in <em>any form</em>,
+        a word <em>as typed</em>, an <em>exact phrase</em>, or a word <em>by
+        grammar</em> (below), and you can mix them freely. Each term after the
+        first is joined to the one before by <em>and</em> or <em>or</em>, and
+        stands <em>near</em>, <em>before</em>, <em>after</em>, or <em>not
+        near</em> an earlier term.
       </p>
       <p>
-        Choose how close counts as near: a number of <strong>words</strong>
-        apart, or the <strong>same verse</strong>. You can also ask that one
-        term come strictly before or after another, and that every term appear
-        in the order you listed them.
-      </p>
-      <p class="guide-note">
-        A match never crosses from one book into the next, however wide the
-        window — the last words of one book and the first of the next are not
-        near each other in any useful sense.
+        Choose how close counts as near: <em>within</em> a number of words,
+        or in <em>the same line</em>. <em>In this order</em> asks for the terms
+        in the order you listed them. A match may run across the edge of a
+        scene; turn off <em>Keep hits that cross a scene</em> to hold it to
+        one. Try <a href={`${base}/search/?c=l:pous&c=l:wkus&cw=3`}><span
+        lang="grc">πούς</span> within three words of <span
+        lang="grc">ὠκύς</span></a>.
       </p>
     </section>
 
     <section id="grammar">
-      <h2>Grammar as a filter</h2>
+      <h2>Grammar</h2>
       <p class="guide-q">Use this to find a kind of word rather than a particular spelling.</p>
       <p>
-        Every Greek word here carries a grammatical description — case,
-        number, gender, tense, mood, voice, person, and so on. Inside
-        <em>Two things near each other</em>, set a term's kind to
-        <em>Grammar</em> and pick the description you want instead of typing a
-        word. You need not know how the matching forms are spelled; you choose
-        the description and the search finds the words.
+        Every Greek word here carries a grammatical description: case,
+        number, gender, tense, mood, voice, person, and so on. In
+        <em>Proximity</em>, set a term to <em>by grammar</em> and choose the
+        description instead of typing a word. You need not know how the
+        matching forms are spelled.
       </p>
       <p>
-        A grammatical description on its own — every plural, say — matches too
-        much of the text to be a real question. So it needs something to narrow
-        it, and there are two ways to do that. Paired with a word or phrase it
-        becomes a question: <em>this word near a verb in a past tense</em>. Or
-        pin it to a single book, using the panel headed <em>Grammar, scoped to
-        one book</em>, and ask what a whole book does with one form.
+        A description on its own (every plural, say) matches too much of the
+        text to be a real question, so it needs something to narrow it. Paired
+        with a word it becomes a question: <em>this word near a verb in a past
+        tense</em>. Or choose one poem and one book under <em>In</em>, and ask
+        what a whole book does with one form.
       </p>
       <p>
         Here is the second kind at work. The dual is the form Greek uses for
@@ -197,29 +220,103 @@ const jsonLd = {
         Achilles, yet as they go the poem speaks of them in the dual, as though
         they were two. Readers have argued over it since antiquity. You can go
         and look:
-        <a href={`${base}/search?gr=number:dual&w=iliad&b=9`}>every dual form in
-        <em>Iliad</em> 9</a>.
+        <a href={`${base}/search/?w=iliad&b=9&c=g:number.dual`}>every dual form
+        in <em>Iliad</em> 9</a>.
       </p>
       <p>
-        What comes back is not a list of duals, and the page says so. Most of
-        those words could be dual and could equally be something else — the
-        ending does not always decide — and only a few are certainly dual. Those
-        few are marked, the count above the results tells you how many, and the
-        rest carry a dotted underline naming the other readings they allow. The
-        certain ones are worth your attention: they are the forms the old
-        quarrel is actually about.
+        What comes back is not a list of duals, and the page says so. Many of
+        those words could be dual and could equally be something else, since
+        the ending does not always decide. A hit the description does not
+        settle is marked with the readings it allows. The certain ones are
+        worth your attention: they are the forms the old quarrel is about.
+        <em>By grammar</em>, under <em>Group by</em>, sorts the hits by their
+        readings.
       </p>
       <p class="guide-note">
-        Searching by grammar alone is new here, and marked
-        <em>experimental</em> on the page. It works, and the counts above the
-        results are computed from the text rather than estimated — but the
-        wording and the marks may still change. Treat what it reports as
-        something to check, not something to cite.
+        There is no setting for "noun" or "verb" alone. Some words in Greek do
+        the work of both at once, and nothing in the description tells them
+        apart, so offering that choice would mean guessing.
+      </p>
+    </section>
+
+    <section id="speaker">
+      <h2>Speeches</h2>
+      <p class="guide-q">Use this to hold a search to the words of the poem's speakers, or of one of them.</p>
+      <p>
+        After a search, <em>Speech</em> under <em>Filter</em> offers
+        <em>Speeches only</em>, the words said inside any speech, and
+        <em>Spoken by</em>, the words of one speaker. Try
+        <a href={`${base}/search/?g=θεός&spk=achilles`}><span
+        lang="grc">θεός</span> in the mouth of Achilles</a>.
       </p>
       <p class="guide-note">
-        There is no setting for "noun" or "verb". Some words in Greek do the
-        work of both at once, and nothing in the description tells them apart,
-        so offering that choice would mean guessing.
+        The speeches and their speakers come from DICES (Digital Index of
+        Classical Epic Speech, CC BY 4.0). Speeches are marked by line, so an
+        English word is held to the line its translation puts it at.
+      </p>
+    </section>
+
+    <section id="english">
+      <h2>English, and both together</h2>
+      <p class="guide-q">Use this to search the translations, or the Greek and the English at once.</p>
+      <p>
+        The English box searches all four translations: Murray, Butler, Pope,
+        and the Kosmos Society revision of Butler. It takes the same three
+        settings as the Greek box (all words, any word, exact phrase), and
+        <em>Any form of this word</em> (<em>ship</em> finds <em>ships</em>) or
+        <em>Only as I typed it</em>. A hyphenated query such as
+        <em>rosy-fingered</em> is read as its words in a row.
+      </p>
+      <p>
+        With both boxes filled, <em>Hits match</em> says how they join.
+        <em>and/or</em>, the default, finds either: the Greek, the English, or
+        both. <em>and</em> keeps only the scenes that hold both, anywhere in the
+        scene. Try <a href={`${base}/search/?g=θάλασσα&e=sea&op=and`}><span
+        lang="grc">θάλασσα</span> and <em>sea</em></a>.
+      </p>
+    </section>
+
+    <section id="results">
+      <h2>Narrowing and showing the results</h2>
+      <p>
+        <em>Filter</em> narrows the hits in hand: to one poem, one
+        translation, the speeches, some of the Greek forms found, or some
+        grammatical readings. <em>View</em> sets how they
+        are shown: <em>Group by</em> work, form, or grammar; <em>Sort</em> in
+        line order, by form, or commonest form first; <em>Context</em> of one
+        line, three lines, or citations only; and hits <em>Per page</em>.
+      </p>
+      <p>
+        <em>In</em>, beside the boxes, chooses both poems or one, and then a
+        book; the search runs on that alone.
+      </p>
+    </section>
+
+    <section id="address">
+      <h2>The search in the address</h2>
+      <p>
+        The address of a results page holds the whole search, so it can be
+        bookmarked, shared, or saved under <em>Saved searches</em>. Only what
+        differs from the defaults is written.
+      </p>
+      <dl class="guide-params">
+        <dt><code>g</code>, <code>e</code></dt><dd>the Greek and the English query</dd>
+        <dt><code>gm</code>, <code>em</code></dt><dd><code>any</code> (any word) or <code>phrase</code> (exact phrase); absent, all words</dd>
+        <dt><code>m=form</code></dt><dd>Greek only as typed; absent, any form</dd>
+        <dt><code>acc=1</code></dt><dd>accents exactly</dd>
+        <dt><code>ef=0</code></dt><dd>English only as typed</dd>
+        <dt><code>l</code></dt><dd>the dictionary words picked under <em>Lemma</em></dd>
+        <dt><code>op</code></dt><dd><code>or</code> (and/or) or <code>and</code></dd>
+        <dt><code>w</code>, <code>b</code></dt><dd>one poem (<code>iliad</code>, <code>odyssey</code>) and a book in it</dd>
+        <dt><code>c</code>, <code>cw</code>, <code>cu</code>, <code>co</code>, <code>cx</code></dt><dd>a proximity search: its terms, the distance, <code>cu=line</code> for the same line, <code>co=1</code> in this order, <code>cx=0</code> within a scene</dd>
+        <dt><code>spo=1</code>, <code>spk</code></dt><dd>speeches only; one speaker's words</dd>
+        <dt><code>t</code>, <code>wf</code></dt><dd>the hits narrowed to one translation, or one poem</dd>
+        <dt><code>xf</code>, <code>gf</code></dt><dd>forms set aside; readings ticked</dd>
+        <dt><code>v</code>, <code>so</code>, <code>ctx</code>, <code>ps</code></dt><dd>group by (<code>form</code>, <code>grammar</code>), sort (<code>form</code>, <code>freq</code>), context (<code>1</code>, <code>c</code>), per page (<code>20</code>, <code>100</code>)</dd>
+      </dl>
+      <p class="guide-note">
+        Links from the old search page still work: <code>so=1</code> reads as
+        <code>spo=1</code>, and <code>gr</code> as a grammar term.
       </p>
     </section>
 
@@ -230,7 +327,7 @@ const jsonLd = {
         Search answers "where does this occur?" The
         <a href={`${base}/phrases/`}>phrase index</a> answers a different
         question: <em>what does Homer repeat?</em> It lists every run of two to
-        five words that recurs anywhere in the two poems — {corpus.formPhrases}
+        five words that recurs anywhere in the two poems: {corpus.formPhrases}
         of them as printed, {corpus.lemmaPhrases} when different endings of the
         same words count together, and {corpus.englishPhrases} in the English
         translation.
@@ -242,29 +339,12 @@ const jsonLd = {
         significant, matched exactly and within one verse. The phrase index is
         a plainer tool: it counts anything that recurs twice or more, however
         it is spelled, and lets a run of words cross from one verse into the
-        next unless you ask it not to — a setting worth using, since Homeric
+        next unless you ask it not to, a setting worth using, since Homeric
         repetition mostly falls within one verse.
       </p>
       <p>
         Click any phrase to see every place it occurs, each one linked to its
         passage in the reader.
-      </p>
-    </section>
-
-    <section id="english">
-      <h2>Search in English</h2>
-      <p class="guide-q">Use this to search the translation instead of the Greek.</p>
-      <p>
-        The search page has a second box for English. It takes the same three
-        settings as the Greek box — every word present, any one word present,
-        or the exact phrase — and returns the passages that match, cited the
-        same way as a Greek result.
-      </p>
-      <p class="guide-note">
-        The phrase index also has an English setting, browsing set phrases of
-        the translation rather than the Greek. An English match there is cited
-        by book rather than by verse, since translations are not lined up
-        verse for verse with the Greek.
       </p>
     </section>
 
@@ -277,6 +357,11 @@ const jsonLd = {
           the same letters count as one word by default.
         </li>
         <li>
+          The translations are not lined up word for word with the Greek. Each
+          translator marks his place every few lines, and an English word near
+          the edge of a scene is placed by estimate between those marks.
+        </li>
+        <li>
           None of these tools reads Greek. They match forms and count them.
           What a passage means remains your work.
         </li>
@@ -284,7 +369,8 @@ const jsonLd = {
     </section>
 
     <p class="guide-back">
-      <a href={`${base}/search`}>Back to search</a> ·
+      <a href={`${base}/search/`}>Back to search</a> ·
+      <a href={`${base}/saved/`}>Saved searches</a> ·
       <a href={`${base}/phrases/`}>Browse phrases</a>
     </p>
   </main>
@@ -349,6 +435,13 @@ const jsonLd = {
     padding: 0.05em 0.3em;
   }
   .guide [lang='grc'] { font-family: var(--font-greek); }
+  .guide-params { margin: 0 0 0.9rem; display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 0.9rem; }
+  .guide-params dt { margin: 0; }
+  .guide-params dd { margin: 0; }
+  @media (max-width: 480px) {
+    .guide-params { grid-template-columns: 1fr; gap: 0.1rem; }
+    .guide-params dd { margin-bottom: 0.5rem; }
+  }
   .guide-q {
     font-style: italic;
     color: var(--text-mid);
