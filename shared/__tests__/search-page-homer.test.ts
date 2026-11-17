@@ -301,6 +301,18 @@ describe('pages by rows, and the 100 page', () => {
   });
 });
 
+// Codex review of the fold (lane F): below 961px the citation's width gave
+// way to its text, so the link heading an opened row ("1.34") was narrower
+// than a 44px target.
+describe('the 100 page on a narrow screen', () => {
+  it('keeps every citation at least 44px wide', () => {
+    const css = readFileSync(path.resolve(process.cwd(), 'styles/b-search.css'), 'utf8');
+    const narrow = css.slice(css.indexOf('@media not all and (min-width: 961px) {\n  @media not all and (max-height: 500px) {\n    .search-page .cmp-row'));
+    const rule = narrow.slice(narrow.indexOf('.search-page .cmp-ref {')).split('}')[0];
+    expect(rule).toMatch(/min-width: 44px/);
+  });
+});
+
 describe('"Show the whole scene"', () => {
   it('opens the hit\'s whole scene, Greek and English, with the hit marked', async () => {
     open('g=θάλασσα&e=sea&w=iliad&b=1');
