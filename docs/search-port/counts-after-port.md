@@ -32,3 +32,40 @@ words gave 517 scenes before that change (both words anywhere in one book) and 1
 
 The θάλασσα + sea "and" count is 92 scenes (Murray, exact), not the 86 the first rulings page showed: the port
 places each English word in the scene whose reader page shows it; the first measurement used a rougher rule.
+
+## After the fold to aristotle-reader 47444b1f5c (lane E, 16 Nov, 21:55)
+
+`search-counts-new.mjs` re-run on the page branch after PRs #198-#203 were folded in. **No scene or hit count
+moved.** Pages moved, because a page is now exactly 40 rows (#201), where it was about 40 hits broken between
+whole scenes. A row is one passage as drawn: a Greek hit and the English of the same lines are one row, and so
+are the hits of all four translations in one passage. So the searches that count English, or Greek and English,
+lose most pages; a Greek search, where a row mostly holds one hit, barely moves. A scene whose rows run past a
+page's end heads its part on the next page too.
+
+| Search | Pages before | Pages now |
+|---|---|---|
+| θάλασσα | 3 | 3 |
+| θαλάσσης, exact form | 3 | 3 |
+| ἄναξ ἀνδρῶν, any word | 33 | 28 |
+| sea (four translations) | 36 | 15 |
+| sea (Murray, exact) | 11 | 9 |
+| rosy-fingered dawn; rosy fingered dawn | 2 | 1 |
+| fingered | 3 | 1 |
+| θάλασσα + sea, and | 22 | 7 |
+| θάλασσα + sea, and (Murray, exact) | 9 | 5 |
+| θάλασσα + sea, or (now "and/or") | 41 | 15 |
+| θεός, speeches only | 14 | 13 |
+| every form of ἔπεα | 12 | 11 |
+| μῆνις, οἴνοπα πόντον, θεά, Od. 9, Achilles, πούς near ὠκύς, optatives | unchanged | unchanged |
+
+New rows in the script, for the switch that now reads and | and/or | or:
+
+| Search | Count |
+|---|---|
+| θάλασσα + sea, a link with no `op` | 94 scenes · 119 hits (read as "and", as before) |
+| θάλασσα + sea, typed into a blank page | 298 scenes · 119 hits ("and/or", the default; the address gets `op=or`) |
+| θάλασσα + sea, `op=xor` ("or": one language, not both) | 204 scenes · 0 hits |
+
+The "or" row: every scene with θάλασσα also has "sea" in some translation (the "and" count is 94, the same as
+θάλασσα alone), so the 204 scenes left are English alone. The bar's hits are the Greek words in a Greek and
+English search (John, 15-16 Nov), hence 0.
