@@ -77,14 +77,20 @@ try {
   for (const r of out.reads.slice(0, 12)) console.log(`    ${r.path} ${r.raw.toLocaleString('en')} / ${r.gzip.toLocaleString('en')}`);
   if (flag('--out')) writeFileSync(flag('--out'), JSON.stringify(out, null, 2) + '\n');
   const stray = books.map(r => r.path).filter(b => !drawn.includes(b));
-  const maxBooks = flag('--max-books') && Number(flag('--max-books'));
-  const maxGzip = flag('--max-book-gzip') && Number(flag('--max-book-gzip'));
+  const limit = name => {
+    if (flag(name) === undefined) return undefined;
+    const n = Number(flag(name));
+    if (!Number.isFinite(n) || n < 0) throw new Error(`${name} wants a number of 0 or more, not ${flag(name)}`);
+    return n;
+  };
+  const maxBooks = limit('--max-books');
+  const maxGzip = limit('--max-book-gzip');
   if (maxBooks !== undefined || maxGzip !== undefined) {
     const errors = [];
     if (!rows || !drawn.length) errors.push('page 1 drew no rows');
     if (stray.length) errors.push(`page 1 read ${stray.length} book${stray.length === 1 ? '' : 's'} it does not draw: ${stray.slice(0, 6).join(', ')}`);
-    if (maxBooks && books.length > maxBooks) errors.push(`page 1 read ${books.length} books, at most ${maxBooks}`);
-    if (maxGzip && out.books.gzip > maxGzip) errors.push(`page 1 read ${out.books.gzip.toLocaleString('en')} bytes of books gzipped, at most ${maxGzip.toLocaleString('en')}`);
+    if (maxBooks !== undefined && books.length > maxBooks) errors.push(`page 1 read ${books.length} books, at most ${maxBooks}`);
+    if (maxGzip !== undefined && out.books.gzip > maxGzip) errors.push(`page 1 read ${out.books.gzip.toLocaleString('en')} bytes of books gzipped, at most ${maxGzip.toLocaleString('en')}`);
     for (const e of errors) console.log(`FAIL ${e}`);
     if (!errors.length) console.log('PASS');
     failed = errors.length > 0;

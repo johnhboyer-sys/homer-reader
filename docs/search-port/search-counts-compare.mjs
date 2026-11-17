@@ -30,6 +30,7 @@ for (const x of a) {
   });
 }
 for (const y of b) if (!a.some(x => x.name === y.name)) diffs.push(`${y.name}: missing from the first run`);
+if (!a.length || !b.length) diffs.push(`no searches in ${!a.length ? 'the first' : 'the second'} run`);
 console.log(`${a.length} searches, ${pagesCompared} pages, ${rowsCompared} rows compared`);
 if (!rowsCompared) console.log('No rows compared: run search-counts-new.mjs with --pages for a row-by-row check.');
 for (const d of diffs) console.log(`DIFF ${d}`);

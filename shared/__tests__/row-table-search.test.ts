@@ -7,7 +7,7 @@
 // 1–4, 5–8, 9–12), each translation placed by its own marks, and each book
 // cut into two scenes (1–6, 7–12) whose edge falls inside the unit 5–8, so
 // one unit's English is two rows, one in each scene.
-import { fireEvent, render, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -291,7 +291,18 @@ describe('on the corpus, the table agrees with every book θάλασσα + sea r
     }
     serveCorpus({}, Object.fromEntries([...tables].map(([w, t]) => [`${w}/rows.json`, () => t])));
     state.corpus = true;
-    const { loadRowTable } = await import('../lib/data');
+    const { fetchBook, loadRowTable } = await import('../lib/data');
+    // The table is in force: the page total shows at once, and page 1 has
+    // read only the books it draws (Il. 1-2), not the 47 the search reaches.
+    // A page that fell back to reading every book would pass the walk below.
+    window.history.replaceState(null, '', `/search/?g=${encodeURIComponent('θάλασσα')}&e=sea&op=or`);
+    render(Search);
+    await vi.waitFor(() => expect(status()).toMatch(/page 1 of \d+/), { timeout: 60000 });
+    await vi.waitFor(() => expect(document.querySelectorAll('li.instance').length).toBe(40), { timeout: 60000 });
+    const read = new Set(vi.mocked(fetchBook).mock.calls.map(c => `${c[0]} ${c[1]}`));
+    expect([...read].sort()).toEqual(['iliad 1', 'iliad 2']);
+    cleanup();
+    window.history.replaceState(null, '', '/');
     const { bar, scenes, pages, drawn } = await walk('g=θάλασσα&e=sea&op=or');
     console.info(`θάλασσα + sea with the table: ${bar} → ${drawn} scenes over ${pages} pages`);
     expect(loadRowTable).toHaveBeenCalled();
