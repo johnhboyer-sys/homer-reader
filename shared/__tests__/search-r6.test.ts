@@ -16,6 +16,8 @@ vi.mock('../lib/search', async original => ({
 }));
 vi.mock('../lib/data', async original => ({
   ...await original<typeof import('../lib/data')>(),
+  // No row table: every book is read, as before it (lib/row-table).
+  loadRowTable: vi.fn(async () => { throw new Error('no table'); }),
   fetchLemmaPickerShard: vi.fn(async () => ({
     areth: { n: 967, c: [{ h: 'ἀρετή', k: 'a)reth/' }] },
     ecis: { n: 547, c: [{ h: 'ἕξις', k: 'e(/cis' }] },

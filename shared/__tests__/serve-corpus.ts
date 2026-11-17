@@ -1,7 +1,9 @@
 // Serve the real corpus (app/public/data, the build/dist symlink) to the page
 // under test through a fetch spy, so a mounted search page counts what a
 // reader would see. Without the data (a fresh worktree) HAVE_CORPUS is false
-// and callers skip, loudly. `edit` may rewrite one file's JSON on the way out.
+// and callers skip, loudly. `edit` may rewrite one file's JSON on the way out;
+// `made` serves a file the site build makes and the corpus does not hold
+// (rows.json, row-table-search.test.ts).
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { vi } from 'vitest';
@@ -11,9 +13,13 @@ export const HAVE_CORPUS = existsSync(path.join(CORPUS, 'iliad/search/meta.json'
   && existsSync(path.join(CORPUS, 'iliad/search/eng-chapters.json'));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function serveCorpus(edit: Record<string, (json: any) => unknown> = {}) {
+export function serveCorpus(edit: Record<string, (json: any) => unknown> = {}, made: Record<string, () => unknown> = {}) {
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
     const rel = decodeURIComponent(String(url)).replace(/^.*?\/data\//, '');
+    if (made[rel]) {
+      const json = made[rel]();
+      return { ok: true, status: 200, json: async () => json, text: async () => JSON.stringify(json) } as Response;
+    }
     const file = path.join(CORPUS, rel);
     if (!rel || rel.includes('..') || !existsSync(file)) {
       return { ok: false, status: 404, json: async () => ({}), text: async () => '' } as Response;

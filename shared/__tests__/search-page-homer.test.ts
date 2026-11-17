@@ -244,6 +244,8 @@ describe('the phrase list, in each translation', () => {
   it.each(['murray', 'butler', 'pope', 'kosmos'])('%s: "ships" in the Iliad', async t => {
     open(`e=ships&ef=0&t=${t}&w=iliad`);
     await counted();
+    // The list's words are read when it is opened (aristotle-reader PR #208).
+    await fireEvent.click(await waitFor(() => within(screen.getByRole('group', { name: 'English phrases' })).getByRole('button', { name: 'Show' }), { timeout: 30000 }));
     const listed = await waitFor(() => { const r = rows(); expect(r.length).toBeGreaterThan(0); return r; }, { timeout: 60000 });
     for (const r of listed) expect(r.phrase.split(' '), `${t}: ${r.phrase}`).toContain('ships');
     const before = hits();

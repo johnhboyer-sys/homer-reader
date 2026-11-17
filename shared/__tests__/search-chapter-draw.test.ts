@@ -19,6 +19,8 @@ vi.mock('../lib/search', async original => ({
 }));
 vi.mock('../lib/data', async original => ({
   ...await original<typeof import('../lib/data')>(),
+  // No row table: every book is read, as before it (lib/row-table).
+  loadRowTable: vi.fn(async () => { throw new Error('no table'); }),
   fetchBook: vi.fn(), fetchChapters: vi.fn(),
 }));
 afterEach(() => { vi.resetAllMocks(); window.history.replaceState(null, '', '/'); });

@@ -1,0 +1,300 @@
+{
+  "path": "/search/?g=%CE%B8%CE%AC%CE%BB%CE%B1%CF%83%CF%83%CE%B1&e=sea&op=or",
+  "rows": 40,
+  "status": "Page 1 of 15",
+  "drawn": [
+    "iliad/book-01.json",
+    "iliad/book-02.json"
+  ],
+  "books": {
+    "count": 2,
+    "raw": 1058392,
+    "gzip": 285496,
+    "files": [
+      "iliad/book-01.json",
+      "iliad/book-02.json"
+    ]
+  },
+  "data": {
+    "count": 55,
+    "raw": 24698901,
+    "gzip": 7146070
+  },
+  "reads": [
+    {
+      "path": "iliad/search/english.json",
+      "raw": 2133538,
+      "gzip": 604610
+    },
+    {
+      "path": "iliad/search/english-overlay-kosmos.json",
+      "raw": 1950321,
+      "gzip": 554201
+    },
+    {
+      "path": "iliad/search/english-ross.json",
+      "raw": 1861523,
+      "gzip": 527767
+    },
+    {
+      "path": "iliad/search/english-third.json",
+      "raw": 1795617,
+      "gzip": 516955
+    },
+    {
+      "path": "iliad/search/greek_lemma.json",
+      "raw": 1697208,
+      "gzip": 459209
+    },
+    {
+      "path": "odyssey/search/english.json",
+      "raw": 1594617,
+      "gzip": 450396
+    },
+    {
+      "path": "iliad/search/meta.json",
+      "raw": 1584881,
+      "gzip": 584228
+    },
+    {
+      "path": "iliad/search/greek_form.json",
+      "raw": 1537189,
+      "gzip": 456544
+    },
+    {
+      "path": "odyssey/search/english-overlay-kosmos.json",
+      "raw": 1490170,
+      "gzip": 423647
+    },
+    {
+      "path": "odyssey/search/english-ross.json",
+      "raw": 1416897,
+      "gzip": 402006
+    },
+    {
+      "path": "odyssey/search/english-third.json",
+      "raw": 1345371,
+      "gzip": 387346
+    },
+    {
+      "path": "odyssey/search/greek_lemma.json",
+      "raw": 1305976,
+      "gzip": 353564
+    },
+    {
+      "path": "odyssey/search/meta.json",
+      "raw": 1198999,
+      "gzip": 443681
+    },
+    {
+      "path": "odyssey/search/greek_form.json",
+      "raw": 1197483,
+      "gzip": 353650
+    },
+    {
+      "path": "iliad/book-02.json",
+      "raw": 612561,
+      "gzip": 164273
+    },
+    {
+      "path": "iliad/book-01.json",
+      "raw": 445831,
+      "gzip": 121223
+    },
+    {
+      "path": "iliad/rows.json",
+      "raw": 197098,
+      "gzip": 62948
+    },
+    {
+      "path": "iliad/search/offsets.json",
+      "raw": 186690,
+      "gzip": 37223
+    },
+    {
+      "path": "odyssey/rows.json",
+      "raw": 150290,
+      "gzip": 45988
+    },
+    {
+      "path": "odyssey/search/offsets.json",
+      "raw": 148186,
+      "gzip": 29007
+    },
+    {
+      "path": "lemma-map/e.json",
+      "raw": 128932,
+      "gzip": 24232
+    },
+    {
+      "path": "lemma-map/a.json",
+      "raw": 120271,
+      "gzip": 21806
+    },
+    {
+      "path": "lemma-map/p.json",
+      "raw": 78820,
+      "gzip": 14118
+    },
+    {
+      "path": "lemma-map/k.json",
+      "raw": 62568,
+      "gzip": 11178
+    },
+    {
+      "path": "lemma-map/d.json",
+      "raw": 36258,
+      "gzip": 6506
+    },
+    {
+      "path": "lemma-map/o.json",
+      "raw": 35178,
+      "gzip": 6252
+    },
+    {
+      "path": "lemma-map/m.json",
+      "raw": 35173,
+      "gzip": 6113
+    },
+    {
+      "path": "lemma-map/t.json",
+      "raw": 31907,
+      "gzip": 5674
+    },
+    {
+      "path": "iliad/search/eng-chapters.json",
+      "raw": 30797,
+      "gzip": 8515
+    },
+    {
+      "path": "odyssey/search/eng-chapters.json",
+      "raw": 28040,
+      "gzip": 7671
+    },
+    {
+      "path": "lemma-map/s.json",
+      "raw": 25675,
+      "gzip": 4839
+    },
+    {
+      "path": "lemma-map/l.json",
+      "raw": 19603,
+      "gzip": 3537
+    },
+    {
+      "path": "lemma-map/f.json",
+      "raw": 19425,
+      "gzip": 3411
+    },
+    {
+      "path": "lemma-map/i.json",
+      "raw": 18879,
+      "gzip": 3422
+    },
+    {
+      "path": "lemma-map/q.json",
+      "raw": 16638,
+      "gzip": 3038
+    },
+    {
+      "path": "lemma-picker/q.json",
+      "raw": 16611,
+      "gzip": 4405
+    },
+    {
+      "path": "lemma-map/n.json",
+      "raw": 15899,
+      "gzip": 2765
+    },
+    {
+      "path": "lemma-map/h.json",
+      "raw": 15408,
+      "gzip": 3041
+    },
+    {
+      "path": "lemma-map/x.json",
+      "raw": 14035,
+      "gzip": 2404
+    },
+    {
+      "path": "lemma-map/b.json",
+      "raw": 14026,
+      "gzip": 2557
+    },
+    {
+      "path": "lemma-map/u.json",
+      "raw": 13838,
+      "gzip": 2786
+    },
+    {
+      "path": "lemma-map/g.json",
+      "raw": 11072,
+      "gzip": 1956
+    },
+    {
+      "path": "search-shards/index.json",
+      "raw": 8624,
+      "gzip": 3116
+    },
+    {
+      "path": "search-shards/index.json",
+      "raw": 8624,
+      "gzip": 3116
+    },
+    {
+      "path": "search-shards/index.json",
+      "raw": 8624,
+      "gzip": 3116
+    },
+    {
+      "path": "search-shards/index.json",
+      "raw": 8624,
+      "gzip": 3116
+    },
+    {
+      "path": "lemmata/thalassa.json",
+      "raw": 6366,
+      "gzip": 974
+    },
+    {
+      "path": "lemma-map/r.json",
+      "raw": 5907,
+      "gzip": 1205
+    },
+    {
+      "path": "lemma-map/w.json",
+      "raw": 5563,
+      "gzip": 1160
+    },
+    {
+      "path": "lemma-map/c.json",
+      "raw": 3011,
+      "gzip": 587
+    },
+    {
+      "path": "lemma-map/z.json",
+      "raw": 2828,
+      "gzip": 585
+    },
+    {
+      "path": "lemma-map/y.json",
+      "raw": 1207,
+      "gzip": 319
+    },
+    {
+      "path": "lemma-map/_.json",
+      "raw": 20,
+      "gzip": 40
+    },
+    {
+      "path": "iliad/chapters.json",
+      "raw": 2,
+      "gzip": 22
+    },
+    {
+      "path": "odyssey/chapters.json",
+      "raw": 2,
+      "gzip": 22
+    }
+  ]
+}
