@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { chapterPlaces, eachHit } from '../lib/chapter-pages';
 import { formKey, ownGrammar } from '../lib/result-views';
-import { greekFold, greekHitForms, greekHitGrammar, loadEngChapters, loadOffsets, search, type Reading } from '../lib/search';
+import { greekFold, greekHitForms, greekHitGrammar, loadEngChapters, loadOffsets, search, type MatchMode, type Reading, type SearchMode } from '../lib/search';
 
 // The first search in a file reads the corpus cold.
 vi.setConfig({ testTimeout: 60000 });
@@ -316,15 +316,16 @@ describe('pages by rows, grouped by form', () => {
   // the scene heading over it (By work), and its marked Greek forms. `parts`:
   // each row's marked words split by form, a part to a form, each named by
   // its form and its words (work:segment:position, as the page's word
-  // buttons carry them). By work that is every (instance, form) pair the
-  // data gives; By form, each row is one part.
+  // buttons carry them), and `head` the folded label of the heading it is
+  // drawn under (By grammar, its headword). By work that is every (instance,
+  // form) pair drawn; By form and By grammar, each row is one part.
   async function walkRows(perPage: number) {
     await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
     const pages = pagesOf();
     const sizes: number[] = [];
     const links: string[] = [];
     const scenes = new Set<string>();
-    const parts: { form: string; toks: string[] }[] = [];
+    const parts: { form: string; toks: string[]; head: string }[] = [];
     let forms = 0;
     for (let p = 1; p <= pages; p++) {
       if (p > 1) {
@@ -345,6 +346,7 @@ describe('pages by rows, grouped by form', () => {
         const href = el.querySelector('.inst-ref')?.getAttribute('href') ?? '';
         links.push(href);
         if (scene) scenes.add(`${new URL(href, 'http://x').pathname}|${scene}`);
+        const head = greekFold(el.closest('section.book-section')?.querySelector('h2 .group-label')?.textContent ?? '');
         const byForm = new Map<string, Set<string>>();
         for (const m of el.querySelectorAll('.inst-snippet.greek mark')) {
           const w = m.closest<HTMLElement>('button.gw');
@@ -353,7 +355,7 @@ describe('pages by rows, grouped by form', () => {
           (byForm.get(f) ?? byForm.set(f, new Set()).get(f)!).add(`${w!.dataset.w}:${w!.dataset.s}:${w!.dataset.i}`);
         }
         forms += byForm.size;
-        for (const [form, toks] of byForm) parts.push({ form, toks: [...toks].sort() });
+        for (const [form, toks] of byForm) parts.push({ form, toks: [...toks].sort(), head });
       }
       sizes.push(n);
     }
@@ -374,7 +376,10 @@ describe('pages by rows, grouped by form', () => {
   }
 
   it('ὁ, Il. 1: every row By work drawn once for each of its forms, 20 a page', async () => {
+    const data = await dataHits('ὁ', 'all', 'lemma', 'iliad', 1);
     const work = await byWork('g=ὁ&w=iliad&b=1&ps=20');
+    // Every Greek hit the search finds is drawn once By work.
+    expect(drawnHits(work.parts)).toEqual(data.hits);
     open('g=ὁ&w=iliad&b=1&ps=20&v=form');
     await counted();
     const form = await walkRows(20);
@@ -383,8 +388,9 @@ describe('pages by rows, grouped by form', () => {
     expect([...new Set(form.links)].sort()).toEqual([...new Set(work.links)].sort());
     // Each (instance, form) pair drawn once, and no pair drawn in another's
     // place: counts and links alone pass a page that draws one form twice.
-    const ids = (parts: { form: string; toks: string[] }[]) => parts.map(p => `${p.form}|${p.toks.join(',')}`).sort();
     expect(ids(form.parts)).toEqual(ids(work.parts));
+    // And every hit the search finds is drawn once By form, under its own form.
+    expect(drawnHits(form.parts)).toEqual(data.hits);
   }, 300000);
 
   it('lays the pages out again when the grouping turns to By form', async () => {
@@ -398,52 +404,72 @@ describe('pages by rows, grouped by form', () => {
     await waitFor(() => expect(pagesOf()).toBeGreaterThan(byWorkPages), { timeout: 30000 });
   }, 120000);
 
-  // The rows By grammar, worked out from the data: each part (an instance's
-  // hits of one form) is drawn once under each headword it is filed under.
-  // Filed as paradigmOf files it, from the same inputs the page reads (the
-  // readings of the words it holds, narrowed to the headwords searched, and
-  // the headwords its form belongs to), but by the rule written out here, not
-  // by calling paradigmHeads: the headwords its readings name, else those its
-  // form belongs to, else the first searched.
-  async function grammarRows(parts: { toks: string[] }[], lemmas: string[], work: string, book: number) {
-    const { results } = await search(lemmas.join(' '), '', 'any', 'all', 'or', [work], 'headword');
+  // The Greek hits a search finds in one book, from its results (the
+  // search the page runs), each as `${work}:${segment}:${position}|${fold}`:
+  // where the hit stands and its form, folded.
+  async function dataHits(grk: string, mode: SearchMode, matchMode: MatchMode, work: string, book: number) {
+    const { results } = await search(grk, '', mode, 'all', 'or', [work], matchMode);
     const inBook = results.filter(r => r.meta.book === book);
+    const forms = await greekHitForms(inBook, grk, matchMode);
+    const hits = inBook.flatMap(r => r.grkPositions.map((pos, i) =>
+      `${r.work}:${r.meta.id}:${pos}|${forms.byResult.get(`${r.work}:${r.meta.id}`)?.[i] ?? ''}`)).sort();
+    return { inBook, forms, hits };
+  }
+  // The hits a walk drew, the same way: one for each row a word is marked in.
+  const drawnHits = (parts: { form: string; toks: string[] }[]) => parts.flatMap(p => p.toks.map(t => `${t}|${greekFold(p.form)}`)).sort();
+  const ids = (parts: { form: string; toks: string[] }[]) => parts.map(p => `${p.form}|${p.toks.join(',')}`).sort();
+
+  // The rows By grammar, worked out from the data: each part (an instance's
+  // hits of one form) is drawn once under each headword it is filed under,
+  // as `${part}|${headword}`. Filed as paradigmOf files it, from the same
+  // inputs the page reads (the readings of the words it holds, narrowed to
+  // the headwords searched, and the headwords its form belongs to), but by
+  // the rule written out here, not by calling paradigmHeads: the headwords
+  // its readings name, else those its form belongs to, else the first searched.
+  async function grammarRows(parts: { form: string; toks: string[] }[], lemmas: string[], data: Awaited<ReturnType<typeof dataHits>>) {
     const heads = [...new Set(lemmas.map(greekFold))];
-    const grammar = ownGrammar(await greekHitGrammar(inBook), new Set(heads));
-    const forms = await greekHitForms(inBook, lemmas.join(' '), 'headword');
+    const grammar = ownGrammar(await greekHitGrammar(data.inBook), new Set(heads));
     const readings = new Map<string, Reading[]>();
     const formHeads = new Map<string, string[] | undefined>();
-    for (const r of inBook) {
+    for (const r of data.inBook) {
       const seg = `${r.work}:${r.meta.id}`;
       r.grkPositions.forEach((pos, i) => {
         readings.set(`${seg}:${pos}`, grammar.byResult.get(seg)?.[i] ?? []);
-        formHeads.set(`${seg}:${pos}`, forms.headwords.get(forms.byResult.get(seg)?.[i] ?? ''));
+        formHeads.set(`${seg}:${pos}`, data.forms.headwords.get(data.forms.byResult.get(seg)?.[i] ?? ''));
       });
     }
-    let rows = 0;
-    for (const { toks } of parts) {
+    const rows: string[] = [];
+    for (const part of parts) {
+      const { toks } = part;
       for (const t of toks) expect(readings.has(t), `${t}: a hit of the search`).toBe(true);
       const held = toks.flatMap(t => readings.get(t)!);
       const named = heads.filter(h => held.some(r => Object.hasOwn(r, 'lemma') && r.lemma.includes(h)));
       const mapped = heads.filter(h => formHeads.get(toks[0])?.includes(h));
-      rows += named.length || mapped.length || 1;
+      for (const h of named.length ? named : mapped.length ? mapped : heads.slice(0, 1)) rows.push(`${ids([part])[0]}|${h}`);
     }
-    return rows;
+    return rows.sort();
   }
 
   // Codex check of 09cee472c: by grammar with two headwords, a form both
   // own is drawn under each, and the pages counted it once (rows 25, 27, …).
   it('two headwords by grammar: a form under both is two rows, 20 a page', async () => {
+    const data = await dataHits('o os', 'any', 'headword', 'iliad', 1);
     const work = await byWork('l=o,os&w=iliad&b=1&ps=20');
+    // Every Greek hit the search finds is drawn once By work, so the parts
+    // below are the data's.
+    expect(drawnHits(work.parts)).toEqual(data.hits);
     open('l=o,os&v=grammar&w=iliad&b=1&ps=20');
     await counted();
     // The readings load after the first page; the pages are laid out again then.
     await waitFor(() => expect(document.querySelector('.sx-para')).not.toBeNull(), { timeout: 60000 });
     const grammar = await walkRows(20);
-    const want = await grammarRows(work.parts, ['o', 'os'], 'iliad', 1);
-    console.info(`ὁ, ὅς, Il. 1: by work ${work.rows} rows; by grammar ${grammar.rows} rows on ${grammar.pages} pages (from the data: ${want} rows)`);
-    expect(grammar.rows).toBe(want);
-    expect(grammar.pages).toBe(Math.ceil(want / 20));
+    const want = await grammarRows(work.parts, ['o', 'os'], data);
+    console.info(`ὁ, ὅς, Il. 1: by work ${work.rows} rows; by grammar ${grammar.rows} rows on ${grammar.pages} pages (from the data: ${want.length} rows)`);
+    expect(grammar.rows).toBe(want.length);
+    expect(grammar.pages).toBe(Math.ceil(want.length / 20));
+    // Each row under the headword the filing gives it, read from the heading
+    // it is drawn under.
+    expect(grammar.parts.map(p => `${ids([p])[0]}|${p.head}`).sort()).toEqual(want);
     expect([...new Set(grammar.links)].sort()).toEqual([...new Set(work.links)].sort());
   }, 600000);
 });
