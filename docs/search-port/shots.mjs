@@ -31,6 +31,7 @@ mkdirSync(flag('--out'), { recursive: true });
 // width, height of the viewport, and how much of the page to keep.
 const SIZES = [
   ['phone', 390, 844, 2600],
+  ['small', 360, 780, 2600],
   ['sideways', 844, 390, 1700],
   ['desktop', 1440, 900, 1800],
 ];
@@ -39,7 +40,7 @@ const SIZES = [
 const READY = () => {
   const t = (document.querySelector('[role="status"]')?.textContent || '')
     + ' ' + (document.querySelector('.result-count')?.textContent || '');
-  return /\d[\d,]* (instances?|passages?|hits?|chapters?|words?)|No passages found/.test(t);
+  return /\d[\d,]* (instances?|passages?|hits?|chapters?|scenes?|words?)|No passages found/.test(t);
 };
 
 const { chromium } = resolvePlaywright();

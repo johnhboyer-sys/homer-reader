@@ -63,7 +63,9 @@
   function onOutsideClick(e: MouseEvent) {
     if (docked) return;
     const t = e.target as HTMLElement | null;
-    if (!t || t.closest('.word-sidebar') || t.closest('.tok')) return;
+    // A word of the search page's results (button.gw) swaps the card as a
+    // token does.
+    if (!t || t.closest('.word-sidebar') || t.closest('.tok') || t.closest('button.gw')) return;
     onClose();
   }
 

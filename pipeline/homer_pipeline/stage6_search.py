@@ -13,11 +13,11 @@ Emits these files under build/stage6/:
                  keyed by the SURFACE form as written (the inflected token), so
                  a query can match the exact form rather than the whole lemma.
 
-  english.json — {word: [seg_idx, ...]}
-                 Lowercased, punctuation-stripped English words.
-                 Phrase search is handled at query time via string inclusion
-                 on the (small) English chunk texts in meta.json, so
-                 positions are not stored here.
+  english.json — {word: [[seg_idx, word_pos], ...]}
+                 The primary translation's (Murray's) words as english_words()
+                 splits them, with each word's position in its segment, so a
+                 phrase is an adjacency test over postings exactly as it is
+                 for Greek (aristotle-reader's shape, 7ddd67b7ef).
 
   meta.json    — [{id, book, column, greek_head, english_head}]
                  Ordered list of segment metadata, indexed by seg_idx.
@@ -34,8 +34,12 @@ Emits these files under build/stage6/:
                  Homer's segments are BOOKS (24/work), not Bekker columns, so
                  book_bounds is nearly the whole segment list and line_runs
                  (not column) is what carries book.line resolution — load-
-                 bearing for this corpus, not an optimization. Homer has no
-                 chapter concept, so chapter_bounds is always [].
+                 bearing for this corpus, not an optimization. Homer's
+                 "chapters" are its scenes (apparatus/scenes/<work>.json):
+                 chapter_bounds holds one {book, chapter, start, accuracy}
+                 per scene, chapter = "<firstLine>-<lastLine>", start = the
+                 global offset of the scene's first token (see
+                 scene_chapter_bounds).
 
   grammar-dict.json / grammar-col.bin — the grammatical index: a signature
                  dictionary (distinct whole morphological readings, keyed by
@@ -44,6 +48,15 @@ Emits these files under build/stage6/:
                  offsets.json. Not an inverted index — grammatical predicates
                  (case=gen, etc.) are anti-selective and would make postings
                  near-dense.
+
+  english-<slot>.json — one more English index per translation beyond the
+                 primary, same shape as english.json: english-ross.json
+                 (Butler), english-third.json (Pope), english-overlay-<id>.json
+                 (Kosmos). Written by emit_translation_indexes() from the
+                 emitted book JSON, which stage7 calls once the books exist.
+                 search/eng-chapters.json, where each scene starts in each
+                 translation's words, is written later, by search_scenes.py,
+                 because it follows the reader's scene pages.
 
 All of these are copied to build/dist/{work}/search/ by stage7. Stage 6 also
 writes a per-work n-gram fold-stream file to build/ngrams/{work}.json (NOT
@@ -56,10 +69,11 @@ from __future__ import annotations
 import json
 import re
 import struct
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
-from .config import BUILD_DIR, Manifest
+from .config import BUILD_DIR, REPO_ROOT, Manifest
 from .parse_filter import filter_parses
 from .stage2_validate import (
     check_grammar,
@@ -70,12 +84,245 @@ from .stage2_validate import (
 )
 
 _FOLD = re.compile(r"[^a-z']")  # keep only base letters and apostrophe
+
+# The canonical scenes (apparatus_scenes.SCENES_DIR); a module constant so a
+# test can point it elsewhere.
+SCENES_DIR = REPO_ROOT / "apparatus" / "scenes"
+
+# -- The English word split -----------------------------------------------------
+# Ported verbatim from aristotle_pipeline.stage6_search at aristotle-reader
+# 7ddd67b7ef (lines 67-115 there), comments included. Its client mirror is
+# englishWords() in Aristotle's shared/lib/search.ts (line 593 there), and
+# pipeline/tests/fixtures/english_words.json pins the two together. A
+# posting's word_pos is only right if both sides count words the same way.
 _EN_WORD = re.compile(r"[a-z']+")
+# The archive translations print possessives and contractions with U+2019
+# (Aristotle’s, isn’t); U+02BC is the modifier-letter apostrophe. The reader
+# folds a typed straight apostrophe to itself (englishFold) and the text's
+# curly one to straight (englishWords) — so the index must key "aristotle's"
+# as one word or neither path can find it.
+_EN_APOSTROPHE = re.compile("[\u2019\u02bc]")
+# Apparatus a translation's prose carries inline, which the reader renders as
+# controls and not as words: a footnote marker [^1.9] is glued to the word
+# before it and is simply dropped; a sidenote or figure marker [[s3]] / [[fig1]]
+# stands between words and leaves a space. Indexed as text, [[s3]] was the word
+# "s" and broke every phrase that ran across it. Mirrored by EN_FOOTNOTE /
+# EN_SIDENOTE in shared/lib/search.ts.
+_EN_FOOTNOTE = re.compile(r"\[\^[0-9A-Za-z_.*\u2020]+\]")
+_EN_SIDENOTE = re.compile(r"\[\[(?:s|fig)[0-9]+\]\]")
+# One pass, so a marker counts only as written: "[[s[^1]12]]" loses its
+# footnote and keeps "[[s12]]" as text, never a sidenote, as the reader shows
+# it: the footnote becomes a button and the rest stays prose. englishWords
+# scans the same.
+_EN_MARKER = re.compile(f"(?P<fn>{_EN_FOOTNOTE.pattern})|{_EN_SIDENOTE.pattern}")
+# Older translations print Latin letters the fold would otherwise split on:
+# "Lacedæmonians" was indexed as "laced" + "monians", "versâ" as "vers". The
+# ligatures become two letters and accents drop off, so the word is the one a
+# reader types. Mirrored by latinFold in shared/lib/search.ts.
+_EN_COMBINING = re.compile("[\u0300-\u036f]")
+
+
+def _latin_fold(text: str) -> str:
+    text = _EN_COMBINING.sub("", unicodedata.normalize("NFD", text))
+    return text.replace("\u00e6", "ae").replace("\u0153", "oe")
 
 
 def fold_lemma(beta_key: str) -> str:
     """Strip all Beta Code diacritics; keep only base letters + apostrophe."""
     return _FOLD.sub("", beta_key.lower())
+
+
+def english_words(text: str) -> list[str]:
+    """The English word stream as the reader's fold sees it: lowercase, curly
+    apostrophes made straight, split on anything outside [a-z']. An apostrophe
+    at a word's edge is a quotation mark (‘change’ closes with the same U+2019
+    that Aristotle’s elides with) and is not part of the word. Shared with
+    stage8 so english.json and english-segments.json count the same words.
+    Inline footnote, sidenote and figure markers are not words (see
+    _EN_FOOTNOTE). Ligatures and accented letters fold to plain ones (see
+    _latin_fold)."""
+    text = _EN_MARKER.sub(lambda m: "" if m.group("fn") else " ", text)
+    words = _EN_WORD.findall(_latin_fold(_EN_APOSTROPHE.sub("'", text).lower()))
+    return [w for w in (raw.strip("'") for raw in words) if w]
+
+
+def english_word_starts(text: str) -> list[int]:
+    """The character offset in `text` at which each of english_words(text)
+    begins: its first letter, after any leading apostrophe. Homer's addition,
+    for placing words in scenes (search_scenes.py). It walks the text a
+    character at a time as the client's englishWords() does, and is checked
+    against english_words() on every call, so the two cannot disagree on how
+    many words there are or which they are."""
+    words: list[str] = []
+    starts: list[int] = []
+    word: list[str] = []
+    at: list[int] = []
+
+    def close() -> None:
+        a, b = 0, len(word)
+        while a < b and word[a] == "'":
+            a += 1
+        while b > a and word[b - 1] == "'":
+            b -= 1
+        if a < b:
+            words.append("".join(word[a:b]))
+            starts.append(at[a])
+        word.clear()
+        at.clear()
+
+    i = 0
+    while i < len(text):
+        if text[i] == "[":
+            m = _EN_FOOTNOTE.match(text, i)
+            if m:
+                i = m.end()
+                continue
+            m = _EN_SIDENOTE.match(text, i)
+            if m:
+                close()
+                i = m.end()
+                continue
+        for ch in _latin_fold(_EN_APOSTROPHE.sub("'", text[i]).lower()):
+            if "a" <= ch <= "z" or ch == "'":
+                word.append(ch)
+                at.append(i)
+            else:
+                close()
+        i += 1
+    close()
+    if words != english_words(text):
+        raise ValueError(
+            "english_word_starts disagrees with english_words on "
+            f"{text[:60]!r}…: fix the walk, not the index"
+        )
+    return starts
+
+
+# -- Homer's scenes as the search's chapters ------------------------------------
+
+def scene_chapter_bounds(
+    scene_books: list[dict], segments: list[dict], seg_base_offset: list[int]
+) -> list[dict]:
+    """One chapter bound per scene: {book, chapter, start, accuracy}.
+
+    `chapter` names the scene by its line range, "<first>-<last>" (ASCII
+    hyphen); `start` is the global offset of the first token of the scene's
+    first line (seg_base_offset of the segment holding that line, plus the
+    tokens of the lines before it). Lines are matched by their vulgate number,
+    never by position, so a numbering gap is carried as it stands. A scene
+    whose first line is not in the text, or a book with no scenes, is an
+    error: the client would otherwise put that book's hits nowhere.
+    """
+    by_book = {b["book"]: b.get("scenes") or [] for b in scene_books}
+    # (book, line) -> global offset of the line's first token.
+    line_start: dict[tuple[int, int], int] = {}
+    for i, seg in enumerate(segments):
+        pos = seg_base_offset[i]
+        for line in seg["lines"]:
+            line_start.setdefault((seg["book"], line["n"]), pos)
+            pos += len(line["tokens"])
+    bounds: list[dict] = []
+    for book in dict.fromkeys(seg["book"] for seg in segments):
+        scenes = by_book.get(book)
+        if not scenes:
+            raise ValueError(f"stage6: book {book} has no scenes to count search hits by")
+        for scene in scenes:
+            first, last = scene["lines"][0], scene["lines"][1]
+            start = line_start.get((book, first))
+            if start is None:
+                raise ValueError(
+                    f"stage6: scene {book}.{first}-{last} starts on line {book}.{first}, "
+                    "which the Greek text does not have"
+                )
+            bounds.append({"book": book, "chapter": f"{first}-{last}",
+                           "start": start, "accuracy": "exact"})
+    return bounds
+
+
+# -- Indexes for the translations beyond the primary ----------------------------
+# Ported from aristotle_pipeline.stage6_search (7ddd67b7ef, lines 235-365),
+# with Homer's slot names: Butler is 'ross' (Aristotle renamed its slot
+# 'secondary'), so the client's englishIndexFile() names his index
+# english-ross.json. eng-chapters.json is not written here; see
+# search_scenes.py.
+
+_OVERLAY_ID = re.compile(r"[a-z0-9_]+")
+
+
+def segment_pieces(seg: dict) -> dict[str, list[dict]]:
+    """The non-primary translation pieces of one emitted segment, by slot:
+    'ross', 'third', and 'overlay-<id>' for each overlay — the names the
+    client's englishIndexSlot() gives them."""
+    out: dict[str, list[dict]] = {}
+    if seg.get("ross"):
+        out["ross"] = seg["ross"]
+    if seg.get("third"):
+        out["third"] = seg["third"]
+    for tid, pieces in (seg.get("overlays") or {}).items():
+        if not _OVERLAY_ID.fullmatch(tid):
+            raise ValueError(f"overlay id {tid!r} cannot name an index file")
+        if pieces:
+            out[f"overlay-{tid}"] = pieces
+    return out
+
+
+def segment_translations(seg: dict) -> dict[str, list[str]]:
+    """The non-primary translation texts of one emitted segment, by slot."""
+    return {slot: [p.get("text") or "" for p in pieces]
+            for slot, pieces in segment_pieces(seg).items()}
+
+
+def translation_index_name(slot: str) -> str:
+    return "english.json" if slot == "english" else f"english-{slot}.json"
+
+
+def emit_translation_indexes(work_dir: Path) -> dict[str, dict[str, int]]:
+    """Write search/english-<slot>.json for every non-primary translation.
+
+    Reads the work's emitted book-NN.json and search/meta.json, which must
+    already be in place; seg_idx is a segment's position in meta.json, exactly
+    as in english.json. A segment's word_pos runs through its pieces in order,
+    as the client counts them. Any english-*.json left from an earlier build
+    is removed first, so an index can never outlive its translation. Returns,
+    per slot, the number of distinct words and of segments indexed.
+    """
+    search_dir = work_dir / "search"
+    meta = json.loads((search_dir / "meta.json").read_text(encoding="utf-8"))
+    seg_idx = {m["id"]: i for i, m in enumerate(meta)}
+
+    posts: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    segments: dict[str, set[int]] = defaultdict(set)
+    for book_path in sorted(work_dir.glob("book-*.json")):
+        doc = json.loads(book_path.read_text(encoding="utf-8"))
+        for seg in doc["segments"]:
+            slots = segment_translations(seg)
+            if not slots:
+                continue
+            si = seg_idx.get(seg["id"])
+            if si is None:
+                raise ValueError(
+                    f"{book_path.name}: segment {seg['id']} is not in search/meta.json"
+                )
+            for slot, texts in slots.items():
+                pos = 0
+                for text in texts:
+                    for word in english_words(text):
+                        posts[slot][word].append([si, pos])
+                        pos += 1
+                if pos:
+                    segments[slot].add(si)
+
+    for stale in search_dir.glob("english-*.json"):
+        stale.unlink()
+    summary: dict[str, dict[str, int]] = {}
+    for slot in sorted(posts):
+        # In document order, as english.json is.
+        index = {word: sorted(plist) for word, plist in posts[slot].items()}
+        (search_dir / translation_index_name(slot)).write_text(
+            json.dumps(index, ensure_ascii=False), encoding="utf-8"
+        )
+        summary[slot] = {"words": len(posts[slot]), "segments": len(segments[slot])}
+    return summary
 
 
 # -- Morphology feature vocabulary -------------------------------------------
@@ -352,16 +599,18 @@ def run(manifest: Manifest) -> Path:
     greek_form = _dedupe(form_posts)
 
     # -- English inverted index -----------------------------------------------
-    # word -> sorted list of unique seg_idxs
-    eng_posts: dict[str, set] = defaultdict(set)
+    # word -> [[seg_idx, word_pos], ...] in document order; word_pos counts
+    # every word of the segment's English as english_words() splits it
+    # (aristotle-reader 7ddd67b7ef, stage6_search.py:439-450).
+    eng_posts: dict[str, list] = defaultdict(list)
     for seg in segments:
         eng = eng_by_id.get(seg["id"])
         if not eng:
             continue
         si = seg_idx[seg["id"]]
-        for word in _EN_WORD.findall(eng["text"].lower()):
-            eng_posts[word].add(si)
-    english_idx = {w: sorted(idxs) for w, idxs in eng_posts.items()}
+        for pos, word in enumerate(english_words(eng["text"])):
+            eng_posts[word].append([si, pos])
+    english_idx = dict(eng_posts)
 
     # -- Segment metadata -----------------------------------------------------
     meta = []
@@ -396,9 +645,8 @@ def run(manifest: Manifest) -> Path:
     # seg_base_offset[seg_idx] + token_pos, so no posting has to change and no
     # reverse map is needed. Counts EVERY stage3 token, keyless ones included,
     # so it stays in step with token_pos. Homer's segments are books, not
-    # Bekker columns: book_bounds is nearly the whole segment list, and
-    # chapter_bounds has no Homeric analogue, so it is always emitted empty
-    # rather than faked.
+    # Bekker columns: book_bounds is nearly the whole segment list.
+    # chapter_bounds are the reader's scenes (scene_chapter_bounds).
     seg_base_offset: list[int] = []
     seg_coords: list[dict] = []
     running = 0
@@ -422,6 +670,15 @@ def run(manifest: Manifest) -> Path:
         if not book_bounds or book_bounds[-1]["book"] != seg["book"]:
             book_bounds.append({"book": seg["book"], "start": seg_base_offset[i]})
 
+    scenes_path = SCENES_DIR / f"{manifest.work_id}.json"
+    if not scenes_path.exists():
+        raise ValueError(
+            f"stage6: {scenes_path} is missing; the search counts hits by scene "
+            "and needs every book's scenes"
+        )
+    scene_books = json.loads(scenes_path.read_text(encoding="utf-8"))["books"]
+    chapter_bounds = scene_chapter_bounds(scene_books, segments, seg_base_offset)
+
     offsets = {
         # Doubles as a build fingerprint: every artifact indexed by global
         # offset must agree on it, or they were built from different runs.
@@ -429,7 +686,7 @@ def run(manifest: Manifest) -> Path:
         "seg_base_offset": seg_base_offset,
         "segments": seg_coords,
         "book_bounds": book_bounds,
-        "chapter_bounds": [],  # no Homeric analogue; never faked
+        "chapter_bounds": chapter_bounds,
     }
 
     # -- Grammatical index -----------------------------------------------------
@@ -551,7 +808,7 @@ def run(manifest: Manifest) -> Path:
                 # disagree with the offsets they are supposed to index.
                 "token_count": token_count,
                 "book_bounds": book_bounds,
-                "chapter_bounds": [],
+                "chapter_bounds": chapter_bounds,
                 "form": form_stream,
                 "lemma": lemma_stream,
             },
@@ -575,6 +832,7 @@ def run(manifest: Manifest) -> Path:
         "greek_lemmata": len(greek_lemma),
         "greek_forms": len(greek_form),
         "english_terms": len(english_idx),
+        "chapter_bounds": len(chapter_bounds),
         "segments": len(meta),
         "tokens": token_count,
         "signatures": grammar_check["signatures"],
