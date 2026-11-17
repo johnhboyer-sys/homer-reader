@@ -3,6 +3,38 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-11-17: the new search, PRs #65 and #66
+
+gh-pages `1b0cd12a2` → `323a7caee` (source: main `4cdd7c9a6`). Same method:
+a fresh build of main with `npm run build:public`, rsynced into
+`homer-reader-site`. The search data changed shape, so the service worker's
+`VERSION` is now `v6`.
+
+**What shipped.**
+- **PR #65: Aristotle's new search page, in Homer's theme, counted by scene**
+  (John, 16 Nov). The bar reads "N scenes · M hits". "And" means both
+  languages in one scene. The join reads and | and/or | or and loads on
+  "and/or". All four translations are searched. Pages hold exactly N rows,
+  and an English phrase list sets phrases aside. The book, speech, speaker
+  and grammar filters stay. Every count that moved is explained in
+  `docs/search-port/counts-after-port.md`.
+- **PR #66: page 1 reads only the books it draws.** Ported from
+  aristotle-reader #208. A row table (`data/<work>/rows.json`, 63 + 46 KB
+  gzip) counts rows without reading books. Page 1 of θάλασσα + sea went from
+  47 book files and 5.3 MB gzip to 2 and 285 KB. Every page and row of 26
+  searches is identical to #65.
+- Codex (GPT-6.1-Sol, medium) reviewed both. Every finding was fixed with a
+  test.
+
+Gates: preflight ok · 4,687 pages · 0 broken of 335,540 links.
+Live-verified: `sw.js` is `v6`; `/data/iliad/rows.json` is served;
+`/search/?g=θάλασσα&e=sea&op=or` reads "298 scenes · 119 hits · page 1 of
+15", draws 40 rows, and reads only Iliad 1 and 2.
+
+Open for John: whether the views by form and by grammar may keep reading
+every book; the "or" bar's hit figure; porting the Lemma label fix back to
+Aristotle (sent to that session).
+
 ## Deploy — 2026-10-21 (second): Attribution byline links to johnhboyer.com, PR #56
 
 gh-pages `a4c752715` → `1b0cd12a2` (source: main `b35b0b294`). Same method.
