@@ -205,6 +205,13 @@ describe('"All words" places a term of several words by its first word', () => {
     expect(await counted()).toMatch(/^No scenes found/);
     expect([...document.querySelectorAll('.sx-chap-n')].map(h => h.textContent)).not.toContain('Lines 33–42');
   });
+
+  // Codex review of the fold (lane F): word 339, the second word of
+  // "bed-but", is also a "but"; it is not a second start of "bed-but".
+  it('does not take another term\'s word for a second start ("bed-but but")', async () => {
+    open('e=bed-but%20but&ef=0&w=iliad&b=1&t=murray');
+    expect(await counted()).toMatch(/^1 scene · 4 hits/);
+  });
 });
 
 // The English phrase list (aristotle-reader PR #202) on Homer's four

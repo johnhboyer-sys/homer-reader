@@ -208,21 +208,27 @@ export function allWordsJoin(results: SearchResult[], places: ChapterPlaces): Se
       const engHits = r.engHits.flatMap(h => {
         if (!h.units) return [h];
         // A term of several words stands where its first word does (Codex
-        // review of e03973358): each word goes with the run it begins or
-        // continues, and only a run's first word places the term.
-        const heads = h.matches ? [...h.matches].sort((x, y) => x - y) : null;
-        const headOf = (w: number) => {
-          if (!heads) return w;
-          let k = heads.length - 1;
-          while (k >= 0 && heads[k] > w) k--;
-          return k >= 0 ? heads[k] : w;
+        // review of e03973358): each of its words goes with the run of that
+        // term it begins or continues, and only the term's own runs' starts
+        // place it, not a word of it that is also another term's run (Codex
+        // review of the fold: "bed-but but").
+        const runOf = (i: number, w: number) => {
+          const own = h.heads?.[i];
+          if (!own) return w;
+          let k = own.length - 1;
+          while (k >= 0 && own[k] > w) k--;
+          return k >= 0 ? own[k] : w;
         };
-        const lists = heads ? h.units.map(list => list.filter(w => headOf(w) === w)) : h.units;
+        const lists = h.heads ?? h.units;
         const at = (w: number) => places.eng(r, h.translation, w);
         const ok = full(lists, new Set(h.positions), at);
-        const inside = (w: number) => ok.has(at(headOf(w)).key);
+        const inside = (w: number) => {
+          const terms = h.units!.flatMap((list, i) => (list.includes(w) ? [i] : []));
+          return terms.length ? terms.some(i => ok.has(at(runOf(i, w)).key)) : ok.has(at(w).key);
+        };
         const positions = h.positions.filter(inside);
-        const matches = h.matches?.filter(inside);
+        // A match is a run's start, and stands in its own scene.
+        const matches = h.matches?.filter(m => ok.has(at(m).key));
         return positions.length ? [{ ...h, positions, ...(matches ? { matches } : {}) }] : [];
       });
       left = { ...left, engHits, engMatch: engHits.length > 0 };

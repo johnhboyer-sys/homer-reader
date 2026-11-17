@@ -861,7 +861,9 @@ export type LangOp = 'and' | 'or' | 'xor';
 // several words one match (John, 2026-11-11).
 // `units`: an "All words" query of several units, each unit's word positions
 // here, so allWordsJoin (lib/chapter-pages) can hold them to one scene.
-export interface EngHit { translation: string; positions: number[]; matches?: number[]; units?: number[][] }
+// `heads`: beside `units`, where a unit has several words, each unit's own
+// runs' starts (a word of one term may also be a run of another).
+export interface EngHit { translation: string; positions: number[]; matches?: number[]; units?: number[][]; heads?: number[][] }
 
 export interface SearchResult {
   work: string;           // which work this hit belongs to
@@ -1129,7 +1131,7 @@ function englishMatch(
   units: string[][],
   engMode: SearchMode,
   forms: boolean,
-): { segs: Set<number>; positions: Map<number, number[]>; matches: Map<number, number[]>; units: Map<number, number[][]> } {
+): { segs: Set<number>; positions: Map<number, number[]>; matches: Map<number, number[]>; units: Map<number, number[][]>; heads: Map<number, number[][]> } {
   const asked = engMode === 'phrase' ? [units.flat()] : units;
   const matches = asked.map(u => unitMatch(idx, u, forms));
   const segs = matches.map(m => m.segs).reduce(engMode === 'any' ? union : intersect);
@@ -1153,8 +1155,12 @@ function englishMatch(
   // hold to one scene. A bare * stands in every scene, so it is not listed.
   const each = engMode === 'all' ? matches.filter((_, i) => !(asked[i].length === 1 && asked[i][0] === '*')) : [];
   const perUnit = new Map<number, number[][]>();
-  if (each.length > 1) for (const si of segs) perUnit.set(si, each.map(m => m.positions.get(si) ?? []));
-  return { segs, positions, matches: runs, units: perUnit };
+  const heads = new Map<number, number[][]>();
+  if (each.length > 1) for (const si of segs) {
+    perUnit.set(si, each.map(m => m.positions.get(si) ?? []));
+    if (several) heads.set(si, each.map(m => m.starts.get(si) ?? []));
+  }
+  return { segs, positions, matches: runs, units: perUnit, heads };
 }
 
 // The same matches as greekPositions, but kept in the groups the query mode is
@@ -1404,12 +1410,13 @@ async function searchWork(
     sources.forEach((t, i) => {
       const idx = engIdxs[i];
       if (!idx) return;
-      const { segs: hits, positions, matches, units } = englishMatch(idx, engUnits, engMode, engForms);
+      const { segs: hits, positions, matches, units, heads } = englishMatch(idx, engUnits, engMode, engForms);
       for (const si of hits) {
         engHits!.add(si);
         const hit: EngHit = { translation: t.id, positions: positions.get(si) ?? [] };
         if (matches.has(si)) hit.matches = matches.get(si);
         if (units.has(si)) hit.units = units.get(si);
+        if (heads.has(si)) hit.heads = heads.get(si);
         const arr = engBySeg.get(si);
         if (arr) arr.push(hit);
         else engBySeg.set(si, [hit]);

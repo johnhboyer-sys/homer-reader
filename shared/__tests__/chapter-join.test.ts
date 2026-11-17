@@ -111,11 +111,22 @@ describe('allWordsJoin: "All words" means every term in one scene', () => {
   // first term, with "go" in scene 2, though "bed-but" begins in scene 1. A
   // term of several words stands where its first word does.
   it('places a term of several words by its first word', () => {
-    const across = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [19, 20, 21], matches: [19, 21], units: [[19, 20], [21]] }] });
+    const across = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [19, 20, 21], matches: [19, 21], units: [[19, 20], [21]], heads: [[19], [21]] }] });
     expect(allWordsJoin([across], scenes)).toEqual([]);
-    const within = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]] }] });
+    const within = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]], heads: [[19], [5]] }] });
     const [out] = allWordsJoin([within], scenes);
-    expect(out.engHits).toEqual([{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]] }]);
+    expect(out.engHits).toEqual([{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5]], heads: [[19], [5]] }]);
+  });
+
+  // Codex review of the fold (lane F): "bed-but but". Word 20, the second
+  // word of "bed-but" (run 19, scene 1), is also a run of "but" (scene 2).
+  // It is not a second start of "bed-but": a term's starts are its own runs'.
+  it('takes a term\'s starts from its own runs, not from another term\'s', () => {
+    const r = bookRes({ engMatch: true, engHits: [{ translation: 'english', positions: [5, 19, 20], matches: [5, 19, 20], units: [[19, 20], [5, 20]], heads: [[19], [5, 20]] }] });
+    const [out] = allWordsJoin([r], scenes);
+    // Scene 1 holds both (bed-but at 19, but at 5); scene 2 holds "but" alone.
+    expect(out.engHits).toEqual([{ translation: 'english', positions: [5, 19, 20], matches: [5, 19], units: [[19, 20], [5, 20]], heads: [[19], [5, 20]] }]);
+    expect(measure([out], scenes)).toMatchObject({ chapters: 1, engHits: 2 });
   });
 
   it('leaves a search with no term lists (any word, a phrase, one word) as it was', () => {
