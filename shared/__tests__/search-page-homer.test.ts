@@ -2,7 +2,7 @@
 // features. These run the page on the real corpus, served from
 // app/public/data by a fetch spy, so the counts are the ones a reader sees.
 // Without the data (a fresh worktree) every test skips, loudly.
-import { fireEvent, render, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Search from '../components/Search.svelte';
 import { CORPUS, HAVE_CORPUS, serveCorpus } from './serve-corpus';
@@ -249,6 +249,29 @@ describe('the phrase list, in each translation', () => {
     await fireEvent.click(listed[0].box);
     await waitFor(() => expect(hits()).toBe(before - listed[0].n), { timeout: 30000 });
     expect(new URLSearchParams(window.location.search).get('xp')).toBe(listed[0].phrase);
+  }, 120000);
+});
+
+// Codex review of the fold (lane F): the sheet's "Show n scenes" counted
+// the forms ticked without the phrases set aside, so it promised 31 scenes
+// where Apply drew 29.
+describe('the sheet counts what Apply draws', () => {
+  it('a form unticked with a phrase set aside: "Show n scenes" is the bar after', async () => {
+    open('g=θάλασσα&e=sea&op=and&w=iliad&xp=of%20the%20sea');
+    await counted();
+    await fireEvent.click(screen.getByRole('button', { name: /^Filter/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Filter' });
+    await fireEvent.click(await waitFor(() => within(sheet).getByRole('button', { name: /^Forms/ }), { timeout: 30000 }));
+    const forms = await screen.findByRole('group', { name: 'Greek forms found' });
+    // The form θάλασσα, spelled or (before its spellings load) folded.
+    const bare = (t: string) => t.normalize('NFD').replace(/\p{M}/gu, '');
+    const box = [...forms.querySelectorAll('label.fx')].find(l => bare(l.querySelector('span')?.textContent ?? '').split(' · ').includes('θαλασσα'))!.querySelector('input')!;
+    await fireEvent.click(box);
+    const show = await waitFor(() => { const b = within(forms).getByRole('button', { name: /^Show \d+ scenes?$/ }); expect(b).not.toBeDisabled(); return b; });
+    const promised = Number(show.textContent!.match(/\d+/)![0]);
+    await fireEvent.click(show);
+    await waitFor(() => expect(scenesIn(status())).toBe(promised), { timeout: 30000 });
+    expect(status()).toMatch(/^29 scenes · 33 hits/);
   }, 120000);
 });
 

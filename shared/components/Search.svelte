@@ -1389,15 +1389,18 @@
   $: shownForms = formKeys.filter(f => !excludedForms.has(f)).length;
   // The hits with every form back in, for "of 967 · restore all forms" under
   // the count while some are set aside (d21).
+  // Both counts here take the path showResults takes (forms and facets, then
+  // the phrases set aside, the translation, the work, the join), so what the
+  // sheet promises is what Apply draws.
   $: allFormsTotal = excludedForms.size
-    ? countOf(joined(narrowWork(narrow(refine(allResults, { forms: hitForms ?? undefined, excluded: new Set(), grammar: ownG ?? undefined, facets }, keepOp(searchCtx)), transFilter, searchCtx), workFilter), places, joinBoth, searchCtx.langOp), places, engSearch, transFilter).chapters
+    ? countOf(joined(narrowWork(narrow(withoutPhrases(refine(allResults, { forms: hitForms ?? undefined, excluded: new Set(), grammar: ownG ?? undefined, facets }, keepOp(searchCtx)), asidePhrases, phraseTexts), transFilter, searchCtx), workFilter), places, joinBoth, searchCtx.langOp), places, engSearch, transFilter).chapters
     : mainCount;
   const chaptersLabel = (n: number) => `Show ${n} scene${n === 1 ? '' : 's'}`;
   $: hitsLabel = `Show ${mainCount} ${countNoun}`;
   // What the forms ticked on the sheet would leave (q08), and its button:
   // the ticks applied, then the hits.
   $: formsPreview = formsDirty
-    ? countOf(joined(narrowWork(narrow(refine(allResults, { forms: hitForms ?? undefined, excluded: new Set([...[...excludedForms].filter(f => !formKeys.includes(f)), ...formKeys.filter(f => !formTicks.has(f))]), grammar: ownG ?? undefined, facets }, keepOp(searchCtx)), transFilter, searchCtx), workFilter), places, joinBoth, searchCtx.langOp), places, engSearch, transFilter).chapters
+    ? countOf(joined(narrowWork(narrow(withoutPhrases(refine(allResults, { forms: hitForms ?? undefined, excluded: new Set([...[...excludedForms].filter(f => !formKeys.includes(f)), ...formKeys.filter(f => !formTicks.has(f))]), grammar: ownG ?? undefined, facets }, keepOp(searchCtx)), asidePhrases, phraseTexts), transFilter, searchCtx), workFilter), places, joinBoth, searchCtx.langOp), places, engSearch, transFilter).chapters
     : mainCount;
   function showForms() {
     if (formsDirty) applyForms();
