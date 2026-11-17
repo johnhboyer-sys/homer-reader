@@ -203,24 +203,25 @@ describe('the row table counts the rows the page draws', () => {
   // Greek alone, which is offered the by-form view.
   const greekOnly = [words(1), two[1]];
   const urlG = `/search/?${greekWord}&ps=20`;
-  it('by form, reads every book: the table does not hold the forms a row splits on', async () => {
-    // Not asked for at all: by form it could count nothing.
-    await rows(`${urlG}&v=form`, greekOnly, tableOf(), false);
-    const { loadRowTable } = await import('../lib/data');
-    expect(loadRowTable).not.toHaveBeenCalled();
-    await vi.waitFor(async () => expect(await booksRead()).toEqual([1, 2]));
+  // Pages count passages in every view (John, 17 Nov): by form a page holds
+  // By work's passages, regrouped, so the table counts its pages too.
+  it('by form, reads only the books its page draws, the page count from the table', async () => {
+    await rows(`${urlG}&v=form`, greekOnly);
     await vi.waitFor(() => expect(text(document.querySelector('.pager-status'))).toBe('Page 1 of 2'));
+    expect(await booksRead()).toEqual([1]);
+    expect(mismatches()).toEqual([]);
   });
 
-  it('moving to the by-form view reads the books the table counted', async () => {
+  it('moving to the by-form view keeps the pages and reads no other book', async () => {
     await rows(urlG, greekOnly);
     await vi.waitFor(() => expect(text(document.querySelector('.pager-status'))).toBe('Page 1 of 2'));
     expect(await booksRead()).toEqual([1]);
     const form = document.querySelector<HTMLInputElement>('input[name="sx-view"][value="form"]');
     expect(form).toBeTruthy();
     await fireEvent.click(form!);
-    await vi.waitFor(async () => expect(await booksRead()).toEqual([1, 2]));
-    await vi.waitFor(() => expect(text(document.querySelector('.pager-status'))).toBe('Page 1 of 2'));
+    await new Promise(r => setTimeout(r, 50));
+    expect(await booksRead()).toEqual([1]);
+    expect(text(document.querySelector('.pager-status'))).toBe('Page 1 of 2');
   });
 
   it('keeps the next book on its own page where a book the table counted fails to load', async () => {
@@ -279,7 +280,8 @@ describe('on the corpus, the table agrees with every book θάλασσα + sea r
   beforeEach((ctx) => {
     if (!HAVE_CORPUS) { console.warn(`row-table-search: no corpus at ${CORPUS}; skipping`); ctx.skip(); }
   });
-  it('θάλασσα + sea, and/or', async () => {
+  // The tables, made from the built books as the site build makes them.
+  function serveTables() {
     const tables = new Map<string, RowTable>();
     for (const w of ['iliad', 'odyssey']) {
       const dir = path.join(CORPUS, w);
@@ -291,6 +293,9 @@ describe('on the corpus, the table agrees with every book θάλασσα + sea r
     }
     serveCorpus({}, Object.fromEntries([...tables].map(([w, t]) => [`${w}/rows.json`, () => t])));
     state.corpus = true;
+  }
+  it('θάλασσα + sea, and/or', async () => {
+    serveTables();
     const { fetchBook, loadRowTable } = await import('../lib/data');
     // The table is in force: the page total shows at once, and page 1 has
     // read only the books it draws (Il. 1-2), not the 47 the search reaches.
@@ -309,4 +314,27 @@ describe('on the corpus, the table agrees with every book θάλασσα + sea r
     expect(mismatches()).toEqual([]);
     expect(drawn).toBe(scenes);
   }, 600000);
+
+  // Pages count passages in every view (John, 17 Nov): by form and by grammar
+  // page 1 reads the books By work's page 1 does, and no other.
+  for (const [view, query] of [
+    ['by form', `g=${encodeURIComponent('θάλασσα')}&e=sea&op=or&v=form`],
+    ['by grammar', 'l=qalassa&e=sea&op=or&v=grammar'],
+  ] as const) {
+    it(`${view}, θάλασσα + sea: page 1 reads Il. 1-2 alone`, async () => {
+      serveTables();
+      const { fetchBook } = await import('../lib/data');
+      window.history.replaceState(null, '', `/search/?${query}`);
+      render(Search);
+      await vi.waitFor(() => expect(status()).toMatch(/page 1 of \d+$/), { timeout: 60000 });
+      // By grammar the paradigm rows start shut: their headings show the page drawn.
+      await vi.waitFor(() => expect(document.querySelectorAll('li.instance, .group-head').length).toBeGreaterThan(0), { timeout: 60000 });
+      // Long enough for a page that reads every book to start them.
+      await new Promise(r => setTimeout(r, 200));
+      const read = new Set(vi.mocked(fetchBook).mock.calls.map(c => `${c[0]} ${c[1]}`));
+      expect([...read].sort()).toEqual(['iliad 1', 'iliad 2']);
+      expect(mismatches()).toEqual([]);
+      cleanup();
+    }, 300000);
+  }
 });

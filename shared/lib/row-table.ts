@@ -17,9 +17,8 @@
 // translation's own marks (english-place lineFor, interpolated by character
 // offset). Scenes are not in the table: they come with the hits' places
 // (chapter-pages chapterPlaces), as they do on the page. The table counts
-// rows as the page draws them by work; by form and by grammar a row splits
-// on its forms and headwords (Search.svelte rowsIn), which the table does not
-// hold, so those views read their books.
+// rows as the page draws them by work, and every view pages by those rows
+// (John, 17 Nov): by form and by grammar a page regroups its own.
 //
 // Pure: no Svelte, no fetching.
 import type { BookData, Segment } from './data';

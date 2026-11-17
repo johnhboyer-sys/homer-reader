@@ -89,7 +89,7 @@
   import WordPopup from './WordPopup.svelte';
   import {
     ambiguityNote, compareForms, cutPositions, facetCounts, facetKeep, formGroupsOf, formKey, grammarHitNote, hasFacets, orderHits, ownGrammar,
-    paradigmHeads, paradigmOf, refine, searchKind, viewsOffered, withTicked,
+    paradigmOf, refine, searchKind, viewsOffered, withTicked,
     type Facets, type PageSize, type ResultContext, type ResultSort, type ResultView,
   } from '../lib/result-views';
 
@@ -169,9 +169,6 @@
     // A whole section with hits of several forms: the section once for each
     // form, as the form and grammar views file it.
     forms?: Instance[];
-    // By grammar, a row's copy under one of its headwords (rowsIn): filed
-    // under that headword alone.
-    under?: string;
   }
   // One Greek word a hit holds. `oneOf` is a grammatical search's note on it,
   // stated as one-of-N when the parse does not settle the reading; absent when
@@ -706,22 +703,13 @@
     await loadGrammar(results);
     if (results === allResults) showResults(allResults);
   }
-  // Regroups the page in view; the results stay as they are. By form and
-  // by grammar a row holding several forms is drawn once under each, so
-  // moving to or from them lays the pages out again (rowsIn).
+  // Regroups the page in view; the results and the pages stay as they are
+  // (John, 17 Nov: pages count passages in every view).
   function setView(next: ResultView) {
     popup = null;
-    const relay = next !== view && (splitView(next) || splitView(view));
     view = next;
     if (lastSearch) writeUrl({ ...lastSearch, trans: transFilter, workFilter, xforms: [...excludedForms], view, facets, context, sort, pageSize }, 'replace');
     if (view === 'grammar') needGrammar();
-    if (relay && rowBooks.length) {
-      // By form and by grammar the rows are the books' own: the books the
-      // table counted are read now, and the page count waits for them.
-      if (splitView(view) && rowBooks.some(b => !b.done)) { pageTotal = null; countRows(rowsRun); }
-      else if (pageTotal !== null) pageTotal = pagesFor(rowBooks);
-      renderPage(pageIdx);
-    }
   }
   // How much text a hit shows. Hits whose passages share words are one row,
   // so the rows are laid out again, and the page in view is drawn again.
@@ -1102,13 +1090,13 @@
   // shows at once and a page reads only its own books. A book the table
   // cannot count is read, as before; a book read whose rows differ from the
   // table's count retires the table for the rest of the visit, and every
-  // book is read. The table counts the rows by work: by form and by grammar
-  // a row splits on its forms and headwords, which the table does not hold,
-  // so those views read their books (knownIn).
+  // book is read. Every view pages by these rows (John, 17 Nov: "Pages count
+  // passages in every view"): by form and by grammar a page regroups its own
+  // rows, a row with hits of several forms (or headwords) drawn under each,
+  // so a page there may draw more than N.
   type Built = Awaited<ReturnType<typeof buildGroups>>;
-  // `done`: the book laid out, whose rows each view counts (rowsOf).
-  // `known`: its rows by work, from the row table.
-  interface RowBook { results: SearchResult[]; built?: Promise<Built>; done?: Built; known?: number; failed?: boolean }
+  // `rows`: the book's rows, laid out; `known`: its rows from the row table.
+  interface RowBook { results: SearchResult[]; built?: Promise<Built>; rows?: number; known?: number; failed?: boolean }
   let rowBooks: RowBook[] = [];
   let rowsReady: Promise<void> = Promise.resolve();
   let tableOff = false;
@@ -1119,46 +1107,14 @@
   $: paged = pageTotal === null ? pageIdx > 0 || moreRows : pageTotal > 1;
   $: pageOf = pageTotal === null ? '…' : String(pageTotal);
   $: lastPage = pageTotal === null ? !moreRows : pageIdx >= pageTotal - 1;
-  // A row as the view draws it: by form and by grammar, an instance holding
-  // hits of several forms is filed once under each (sectionsFor), and is
-  // that many rows; by work it is one (Codex review of the fold: by form,
-  // a page of 20 drew 47). By grammar each Greek row is filed under every
-  // headword it belongs to (paradigmOf), a copy under each, each a row
-  // (Codex check of 09cee472c: ὁ and ὅς drew 25, 27, … to a page of 20).
-  const splitView = (v: ResultView) => v === 'form' || v === 'grammar';
-  function rowsIn(inst: Instance, v: ResultView): Instance[] {
-    if (!splitView(v)) return [inst];
-    const parts = inst.forms ?? [inst];
-    if (v !== 'grammar') return parts;
-    const heads = headsSearched(lastSearch, hitForms);
-    return parts.flatMap(part => (part.lang === 'grk'
-      ? paradigmHeads(paradigmItem(part, grammarAt, hitForms), heads).map(under => ({ ...part, under }))
-      : [part]));
-  }
-  const rowsOf = (b: Built, v: ResultView) => b.groups.reduce((n, g) => n + g.instances.reduce((m, inst) => m + rowsIn(inst, v).length, 0), 0);
-  // A book's rows in a view, where the table counts them without the book.
-  const knownIn = (b: RowBook, v: ResultView) => (splitView(v) ? undefined : b.known);
-  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + (knownIn(b, view) ?? (b.done ? rowsOf(b.done, view) : 0)), 0) / pageTarget(pageSize));
-  // By grammar the rows turn on the readings and the forms' headwords, which
-  // may load after the first page is drawn: when they come, the pages are
-  // laid out again. Only for the rows of the results now laid out.
-  let laidOut = 0;
-  let rowsGrammar: unknown[] = [];
-  $: relayGrammar(view, grammarAt, hitForms);
-  function relayGrammar(v: ResultView, at: Map<string, Reading[]>, forms: HitForms | null) {
-    if (v !== 'grammar' || (rowsGrammar[0] === at && rowsGrammar[1] === forms)) return;
-    rowsGrammar = [at, forms];
-    if (!rowBooks.length || laidOut !== layoutRun) return;
-    if (pageTotal !== null) pageTotal = pagesFor(rowBooks);
-    renderPage(pageIdx);
-  }
+  const rowsOf = (b: Built) => b.groups.reduce((n, g) => n + g.instances.length, 0);
+  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + (b.known ?? b.rows ?? 0), 0) / pageTarget(pageSize));
   function layOutRows(shown: SearchResult[]) {
     const by = new Map<string, SearchResult[]>();
     for (const r of shown) {
       const key = `${r.work}:${r.meta.book}`;
       (by.get(key) ?? by.set(key, []).get(key)!).push(r);
     }
-    laidOut = layoutRun;
     rowBooks = [...by.values()]
       .sort((a, b) => (WORK_ORDER.get(a[0].work) ?? 0) - (WORK_ORDER.get(b[0].work) ?? 0) || a[0].meta.book - b[0].meta.book)
       .map(results => ({ results }));
@@ -1174,10 +1130,9 @@
       .then(() => countRows(run));
   }
   // Each book's rows from its work's table, where the table can count them:
-  // by work only, and not with the accent or case filter (which reads its
-  // books anyway).
+  // not with the accent or case filter (which reads its books anyway).
   async function countKnown(run: number) {
-    if (tableOff || !rowBooks.length || splitView(view) || searchCtx.grkAccentTerms.length || searchCtx.grkCaseTerms.length) return;
+    if (tableOff || !rowBooks.length || searchCtx.grkAccentTerms.length || searchCtx.grkCaseTerms.length) return;
     const works = [...new Set(rowBooks.map(b => b.results[0].work))];
     const tables = new Map<string, RowTable | null>();
     const outlines = new Map<string, Record<string, OutlineRef[]> | null>();
@@ -1208,8 +1163,7 @@
   // load. A layout retired meanwhile starts no more books.
   function countRows(run: number) {
     if (!rowBooks.length || run !== rowsRun) return;
-    const v = view;
-    const unknown = rowBooks.filter(b => knownIn(b, v) === undefined);
+    const unknown = rowBooks.filter(b => b.known === undefined);
     void pool(unknown, 4, async b => { if (run === rowsRun) await bookRows(b, run); }).then(() => {
       if (run !== rowsRun) return;
       pageTotal = pagesFor(rowBooks);
@@ -1219,11 +1173,10 @@
   function bookRows(b: RowBook, run: number): Promise<Built> {
     b.built ??= buildGroups(b.results, searchCtx, context).then(x => {
       if (run === rowsRun) {
-        b.done = x;
+        b.rows = rowsOf(x);
         b.failed = x.failed.length > 0;
-        const rows = rowsOf(x, 'page');
-        if (b.known !== undefined && !b.failed && rows !== b.known && !tableOff) {
-          console.warn(`search: the row table counts ${b.known} rows in ${b.results[0].work} ${b.results[0].meta.book}, the book ${rows}; reading every book`);
+        if (b.known !== undefined && !b.failed && b.rows !== b.known && !tableOff) {
+          console.warn(`search: the row table counts ${b.known} rows in ${b.results[0].work} ${b.results[0].meta.book}, the book ${b.rows}; reading every book`);
           tableOff = true;
           rowBooks = rowBooks.map(r => ({ results: r.results }));
           startRows();
@@ -1246,7 +1199,7 @@
     if (rowsFailed) {
       rowsFailed = 0;
       // A book the table counted is read again wherever its rows fall.
-      for (const b of rowBooks) if (b.failed && knownIn(b, view) !== undefined) void bookRows(b, rowsRun);
+      for (const b of rowBooks) if (b.failed && b.known !== undefined) void bookRows(b, rowsRun);
       countRows(rowsRun);
     }
   }
@@ -1254,7 +1207,6 @@
   // then the slice. Null when a newer layout has retired this one.
   async function pageRows(i: number, run: number, live: () => boolean = () => true): Promise<(Built & { more: boolean; total: number | null }) | null> {
     const n = pageTarget(pageSize);
-    const v = view;
     const from = i * n;
     const to = from + n;
     const picked: { g: ChapterGroup; inst: Instance }[] = [];
@@ -1265,28 +1217,27 @@
     if (run !== rowsRun || !live()) return null;
     // The page's own books, where the table counts the books before them:
     // all asked for at once, and no other.
-    for (let k = 0, s = 0; k < rowBooks.length && s < to && knownIn(rowBooks[k], v) !== undefined; k++) {
-      const known = knownIn(rowBooks[k], v)!;
-      if (s + known > from) void bookRows(rowBooks[k], run);
-      s += known;
+    for (let k = 0, s = 0; k < rowBooks.length && s < to && rowBooks[k].known !== undefined; k++) {
+      if (s + rowBooks[k].known! > from) void bookRows(rowBooks[k], run);
+      s += rowBooks[k].known!;
     }
     let seen = 0;
     let k = 0;
     for (; k < rowBooks.length && seen < to; k++) {
-      const known = knownIn(rowBooks[k], v);
+      const known = rowBooks[k].known;
       if (known !== undefined && seen + known <= from) { seen += known; continue; }
-      if (known === undefined) for (const ahead of rowBooks.slice(k + 1, k + 4)) if (knownIn(ahead, v) === undefined) void bookRows(ahead, run);
+      if (known === undefined) for (const ahead of rowBooks.slice(k + 1, k + 4)) if (ahead.known === undefined) void bookRows(ahead, run);
       const b = await bookRows(rowBooks[k], run);
       if (run !== rowsRun) return null;
       // A book the table counted keeps its rows' places though it failed to
       // load: the pages after it are where the table put them.
       const start = seen;
-      if (seen >= from || seen + (known ?? rowsOf(b, v)) > from) {
+      if (seen >= from || seen + (known ?? rowsOf(b)) > from) {
         failed.push(...b.failed);
         for (const [key, seg] of b.segs) segs.set(key, seg);
       }
-      for (const g of b.groups) for (const inst of g.instances) for (const row of rowsIn(inst, v)) {
-        if (seen >= from && seen < to) picked.push({ g, inst: row });
+      for (const g of b.groups) for (const inst of g.instances) {
+        if (seen >= from && seen < to) picked.push({ g, inst });
         seen++;
       }
       if (known !== undefined) seen = start + known;
@@ -2633,14 +2584,6 @@
     const pick = raw.find(r => greekFold(r) === key);
     return (info[key] ?? (pick ? info[pick] : undefined))?.heads.split(' · ')[0] ?? betaToGreek(pick ?? key);
   };
-  // What files a Greek hit under its headwords by grammar (paradigmOf): the
-  // readings of the words it holds, and the headwords its form belongs to.
-  function paradigmItem(inst: Instance, at: Map<string, Reading[]>, forms: HitForms | null) {
-    return {
-      readings: (inst.held ?? []).flatMap(h => at.get(`${inst.work}:${inst.seg}:${h.pos}`) ?? []),
-      formHeads: inst.lang === 'grk' && inst.form ? forms?.headwords.get(inst.form) : undefined,
-    };
-  }
   function sectionsFor(groups: ChapterGroup[], v: ResultView, by: ResultSort, at: Map<string, Reading[]>, forms: HitForms | null, heads: string[], info: typeof pickInfo, raw: string[] = []): ViewSection[] {
     // The sort orders the page's hits before the view groups them; a form is
     // counted over the whole page.
@@ -2666,7 +2609,9 @@
         // The readings of the words a hit holds, and the headwords its form
         // belongs to, file it under its headword (paradigmOf).
         const { blocks, english } = paradigmOf(inOrder.map(item => ({
-          ...item, ...paradigmItem(item.inst, at, forms), under: item.inst.under,
+          ...item,
+          readings: (item.inst.held ?? []).flatMap(h => at.get(`${item.inst.work}:${item.inst.seg}:${h.pos}`) ?? []),
+          formHeads: item.form ? forms?.headwords.get(item.form) : undefined,
         })), heads, prefer);
         const englishKey = `${v}::english`;
         const englishHits = english.map(item => item.inst);

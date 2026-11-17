@@ -69,8 +69,9 @@ const queries = [
   ['Every form of one word: ἔπεα', { l: 'epos' }],
   ['Near: πούς near ὠκύς, 3 words', { c: ['l:pous', 'l:wkus'], cw: '3' }],
   ['Grammar in one book: optatives, Il. 1', { w: 'iliad', b: '1', gr: 'mood:opt' }],
-  // The two views whose rows split an instance (Search.svelte rowsIn): by
-  // form, one row per form; by grammar, one per headword it is filed under.
+  // The two views that regroup a page: by form, a passage drawn under each
+  // of its forms; by grammar, under each headword it is filed under. Their
+  // pages hold By work's passages (John, 17 Nov).
   ['By form: ὁ, Il. 1, 20 a page', { g: 'ὁ', w: 'iliad', b: '1', ps: '20', v: 'form' }],
   ['By grammar: ὁ and ὅς, Il. 1, 20 a page', { l: 'o,os', v: 'grammar', w: 'iliad', b: '1', ps: '20' }],
 ];
