@@ -3,6 +3,30 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). Every deploy is
 John-gated. Newest first.
 
+## Deploy — 2026-11-18: speaker links resolve to speeches; lemma URL fixes, PR #70
+
+gh-pages `f8fe0932e` → `418c356f6` (source: main `bfa064e0e`). John: "Merge all four", then "Deploy all
+four". App-only: no checkout had a built corpus, and the PR touches only `shared/`, so `build/dist` was a
+copy of live's `data/` (gh-pages `f8fe0932e`), the app built with `PUBLIC_SHOW_PRIVATE=0 npm run build`
+(Node 22, after `npm ci`), and `scripts/check-links.mjs` run on `app/dist`, the two steps
+`build:public` ends with. Rsynced into `homer-reader-site` excluding `.git`, `.gitignore`, and `.DS_Store`
+(four `.DS_Store` files are tracked on `gh-pages`; this deploy leaves them). No data changed, so `VERSION`
+stays `v6`.
+
+**What shipped (PR #70).**
+- **Speaker links.** The other readers share a speaker filter as `sp=only&sn=<name>`. A one-name `only`
+  link now maps to Homer's `spk=<id>` when the name matches exactly one character; otherwise the filter
+  is cleared and the URL rewritten.
+- **Lemma URL fixes** (port of aristotle-reader #214): fold keys in URLs resolve to headwords; a typed
+  accented headword narrows a lemma phrase; a URL load overtaken by a newer search drops its result.
+- Codex (GPT-6.1-Sol): the race and a second search after `await tick()`, both fixed with tests.
+
+Gates: 4,687 pages · 0 broken of 335,540 links. Deploy diff 83 files: the `_astro` bundles (9 A, 11 D,
+7 R) and the 56 pages naming them; dangling references to the 18 removed bundles 0 (positive control:
+the new Search bundle is found).
+Live-verified (Playwright, service workers blocked): `/search/?g=κλέος&sp=only&sn=Achilles` lands on
+`?g=κλέος&spk=achilles`, "4 scenes · 5 hits".
+
 ## Deploy — 2026-11-17 (second): pages count passages; the and/or and or counts, PR #68
 
 gh-pages `323a7caee` → `f8fe0932e` (source: main `140c39bc8`). Same method. Seven
