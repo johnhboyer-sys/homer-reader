@@ -1,7 +1,7 @@
 # DEPLOY-STATUS — The Homer Reader
 
-Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
-occurred; deploying, the GitHub remote, and the first push are John-gated.
+Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). Every deploy is
+John-gated. Newest first.
 
 ## Deploy — 2026-11-17 (second): pages count passages; the and/or and or counts, PR #68
 
