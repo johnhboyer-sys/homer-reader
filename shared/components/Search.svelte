@@ -40,6 +40,9 @@
     type Reading,
     type SearchOutcome,
     pool,
+    resolveHeadwordKeys,
+    corpusHeadwordDeps,
+    type HeadwordKeyDeps,
   } from '../lib/search';
   import { joinEnglish, searchRunningText } from '../lib/running-text';
   import { englishPlace, englishMarked, markEnglishHtml, markWordsHtml, plainEnglish, translationTexts, turnTranslationTexts } from '../lib/english-hit';
@@ -75,7 +78,8 @@
   } from '../lib/data';
   import { WORKS, getWork, workPath, WORK_ORDER, searchableTranslations, type TranslationRef } from '../lib/works';
   import { formatCite, formatLocValue, schemeFor } from '../lib/citation';
-  import { decodeSearchUrl, encodeSearchUrl, hasSearch, DEFAULT_LANG_OP, type SpeechFilter, type UrlCombo, type UrlSearch } from '../lib/search-url';
+  import { decodeSearchUrl, encodeSearchUrl, hasSearch, resolveDecodedLemmaKeys, DEFAULT_LANG_OP, type SpeechFilter, type UrlCombo, type UrlSearch } from '../lib/search-url';
+  import { speakerLinkToSpeech } from '../lib/speaker-link-to-speech';
   import { speakerDisplayName } from '../lib/speeches';
   import { buildSpanIndex, speechCut, type SpanIndex } from '../lib/search-filters';
   import { englishLines } from '../lib/english-place';
@@ -293,6 +297,9 @@
   // Stepping through history can start a search while another is running;
   // only the latest may write results.
   let searchRun = 0;
+  // Counts address loads; a search the reader starts also moves it on, so a
+  // load still waiting when either comes is dropped (searchFromUrl).
+  let urlLoad = 0;
 
   // `keep`: filters the reader already has on widened results, to stay on
   // when they are widened again (the speaker lifted from them). A first
@@ -1964,16 +1971,18 @@
   }
   // The picker's keys for a typed word: itself when it is a dictionary word,
   // else the dictionary words the corpus map files it under.
-  async function headwordKeys(word: string): Promise<string[]> {
-    const fold = greekFold(word);
-    if (!fold) return [];
-    const has = async (key: string) => {
-      try { return Object.hasOwn(await fetchLemmaPickerShard(/^[a-z]/.test(key) ? key[0] : '_'), key); } catch { return false; }
+  function headwordDeps(): HeadwordKeyDeps {
+    return {
+      pickerShard: corpusHeadwordDeps.pickerShard,
+      lemmaMap: async (_letter, fold) => {
+        const rows = await lemmaOptions([fold]);
+        if (rows === null) throw new Error('lemma map unavailable');
+        return { [fold]: rows[0] ?? [] };
+      },
     };
-    if (await has(fold)) return [fold];
-    const heads = (await lemmaOptions([fold]))?.[0] ?? [];
-    const found = await Promise.all(heads.map(async h => ((await has(h)) ? h : '')));
-    return found.filter(Boolean);
+  }
+  async function headwordKeys(word: string): Promise<string[]> {
+    return resolveHeadwordKeys(word, headwordDeps());
   }
 
   function setComboKind(id: number, kind: SlotKind) {
@@ -3721,10 +3730,26 @@
     popup = null;
     closeSugg();
     const s = decodeSearchUrl(window.location.search, WORK_IDS);
+    const load = ++urlLoad;
+    // A link may spell a lemma whose index uses a different headword key.
+    await resolveDecodedLemmaKeys(s, key => resolveHeadwordKeys(key, headwordDeps()));
+    if (!SPEAKERS && s.speaker) {
+      // Homer uses speech spans rather than the dialogue speaker filter.
+      if (!s.speech && s.speaker.mode === 'only' && s.speaker.names.length === 1 && await ensureSpeechData()) {
+        s.speech = speakerLinkToSpeech(s.speaker, s.speech, castById);
+      }
+      // Another address, or a search of the reader's own, came while the
+      // speeches loaded: it is no longer the page's.
+      if (load !== urlLoad) return;
+      s.speaker = null;
+      writeUrl(s, 'replace');
+    }
+    if (load !== urlLoad) return;
     applySearch(s);
     // The reactive comboActive / soloLemmaActive / speakerFilter that doSearch
     // reads must catch up with the controls just set.
     await tick();
+    if (load !== urlLoad) return;
     if (hasSearch(s)) {
       await doSearch(undefined, { history: 'none', trans: s.trans, work: s.workFilter, xforms: s.xforms, xphrases: s.xphrases, facets: s.facets });
       return;
@@ -3819,6 +3844,7 @@
 
   async function doSearch(e?: Event, opts: { history?: 'push' | 'none'; trans?: string | null; work?: string | null; xforms?: string[]; xphrases?: string[]; facets?: Facets } = {}) {
     e?.preventDefault();
+    if (opts.history !== 'none') urlLoad++;
     if (!grkQuery.trim() && !engQuery.trim() && !comboActive && !soloLemmaActive) return;
     // Lemma on and no word picked yet: the list to pick from, not a search.
     if (lemmaOn && !soloLemmaActive && grkQuery.trim() && !comboActive) {
