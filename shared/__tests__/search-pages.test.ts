@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Offsets, SearchResult } from '../lib/search';
-import { engHitCount, hitCount, paginate } from '../lib/search-pages';
+import { engHitCount, hitCount, hitsInFor, paginate } from '../lib/search-pages';
 
 function result(work: string, book: number, column: string, grk: number[], eng?: number[][]): SearchResult {
   return {
@@ -187,5 +187,26 @@ describe('paginate: a hit is counted where it is drawn', () => {
     const laid = paginate(results, new Map([['SE', offsets]]), 40, eng);
     expect(pageHits(laid, results)).toEqual([50]);
     expect(laid.pageOf(results[0], '2')).toBe(laid.pageOf(results[1], '2'));
+  });
+});
+
+// What the hit figure counts (John, 17 Nov; aristotle-reader PR #212), and
+// the proximity case of the Codex review of that change: a proximity search
+// counts Greek words even with English left in its box.
+describe('hitsInFor', () => {
+  const q = (grk: string, eng: string, lemmas: string[] = [], combo: object | null = null) => ({ grk, eng, lemmas, combo }) as Parameters<typeof hitsInFor>[0];
+  it.each([
+    ['Greek alone', q('θάλασσα', ''), '', 'or', 'grk'],
+    ['English alone', q('', 'sea'), 'sea', 'or', 'eng'],
+    ['Both, "and"', q('θάλασσα', 'sea'), 'sea', 'and', 'grk'],
+    ['Both, "and/or"', q('θάλασσα', 'sea'), 'sea', 'or', 'both'],
+    ['Both, "or"', q('θάλασσα', 'sea'), 'sea', 'xor', 'both'],
+    ['a dictionary word and English, "or"', q('', 'sea', ['qalassa']), 'sea', 'xor', 'both'],
+    ['a Both phrase widened to any inflection', q('οἴνοπα πόντον', 'sea'), '', 'or', 'grk'],
+    ['proximity, English left in the box', q('', 'sea', [], { slots: [] }), 'sea', 'or', 'grk'],
+    ['proximity, both boxes left', q('θάλασσα', 'sea', [], { slots: [] }), 'sea', 'xor', 'grk'],
+    ['no search', null, '', 'or', 'grk'],
+  ] as const)('%s', (_, s, engQuery, op, want) => {
+    expect(hitsInFor(s, engQuery, op)).toBe(want);
   });
 });
