@@ -37,10 +37,12 @@ describe('pages by rows, and the 100 page', () => {
 // Codex review of the fold (lane F): below 961px the citation's width gave
 // way to its text, so the link heading an opened row ("1.34") was narrower
 // than a 44px target.
-// Codex review of the fold (lane F): by form, an instance holding hits of
-// several forms is drawn once under each, so a page laid out by instances
-// drew 47 rows where it promised 20. (The review's "ὁ καί", any word, is
-// offered By work only; one word, ὁ, is offered By form.)
+// Pages count passages in every view (John, 17 Nov: "Pages count passages in
+// every view; By form regroups the same passages, so its pages may draw more
+// than N; no per-form counting, no reading every book in those views"). By
+// form and By grammar each page holds By work's passages for that page,
+// regrouped: a passage with hits of several forms (or filed under several
+// headwords) is drawn once under each, so the page draws more rows than N.
 describe('pages by rows, grouped by form', () => {
   const pagesOf = () => Number(status().match(/page \d+ of (\d+)/)?.[1] ?? 1);
   // Every page of the search in view: the rows each page draws (every
@@ -50,14 +52,17 @@ describe('pages by rows, grouped by form', () => {
   // its form and its words (work:segment:position, as the page's word
   // buttons carry them), and `head` the folded label of the heading it is
   // drawn under (By grammar, its headword). By work that is every (instance,
-  // form) pair drawn; By form and By grammar, each row is one part.
-  async function walkRows(perPage: number) {
+  // form) pair drawn; By form and By grammar, each row is one part. With
+  // `perPage`, every page but the last draws exactly that many rows (By
+  // work); `passages`: each page's reader links, once each.
+  async function walkRows(perPage: number | null) {
     await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
     const pages = pagesOf();
     const sizes: number[] = [];
     const links: string[] = [];
     const scenes = new Set<string>();
     const parts: { form: string; toks: string[]; head: string }[] = [];
+    const passages: string[][] = [];
     let forms = 0;
     for (let p = 1; p <= pages; p++) {
       if (p > 1) {
@@ -90,14 +95,18 @@ describe('pages by rows, grouped by form', () => {
         for (const [form, toks] of byForm) parts.push({ form, toks: [...toks].sort(), head });
       }
       sizes.push(n);
+      passages.push([...new Set(links.slice(links.length - n))].sort());
     }
-    expect(sizes.slice(0, -1).every(k => k === perPage), `rows a page: ${sizes}`).toBe(true);
-    expect(sizes.at(-1)!).toBeGreaterThan(0);
-    expect(sizes.at(-1)!).toBeLessThanOrEqual(perPage);
-    return { pages, sizes, links, scenes, forms, parts, rows: sizes.reduce((a, b) => a + b, 0) };
+    expect(sizes.every(k => k > 0), `rows a page: ${sizes}`).toBe(true);
+    if (perPage !== null) {
+      expect(sizes.slice(0, -1).every(k => k === perPage), `rows a page: ${sizes}`).toBe(true);
+      expect(sizes.at(-1)!).toBeLessThanOrEqual(perPage);
+    }
+    return { pages, sizes, links, passages, scenes, forms, parts, rows: sizes.reduce((a, b) => a + b, 0) };
   }
   // The same search By work: its rows, the scenes they are drawn under (all
   // the bar counts), and the forms they hold, which By form draws a row each.
+  // Every page but the last holds 20 passages.
   async function byWork(query: string) {
     open(query);
     const bar = await counted();
@@ -107,17 +116,19 @@ describe('pages by rows, grouped by form', () => {
     return w;
   }
 
-  it('ὁ, Il. 1: every row By work drawn once for each of its forms, 20 a page', async () => {
+  it('ὁ, Il. 1, by form: By work\'s pages, each with its own passages, regrouped', async () => {
     const data = await dataHits('ὁ', 'all', 'lemma', 'iliad', 1);
     const work = await byWork('g=ὁ&w=iliad&b=1&ps=20');
     // Every Greek hit the search finds is drawn once By work.
     expect(drawnHits(work.parts)).toEqual(data.hits);
     open('g=ὁ&w=iliad&b=1&ps=20&v=form');
     await counted();
-    const form = await walkRows(20);
-    console.info(`ὁ, Il. 1: by work ${work.rows} rows holding ${work.forms} forms; by form ${form.rows} rows on ${form.pages} pages`);
-    expect(form.rows).toBe(work.forms);
-    expect([...new Set(form.links)].sort()).toEqual([...new Set(work.links)].sort());
+    const form = await walkRows(null);
+    console.info(`ὁ, Il. 1: by work ${work.rows} rows on ${work.pages} pages; by form ${form.rows} rows on ${form.pages} pages, ${form.sizes.join(', ')}`);
+    expect(form.pages).toBe(work.pages);
+    expect(form.passages).toEqual(work.passages);
+    // A passage with hits of several forms is drawn under each: page 1 draws more than 20.
+    expect(form.sizes[0]).toBeGreaterThan(20);
     // Each (instance, form) pair drawn once, and no pair drawn in another's
     // place: counts and links alone pass a page that draws one form twice.
     expect(ids(form.parts)).toEqual(ids(work.parts));
@@ -125,15 +136,22 @@ describe('pages by rows, grouped by form', () => {
     expect(drawnHits(form.parts)).toEqual(data.hits);
   }, 300000);
 
-  it('lays the pages out again when the grouping turns to By form', async () => {
+  it('turning to By form keeps the pages and page 1\'s passages', async () => {
     open('g=ὁ&w=iliad&b=1&ps=20');
     await counted();
     await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
     const byWorkPages = pagesOf();
+    const links = () => [...new Set([...document.querySelectorAll('li.instance .inst-ref')].map(a => a.getAttribute('href')))].sort();
+    await waitFor(() => expect(document.querySelectorAll('li.instance')).toHaveLength(20), { timeout: 30000 });
+    const page1 = links();
     const radio = [...document.querySelectorAll<HTMLInputElement>('input[name="sx-view"]')].find(r => r.value === 'form')!;
     await fireEvent.click(radio);
-    await waitFor(() => expect(document.querySelectorAll('li.instance')).toHaveLength(20), { timeout: 30000 });
-    await waitFor(() => expect(pagesOf()).toBeGreaterThan(byWorkPages), { timeout: 30000 });
+    await waitFor(() => expect(document.querySelectorAll('li.instance').length).toBeGreaterThan(20), { timeout: 30000 });
+    // Long enough for a page count laid out again to show.
+    await new Promise(r => setTimeout(r, 500));
+    expect(status()).toMatch(/page \d+ of \d+$/);
+    expect(pagesOf()).toBe(byWorkPages);
+    expect(links()).toEqual(page1);
   }, 120000);
 
   // The Greek hits a search finds in one book, from its results (the
@@ -156,7 +174,7 @@ describe('pages by rows, grouped by form', () => {
   // as `${part}|${headword}`. Filed as paradigmOf files it, from the same
   // inputs the page reads (the readings of the words it holds, narrowed to
   // the headwords searched, and the headwords its form belongs to), but by
-  // the rule written out here, not by calling paradigmHeads: the headwords
+  // the rule written out here, not by calling paradigmOf: the headwords
   // its readings name, else those its form belongs to, else the first searched.
   async function grammarRows(parts: { form: string; toks: string[] }[], lemmas: string[], data: Awaited<ReturnType<typeof dataHits>>) {
     const heads = [...new Set(lemmas.map(greekFold))];
@@ -182,9 +200,9 @@ describe('pages by rows, grouped by form', () => {
     return rows.sort();
   }
 
-  // Codex check of 09cee472c: by grammar with two headwords, a form both
-  // own is drawn under each, and the pages counted it once (rows 25, 27, …).
-  it('two headwords by grammar: a form under both is two rows, 20 a page', async () => {
+  // By grammar with two headwords, a form both own is drawn under each (Codex
+  // check of 09cee472c); the pages stay By work's.
+  it('two headwords by grammar: By work\'s pages, a form under both drawn twice', async () => {
     const data = await dataHits('o os', 'any', 'headword', 'iliad', 1);
     const work = await byWork('l=o,os&w=iliad&b=1&ps=20');
     // Every Greek hit the search finds is drawn once By work, so the parts
@@ -192,17 +210,17 @@ describe('pages by rows, grouped by form', () => {
     expect(drawnHits(work.parts)).toEqual(data.hits);
     open('l=o,os&v=grammar&w=iliad&b=1&ps=20');
     await counted();
-    // The readings load after the first page; the pages are laid out again then.
+    // The readings load after the first page; the rows are filed again then.
     await waitFor(() => expect(document.querySelector('.sx-para')).not.toBeNull(), { timeout: 60000 });
-    const grammar = await walkRows(20);
+    const grammar = await walkRows(null);
     const want = await grammarRows(work.parts, ['o', 'os'], data);
-    console.info(`ὁ, ὅς, Il. 1: by work ${work.rows} rows; by grammar ${grammar.rows} rows on ${grammar.pages} pages (from the data: ${want.length} rows)`);
+    console.info(`ὁ, ὅς, Il. 1: by work ${work.rows} rows on ${work.pages} pages; by grammar ${grammar.rows} rows on ${grammar.pages} pages (from the data: ${want.length} rows)`);
+    expect(grammar.pages).toBe(work.pages);
+    expect(grammar.passages).toEqual(work.passages);
     expect(grammar.rows).toBe(want.length);
-    expect(grammar.pages).toBe(Math.ceil(want.length / 20));
     // Each row under the headword the filing gives it, read from the heading
     // it is drawn under.
     expect(grammar.parts.map(p => `${ids([p])[0]}|${p.head}`).sort()).toEqual(want);
-    expect([...new Set(grammar.links)].sort()).toEqual([...new Set(work.links)].sort());
   }, 600000);
 });
 

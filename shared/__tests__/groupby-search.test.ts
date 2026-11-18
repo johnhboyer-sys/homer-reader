@@ -144,37 +144,33 @@ describe('By form, keyed as ruled', () => {
 });
 
 describe('By grammar: the headword over its paradigm', () => {
-  // Pages are rows (John, 16 Nov), as the view draws them: by grammar each
-  // book's passage is filed once under each form it holds (nominative and
-  // dative), so 25 books are 50 rows, 20 a page. (Lane F: this test said
-  // "page 1 of 2" for a page that drew 40 rows.)
+  // Pages count passages in every view (John, 17 Nov): 25 books, a passage
+  // each, 20 a page, as By work. By grammar each book's passage is filed once
+  // under each form it holds (nominative and dative), so page 1 draws 40 rows.
   it('counts the shown page, then recounts filtered hits', async () => {
     const results = Array.from({ length: 25 }, (_, i) => at('70a', [0, 1, 2], { meta: { id: `${i + 1}:70a`, book: i + 1, column: '70a' } }));
     const forms: HitForms = { ...FORMS, byResult: new Map(results.map(r => [`EN:${r.meta.id}`, ['areth', 'areth', 'areth']])) };
     const grammar: HitGrammar = { failedWorks: [], byResult: new Map(results.map(r => [`EN:${r.meta.id}`, [[NOM_SG], [DAT_SG], [NOM_SG]]])) };
     const { container } = await open('/search?l=areth&v=grammar&ps=20', { results, forms, grammar });
-    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('page 1 of 3'));
+    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('page 1 of 2'));
     await vi.waitFor(() => expect(heads(container)).toEqual([
-      'αρετη 30 hits', 'Nominative or vocative singular ἀρετή 20 hits', 'Dative singular ἀρετῇ 10 hits',
+      'αρετη 60 hits', 'Nominative or vocative singular ἀρετή 40 hits', 'Dative singular ἀρετῇ 20 hits',
     ]));
-    // Every page counted, by the books its rows link to: ten books to a page,
-    // each book's passage twice (nominative and dative). Page 2's headings
-    // are page 1's, so only its rows show it was drawn.
+    // Every page counted, by the books its rows link to: twenty books to a
+    // page, as By work, each book's passage twice (nominative and dative).
     const booksDrawn = async () => {
       await drawn(container);
       return [...container.querySelectorAll('li.instance .inst-ref')]
         .map(a => Number(a.getAttribute('href')?.match(/\/book\/(\d+)\?/)?.[1])).sort((a, b) => a - b);
     };
-    const booksOn = (p: number) => Array.from({ length: 25 }, (_, i) => i + 1).filter(b => Math.ceil(b / 10) === p).flatMap(b => [b, b]);
+    const booksOn = (p: number) => Array.from({ length: 25 }, (_, i) => i + 1).filter(b => Math.ceil(b / 20) === p).flatMap(b => [b, b]);
     const rows = [await drawn(container)];
     expect(await booksDrawn()).toEqual(booksOn(1));
-    for (const p of [2, 3]) {
-      await fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[0]);
-      await vi.waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe(`Page ${p} of 3`));
-      await vi.waitFor(async () => expect(await booksDrawn()).toEqual(booksOn(p)));
-      rows.push(await drawn(container));
-    }
-    expect(rows).toEqual([20, 20, 10]);
+    await fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[0]);
+    await vi.waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe('Page 2 of 2'));
+    await vi.waitFor(async () => expect(await booksDrawn()).toEqual(booksOn(2)));
+    rows.push(await drawn(container));
+    expect(rows).toEqual([40, 10]);
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'αρετη 15 hits', 'Nominative or vocative singular ἀρετή 10 hits', 'Dative singular ἀρετῇ 5 hits',
     ]));
