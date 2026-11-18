@@ -18,6 +18,9 @@ vi.mock('../lib/search', async original => ({
   speakerRoster: vi.fn(async () => []),
 }));
 
+const renderSearch = () => render(Search);
+type Page = ReturnType<typeof renderSearch>;
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>(done => { resolve = done; });
@@ -40,7 +43,7 @@ async function openSlowA() {
   const lookup = deferred<Awaited<ReturnType<typeof fetchCharacters>>>();
   vi.mocked(fetchCharacters).mockReturnValue(lookup.promise);
   window.history.replaceState(null, '', '/search/?g=κλέος&sp=only&sn=Achilles');
-  const page = render(Search);
+  const page = renderSearch();
   await waitFor(() => {
     expect(fetchCharacters).toHaveBeenCalledTimes(1);
     expect(fetchSpeeches).toHaveBeenCalled();
@@ -59,7 +62,7 @@ async function openSlowA() {
   };
 }
 
-async function expectEnglishOnly(page: ReturnType<typeof render>, query: string) {
+async function expectEnglishOnly(page: Page, query: string) {
   await waitFor(() => expect(page.getByRole('status').textContent).toBe('No scenes found.'));
   expect((page.container.querySelector('#grk-input') as HTMLTextAreaElement).value).toBe('');
   expect((page.container.querySelector('#eng-input') as HTMLTextAreaElement).value).toBe(query);
@@ -88,7 +91,7 @@ describe('search URL load races', () => {
     const { page, finishA } = await openSlowA();
     const english = page.container.querySelector('#eng-input') as HTMLTextAreaElement;
     await fireEvent.input(english, { target: { value: 'honour' } });
-    await fireEvent.click(page.getByRole('button', { name: 'Search', exact: true }));
+    await fireEvent.click(page.getByRole('button', { name: 'Search' }));
     await expectEnglishOnly(page, 'honour');
 
     await finishA();
@@ -102,7 +105,7 @@ async function openSlowLemma() {
   const lookup = deferred<Awaited<ReturnType<typeof fetchLemmaPickerShard>>>();
   vi.mocked(fetchLemmaPickerShard).mockReturnValue(lookup.promise);
   window.history.replaceState(null, '', `/search/?l=${encodeURIComponent('νοῦς')}`);
-  const page = render(Search);
+  const page = renderSearch();
   await waitFor(() => expect(fetchLemmaPickerShard).toHaveBeenCalledWith('n'));
   expect(search).not.toHaveBeenCalled();
   return {
@@ -132,7 +135,7 @@ describe('search URL headword lookup races', () => {
     const { page, finish } = await openSlowLemma();
     const english = page.container.querySelector('#eng-input') as HTMLTextAreaElement;
     await fireEvent.input(english, { target: { value: 'honour' } });
-    await fireEvent.click(page.getByRole('button', { name: 'Search', exact: true }));
+    await fireEvent.click(page.getByRole('button', { name: 'Search' }));
     await expectEnglishOnly(page, 'honour');
     await finish();
     await expectEnglishOnly(page, 'honour');
