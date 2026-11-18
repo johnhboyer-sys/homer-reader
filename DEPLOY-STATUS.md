@@ -1,7 +1,33 @@
 # DEPLOY-STATUS — The Homer Reader
 
-Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
-occurred; deploying, the GitHub remote, and the first push are John-gated.
+Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). Every deploy is
+John-gated. Newest first.
+
+## Deploy — 2026-11-17 (second): pages count passages; the and/or and or counts, PR #68
+
+gh-pages `323a7caee` → `f8fe0932e` (source: main `140c39bc8`). Same method. Seven
+files change (the search and saved-searches pages and their scripts); no data
+changed, so `VERSION` stays `v6`. Deployed in turn after Aristotle and the plays
+(John, 17 Nov: "wait for evrything to be done. then we redeploy one after
+another").
+
+**What shipped (PR #68).**
+- **Pages count passages in every view** (John, 17 Nov). By form and by grammar
+  keep By work's pages and passages; a page there regroups them, so it may draw
+  more than N rows. The row table works in every view: by form, page 1 of
+  θάλασσα + sea reads Il. 1–2, not 47 books.
+- **The "and/or" and "or" counts** (port of aristotle-reader #212). A two-language
+  search not joined by "and" counts Greek and English hits when one translation
+  is chosen, else scenes only; never "0 hits". θάλασσα + sea reads "298 scenes"
+  (and/or) and "204 scenes" (or); "and" is unchanged.
+- Codex (GPT-6.1-Sol, medium): no findings.
+
+Gates: preflight ok · 4,687 pages · 0 broken of 335,540 links.
+Live-verified (service worker blocked, so the page came from the server):
+- θάλασσα + sea, and/or: "298 scenes · page 1 of 15", 40 rows, reads Il. 1–2 only.
+- The same search, or: "204 scenes · page 1 of 9", 40 rows. It reads Il. 1–7,
+  the books its 40 rows come from.
+- The same, by form: "298 scenes · page 1 of 15", reads Il. 1–2 only.
 
 ## Deploy — 2026-11-17: the new search, PRs #65 and #66
 
