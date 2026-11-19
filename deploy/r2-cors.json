@@ -1,0 +1,15 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "https://homer.johnhboyer.com",
+          "https://homer-reader.johnhboyer.workers.dev"
+        ],
+        "methods": ["GET", "HEAD"]
+      },
+      "exposeHeaders": ["ETag", "Content-Length"],
+      "maxAgeSeconds": 86400
+    }
+  ]
+}
