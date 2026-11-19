@@ -12,6 +12,7 @@
 // Cross-language: AND (intersection) or OR (union) the two result sets.
 import { betaQueryToGreek } from './betacode';
 import { fetchLemmaPickerShard } from './data';
+import { narrowByAccent, type LemmaAccents } from './lemma-accents';
 import { formatCite } from './citation';
 import { memoAsyncBy } from './memo';
 import { getWork, searchableTranslations, WORKS, type TranslationRef } from './works';
@@ -1823,7 +1824,13 @@ export async function searchPhraseVariants(
   // must not kill widening for the words that ARE recorded.
   const widened = perTerm.map((options, i) => (options.length ? options : [folds[i]]));
 
-  const narrowed = await narrowToTypedHeadwords(terms, widened, pickerHeadwords);
+  // A word's accents choose among the headwords its spelling is shared by
+  // (αὐτή is αὐτός, not οὗτος); then a word typed as its own headword is that
+  // headword, not every homograph that folds the same way. A table or shard
+  // that does not load leaves the word wide.
+  const accented = await Promise.all(widened.map(async (options, i) =>
+    (options.length > 1 ? await accentNarrowing(terms[i], folds[i], options) : null) ?? options));
+  const narrowed = await narrowToTypedHeadwords(terms, accented, pickerHeadwords);
   const { readings, total } = lemmaReadings(narrowed, VARIANT_READING_CAP);
   const cappedFrom = total > readings.length ? total : 0;
 
@@ -2673,6 +2680,18 @@ export async function searchCombo(
   }
   return { results: perWork.flat(), failedWorks, approximateTurns };
 }
+
+// The keys a typed word's accents leave of its spelling's headwords
+// (lib/lemma-accents), or null. The table is made at site build; where it does
+// not load, every word stays as wide as its spelling.
+async function accentNarrowing(typed: string, fold: string, heads: string[]): Promise<string[] | null> {
+  try {
+    return narrowByAccent(await loadShared<LemmaAccents>('lemma-accents.json'), typed, fold, heads);
+  } catch {
+    return null;
+  }
+}
+
 /** The headwords each typed word can belong to, for a lemma search.
  *
  * A lemma index is keyed on dictionary forms, so matching the typed word
@@ -2702,7 +2721,12 @@ async function resolveHeadwords(terms: string[]): Promise<{ terms: string[][]; u
     try {
       const shard = await loadShared<Record<string, string[]>>(`lemma-map/${letter}.json`);
       const heads = Object.hasOwn(shard, fold) ? shard[fold] : undefined;
-      return heads?.length ? [...new Set([fold, ...heads])] : [term];
+      if (!heads?.length) return [term];
+      // The bare fold and the headwords, unless the typed word's accents pick
+      // among them (lib/lemma-accents). The table decides about the bare fold
+      // too: ἡ's "h" is also ἤ's key, and stays only where the index says so.
+      const wide = [...new Set([fold, ...heads])];
+      return (await accentNarrowing(term, fold, wide)) ?? wide;
     } catch {
       unresolved.push(term);
       return [term];
@@ -2767,6 +2791,7 @@ export async function greekHitForms(
   results: SearchResult[],
   grkQuery: string,
   matchMode: MatchMode,
+  phrase = false,
 ): Promise<HitForms> {
   const out: HitForms = { byResult: new Map(), headwords: new Map(), failedWorks: [] };
   const failed = new Set<string>();
@@ -2776,7 +2801,13 @@ export async function greekHitForms(
 
   let formTerms = typed;
   if (matchMode !== 'form') {
-    const terms = (matchMode === 'lemma' ? (await resolveHeadwords(typed)).terms : typed.map(t => [t])).flat();
+    let perWord = matchMode === 'lemma' ? (await resolveHeadwords(typed)).terms : typed.map(t => [t]);
+    // As search() reads a lemma phrase: μήν in τί μήν is μήν, so the list must
+    // not name μείς as a headword of hits it never took.
+    if (matchMode === 'lemma' && phrase && typed.length > 1) {
+      perWord = await narrowToTypedHeadwords(typed, perWord, pickerHeadwords);
+    }
+    const terms = perWord.flat();
     const lemmaIx = queryIndexes('lemma', terms, []);
     const heads = new Set<string>();
     await pool(works, 8, async w => {
