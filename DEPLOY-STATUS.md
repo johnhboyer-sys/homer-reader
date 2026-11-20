@@ -1,7 +1,29 @@
 # DEPLOY-STATUS — The Homer Reader
 
-Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). Every deploy is
-John-gated. Newest first.
+Ledger for John. Since 2026-11-19 the site runs on Cloudflare: the Worker
+`homer-reader` and the R2 bucket `homer-reader-data` (`docs/cloudflare.md`).
+Before that, GitHub Pages. Every deploy is John-gated. Newest first.
+
+## Deploy — 2026-11-19: move to Cloudflare; lemma accents, PR #72, #73
+
+Worker `homer-reader` version `52617c73` (source: main `1a34c08bb`, on branch
+`claude/cloudflare-cutover`). John: "Do what Plato said", "And deploy". App-only build of main with
+`PUBLIC_DATA_ROOT=https://homer-data.johnhboyer.com` over a copy of live's `data/` (the pipeline is
+unchanged since live's commit), then `npm run deploy:cloudflare`. Data: the 5,261 files of gh-pages
+`418c356f6` went to R2 earlier the same day; this deploy added `lemma-accents.json`. `VERSION` stays
+`v6`: the data did not change shape.
+
+**What shipped.**
+- **Hosting (PR #73).** homer.johnhboyer.com is served by Cloudflare; data from
+  homer-data.johnhboyer.com. The five `.DS_Store` files gh-pages served are gone. GitHub Pages is
+  unpublished and `gh-pages` is a redirect page for old github.io addresses. Cutover log:
+  `docs/cloudflare.md`.
+- **Accents choose the headword (PR #72).** A typed accented Greek word narrows a lemma search to the
+  headwords its spelling carries: αὐτή gives 1,215 hits against 1,603 for unaccented αυτη.
+
+Gates: 4,686 pages · 0 broken of 335,540 links · preflight ok · shared LSJ and Cunliffe coverage ok.
+Live-verified: compare with old gh-pages 0 missing, 0 unexplained differences; search and the word
+popup read only from the data address.
 
 ## Deploy — 2026-11-18: speaker links resolve to speeches; lemma URL fixes, PR #70
 

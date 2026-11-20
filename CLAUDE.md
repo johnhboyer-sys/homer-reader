@@ -87,20 +87,20 @@ non-negotiable.
   the source's own unit (a geologist's "3300 BP" stays BP).
 - **No movie branding.** No stills, no title treatment, no "Nolan". The tie-in is
   structural (Start Here funnel + SEO pages), not visual.
-- Deploying is John's call — never deploy without explicit go-ahead. Hosting:
-  **GitHub Pages, one-off build — no Cloudflare/R2 on this project (John,
-  2026-07-17).** Reuse aristotle-reader's incremental gh-pages deploy recipe.
-  Creating the GitHub remote and the first push are also John-gated. Stay in free
-  tier; surface anything that would incur cost **before** doing it.
+- Deploying is John's call — never deploy without explicit go-ahead. Hosting
+  **since 2026-11-19 (John): Cloudflare.** The app is the Worker `homer-reader`
+  (static assets, no script) at homer.johnhboyer.com; the corpus data is the R2
+  bucket `homer-reader-data` at homer-data.johnhboyer.com. Recipe, checks and
+  history: `docs/cloudflare.md`. (Before that: GitHub Pages, 2026-07-17 to
+  2026-11-19.) Stay in free tier; surface anything that would incur cost
+  **before** doing it.
 - Git flow (John, 2026-07-17; two-remote split 2026-07-18; CORRECTED
   2026-07-21 after a deploy push bounced): `github.com/johnhboyer-sys/
-  homer-reader` (remote `origin`) is now PUBLIC and serves the site itself —
-  Pages from its own `gh-pages` branch. Since 2026-10-21 (John) it serves
-  at the root of **https://homer.johnhboyer.com** — Cloudflare holds only
-  the DNS record (CNAME to johnhboyer-sys.github.io, DNS only, grey cloud);
-  `app/public/CNAME` keeps the domain set on every deploy, and old
-  github.io/homer-reader/ URLs 301 to it. Deploys push
-  `gh-pages` to **origin** (worktree `~/Developer/homer-reader-site`). The
+  homer-reader` (remote `origin`) is PUBLIC. Its `gh-pages` branch no longer
+  serves the site: since 2026-11-19 it holds one redirect page (index.html =
+  404.html) sending old github.io/homer-reader/ addresses to
+  homer.johnhboyer.com; the old site is its history (418c356f6). Never deploy
+  there. The
   `johnhboyer-sys.github.io` repo (remote `deploy`) holds ONLY the root
   redirect to /homer-reader/ — never push site deploys there. Never put a
   custom domain on that repo: every project site without its own domain
@@ -277,14 +277,17 @@ non-negotiable.
   `.venv/bin/python -m homer_pipeline.preflight ../build/dist ../manifests`,
   which asserts the file is present.
 
-- Deploy-from-main recipe (2026-08-05, seventh deploy): `npm run build:public`
-  runs fully isolated in a fresh worktree off main — copy `build/export`
-  (1.6M) into the worktree, symlink `pipeline/.venv` to the main checkout's,
-  `npm install` in app/ and shared/, nvm 22. build:public WIPES AND REBUILDS
-  `build/dist` under its own root, so never run it in the main checkout while
-  another session holds build/dist. Deploy = rsync app/dist →
-  ~/Developer/homer-reader-site (exclude .git/.DS_Store), commit, push
-  origin gh-pages.
+- Deploy-from-main recipe (2026-11-19, Cloudflare): build in a fresh worktree
+  off main with `PUBLIC_DATA_ROOT=https://homer-data.johnhboyer.com` — the
+  full `npm run build:public` (copy `build/export` in, symlink
+  `pipeline/.venv`; it WIPES `build/dist` under its own root), or for an
+  app-only change `cd app && PUBLIC_SHOW_PRIVATE=0 PUBLIC_DATA_ROOT=… npm run
+  build` over a copy of live's data. Then `npm run deploy:cloudflare:dry`, then
+  `npm run deploy:cloudflare` (gates, changed data to R2, `wrangler deploy`).
+  No pipeline venv exists on this machine since 2026-11: `HOMER_PY=$(which
+  python3)` works for the gates. The auto-mode classifier may block an agent's
+  live deploy; John then runs the one command. Rsync to
+  `~/Developer/homer-reader-site` is retired.
 
 ## Orchestration
 

@@ -1,4 +1,4 @@
-# Cloudflare hosting
+# Cloudflare hosting (live since 2026-11-19)
 
 The plan (John, 2026-11-19): move Aristotle, Plato and Homer off GitHub Pages
 and onto Cloudflare. Homer follows the Aristotle Reader's move (its PR #222,
@@ -12,9 +12,9 @@ The gh-pages branch it replaces held 10,053 files, 331 MB.
 |---|---|---|
 | App (pages, `_astro`, art, og cards, icons, `sw.js`) | Worker `homer-reader`, static assets only, no script (`app/wrangler.jsonc`) | about 4,790 files |
 | Corpus data (`data/`) | R2 bucket `homer-reader-data`, keys without the `data/` prefix | 5,261 objects, 166 MB |
-| Data address | `https://homer-data.johnhboyer.com` (R2 custom domain; John attaches it at cutover) | |
+| Data address | `https://homer-data.johnhboyer.com` (R2 custom domain, attached 2026-11-19) | |
 | Preview | `https://homer-reader.johnhboyer.workers.dev` | |
-| Test data address | `https://pub-05b0ee6c05434a4099169d3fdfba5bfe.r2.dev` (r2.dev: rate-limited; turn off after cutover) | |
+| Test data address | r2.dev, turned off 2026-11-19 (answers 401) | |
 
 Homer's 10,053 files would fit under the Workers limit of 20,000 files per
 version, so the data could ship inside the Worker as greekdrama's does. It
@@ -179,3 +179,38 @@ bfa064e0e (the commit live serves) with live's own `data/` (gh-pages
   links fall back to copies across volumes; compare-live checks every bundle a
   page names and compares `sw.js` with the build's; the service-worker test
   tells network-first from cache-first and covers offline reading.
+
+## Cutover (2026-11-19)
+
+- 19:01 PR #73 merged (`412c345b5`).
+- ~19:37 John deleted the GitHub CNAME, so homer.johnhboyer.com had no DNS
+  record. 19:41 John ran `wrangler deploy` with the route now in
+  `app/wrangler.jsonc` (the auto-mode classifier blocked the agent's), which
+  attached the domain to the Worker. The site was down for a few minutes, then
+  served the preview build, data from r2.dev.
+- 19:43 `homer-data.johnhboyer.com` attached to the bucket (`wrangler r2 bucket
+  domain add`, zone `johnhboyer.com`); serving 200 within a minute, with CORS
+  and `max-age=600`.
+- 19:48 John unpublished GitHub Pages and removed its custom domain. The
+  github.io copy kept serving the old site, as Plato's and Aristotle's did, so
+  at 20:40 gh-pages became one redirect page (`87da86ce5`, index.html =
+  404.html; path, query and hash kept). The old site is its parent, 418c356f6.
+- 20:47 `npm run deploy:cloudflare` (John: "And deploy") shipped main at
+  `1a34c08bb` (merged lemma-accents work, PR #72): Worker version `52617c73`;
+  one data file uploaded, `lemma-accents.json`. A first run stopped safely
+  before uploading: the local router's DNS failed one lookup of the new data
+  hostname five times running (`ENOTFOUND`); the rerun passed.
+- 20:49 r2.dev turned off; it answers 401, the data address 200.
+
+Live checks after the deploy: `sw.js` names the data address; `/search/?q=αὐτή`
+reads "571 scenes · 1215 hits" against "632 scenes · 1603 hits" for unaccented
+αυτη, so a typed word's accents narrow the search; its 45 data requests all
+went to the data address, `lemma-accents.json` among them, none same-origin.
+`compare-live.mjs --ref=418c356f6` against the live site: 9,973 of 10,046
+identical, 56 hash-only pages, 16 renamed bundles all served, `sw.js` the
+build's, 0 missing, 0 errors, 0 other; the 5 `.DS_Store` files 404. (Its live
+sample now samples Cloudflare itself, whose `/data/` is 404 by design.)
+
+Cloudflare injects its Web Analytics beacon (`static.cloudflareinsights.com`)
+into pages it proxies; GitHub Pages did not. It is a zone setting, John's to
+keep or turn off.
