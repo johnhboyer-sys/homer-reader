@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -46,7 +48,8 @@ interface Harness {
 }
 
 function loadSw(
-  { responseOk = true, type = 'basic' }: { responseOk?: boolean; type?: string } = {},
+  { responseOk = true, type = 'basic', src = SW_SRC, offline = false, cached = [] }:
+    { responseOk?: boolean; type?: string; src?: string; offline?: boolean; cached?: string[] } = {},
 ): Harness {
   const listeners = new Map<string, (event: unknown) => void>();
   const put = defer<void>();
@@ -54,7 +57,10 @@ function loadSw(
 
   const cache = {
     addAll: async () => {},
-    match: async () => undefined,
+    match: async (request: { url: string } | string) => {
+      const url = typeof request === 'string' ? request : request.url;
+      return cached.includes(url) ? { marker: 'cache' } : undefined;
+    },
     put: (request: { url: string }) => {
       puts.push(request.url);
       return put.promise;
@@ -68,7 +74,11 @@ function loadSw(
     addEventListener: (type: string, fn: (event: unknown) => void) => { listeners.set(type, fn); },
   };
   const caches = { open: async () => cache, keys: async () => [], delete: async () => true };
-  const fetchImpl = async () => ({
+  const fetchImpl = async () => {
+    if (offline) throw new TypeError('Failed to fetch');
+    return fetchResponse();
+  };
+  const fetchResponse = () => ({
     ok: responseOk,
     type,
     marker: 'network',
@@ -76,8 +86,8 @@ function loadSw(
   });
 
   // eslint-disable-next-line no-new-func
-  new Function('self', 'caches', 'fetch', 'location', SW_SRC)(
-    self, caches, fetchImpl, { origin: ORIGIN },
+  new Function('self', 'caches', 'fetch', 'location', src)(
+    self, caches, fetchImpl, { origin: ORIGIN, href: SCOPE },
   );
 
   return {
@@ -170,5 +180,50 @@ describe('service worker cache writes are tied to the event lifetime', () => {
     await expect(event.response).resolves.toMatchObject({ ok: false });
     expect(sw.puts).toEqual([]);
     expect(event.waits).toEqual([]);
+  });
+});
+
+// The Cloudflare build moves corpus data to another origin (R2), and
+// app/scripts/postbuild-data-root.mjs writes that root into dist/sw.js. Run the
+// real script over a scratch dist, then load the worker it wrote.
+describe('service worker with off-origin data (PUBLIC_DATA_ROOT)', () => {
+  const DATA = 'https://data.example.com';
+  const dist = mkdtempSync(path.join(tmpdir(), 'sw-root-'));
+  writeFileSync(path.join(dist, 'sw.js'), SW_SRC);
+  execFileSync(process.execPath, [path.resolve(process.cwd(), '../app/scripts/postbuild-data-root.mjs'), dist], {
+    env: { ...process.env, PUBLIC_DATA_ROOT: DATA + '/' },
+  });
+  const src = readFileSync(path.join(dist, 'sw.js'), 'utf8');
+
+  it('names the root in sw.js and keeps data and .DS_Store out of the Worker upload', () => {
+    expect(src).toContain(`const DATA_ROOT = "${DATA}/";`);
+    expect(readFileSync(path.join(dist, '.assetsignore'), 'utf8')).toBe('data\n.DS_Store\n');
+  });
+
+  it('caches data from the root, network-first', async () => {
+    const url = DATA + '/Iliad/book-01.json';
+    // Online with a cached copy: network-first answers from the network (a
+    // cache-first policy would answer 'cache' here) and refreshes the cache.
+    const sw = loadSw({ src, cached: [url] });
+    const event = sw.fetchEvent(url, { mode: 'cors' });
+    await expect(event.response).resolves.toMatchObject({ marker: 'network' });
+    expect(sw.puts).toEqual([url]);
+  });
+
+  it('serves data from the root out of the cache when offline', async () => {
+    const url = DATA + '/Iliad/book-01.json';
+    const sw = loadSw({ src, offline: true, cached: [url] });
+    await expect(sw.fetchEvent(url, { mode: 'cors' }).response).resolves.toMatchObject({ marker: 'cache' });
+  });
+
+  it('leaves other origins alone', () => {
+    const sw = loadSw({ src });
+    expect(sw.fetchEvent('https://data.example.com.evil.test/Iliad/book-01.json', { mode: 'cors' }).response).toBeNull();
+  });
+
+  it('does nothing without a root', () => {
+    expect(SW_SRC).toMatch(/^const DATA_ROOT = '';$/m);
+    const sw = loadSw();
+    expect(sw.fetchEvent(DATA + '/Iliad/book-01.json', { mode: 'cors' }).response).toBeNull();
   });
 });
