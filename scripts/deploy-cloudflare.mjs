@@ -19,7 +19,7 @@
 // The pure functions are exported for scripts/__tests__/deploy-cloudflare.test.mjs.
 import { createHash } from 'node:crypto';
 import {
-  existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync,
+  copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -177,22 +177,27 @@ async function headObjects(keys, dataRoot) {
   return objects;
 }
 
-async function getBytes(url) {
+// `allow404`: answer null for a missing object instead of refusing.
+async function getBytes(url, { allow404 = false } = {}) {
   const r = await fetch(url, { signal: AbortSignal.timeout(60_000) });
+  if (allow404 && r.status === 404) return null;
   if (!r.ok) fail(`GET ${url} answered ${r.status}`);
   return Buffer.from(await r.arrayBuffer());
 }
 const getText = async (url) => (await getBytes(url)).toString('utf8');
 
-// The data R2 will serve, as one folder the pipeline's gates can read: the
-// build's own data/ when nothing is kept, else a scratch tree of hard links
-// to it (no copying) plus the kept files.
-function servedTree(dataDir, local, kept, tmp) {
-  if (!kept.length) return dataDir;
-  const tree = path.join(tmp, 'data');
+// The data R2 will serve, as one folder named `dist` (the name the pipeline's
+// dictionary checks expect under their BUILD_DIR): hard links to the build's
+// data/ (a copy if the temp folder is on another volume), plus the kept files.
+function servedTree(local, kept, tmp) {
+  const tree = path.join(tmp, 'dist');
   for (const { key, file } of local) {
     mkdirSync(path.dirname(path.join(tree, key)), { recursive: true });
-    linkSync(file, path.join(tree, key));
+    try { linkSync(file, path.join(tree, key)); }
+    catch (error) {
+      if (error.code !== 'EXDEV') throw error;
+      copyFileSync(file, path.join(tree, key));
+    }
   }
   for (const { key, bytes } of kept) {
     mkdirSync(path.dirname(path.join(tree, key)), { recursive: true });
@@ -258,23 +263,32 @@ async function main() {
   const remoteOnly = remoteOnlyKeys(recorded, local.map((f) => f.key));
   console.log(`  bucket record: ${recorded.length} keys; in the bucket but not the build: ${remoteOnly.length}`);
   for (const key of remoteOnly.slice(0, 20)) console.log(`    kept: ${key}`);
+  // The record is written before an upload (below), so it can name a key
+  // whose upload then failed; such a key is not in R2 and has nothing to gate.
   const kept = [];
-  for (const key of remoteOnly) kept.push({ key, bytes: await getBytes(`${dataRoot}/${key}`) });
+  for (const key of remoteOnly) {
+    const bytes = await getBytes(`${dataRoot}/${key}`, { allow404: true });
+    if (bytes) kept.push({ key, bytes });
+    else console.log(`    recorded but not in the bucket: ${key}`);
+  }
 
   heading('Data gates (as npm run build:public)');
   const tmp = mkdtempSync(path.join(tmpdir(), 'homer-r2-'));
   try {
     // What R2 will serve: the build's files plus the ones kept from before.
-    const tree = servedTree(dataDir, local, kept, tmp);
+    const tree = servedTree(local, kept, tmp);
     const pipeline = path.join(ROOT, 'pipeline');
     // preflight reads the served tree: manifests, the public-domain and CC
-    // allowlists, every work's books and apparatus, the search port.
-    // The two dictionary checks read build/dist, the folder the build copied
-    // into dist/data (app/public/data is a link to it).
+    // allowlists, every work's books and apparatus, the search port. The two
+    // dictionary checks read BUILD_DIR/dist, so each runs with its BUILD_DIR
+    // pointed at the scratch folder that holds the served tree.
+    const dictionaryCheck = (module) => ['-c',
+      `import sys; from pathlib import Path; import homer_pipeline.${module} as m; m.BUILD_DIR = Path(sys.argv[1]); sys.exit(m.main())`,
+      tmp];
     const gates = [
       ['preflight', ['-m', 'homer_pipeline.preflight', tree, path.join(ROOT, 'manifests')]],
-      ['shared LSJ coverage', ['-m', 'homer_pipeline.verify_shared_lsj']],
-      ['shared Cunliffe coverage', ['-m', 'homer_pipeline.verify_shared_cunliffe']],
+      ['shared LSJ coverage', dictionaryCheck('verify_shared_lsj')],
+      ['shared Cunliffe coverage', dictionaryCheck('verify_shared_cunliffe')],
     ];
     for (const [name, args] of gates) {
       try { run(PY, args, { cwd: pipeline }); }
@@ -295,6 +309,20 @@ async function main() {
     return;
   }
 
+  // Record every key before uploading any, so a partial upload leaves no
+  // object in the bucket that the record (and so the kept-file gates) misses.
+  const record = [...new Set([...recorded, ...local.map((f) => f.key)])].sort();
+  if (record.length !== recorded.length) {
+    const tmpRecord = mkdtempSync(path.join(tmpdir(), 'homer-r2-'));
+    try {
+      const file = path.join(tmpRecord, 'keys.json');
+      writeFileSync(file, JSON.stringify(record));
+      run('npx', ['-y', 'wrangler@4', 'r2', 'object', 'put', `${BUCKET}/${KEY_RECORD}`, '--remote', '--file', file,
+        '--ct', CONTENT_TYPES.json, '--cc', 'no-cache'], { env: wranglerEnv });
+    } finally { rmSync(tmpRecord, { recursive: true, force: true }); }
+    console.log(`  bucket record: ${record.length} keys`);
+  }
+
   if (uploads.length) {
     heading('Uploading data to R2');
     const tmpList = mkdtempSync(path.join(tmpdir(), 'homer-r2-'));
@@ -310,17 +338,6 @@ async function main() {
     const still = planUploads(uploads, after);
     if (still.length) fail(`${still.length} file(s) did not reach R2, e.g. ${still[0].key}; rerun to retry`);
     console.log(`  ${uploads.length} file(s) uploaded and read back`);
-  }
-  const record = [...new Set([...recorded, ...local.map((f) => f.key)])].sort();
-  if (record.length !== recorded.length) {
-    const tmpRecord = mkdtempSync(path.join(tmpdir(), 'homer-r2-'));
-    try {
-      const file = path.join(tmpRecord, 'keys.json');
-      writeFileSync(file, JSON.stringify(record));
-      run('npx', ['-y', 'wrangler@4', 'r2', 'object', 'put', `${BUCKET}/${KEY_RECORD}`, '--remote', '--file', file,
-        '--ct', CONTENT_TYPES.json, '--cc', 'no-cache'], { env: wranglerEnv });
-    } finally { rmSync(tmpRecord, { recursive: true, force: true }); }
-    console.log(`  bucket record: ${record.length} keys`);
   }
 
   heading('Deploying the app to the Worker');
