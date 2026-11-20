@@ -64,8 +64,12 @@ corpus:
    bucket keeps a record of every key the script has uploaded,
    `_deploy/keys.json` (seeded empty on 2026-11-19; the first run filled it);
    upload data only through the script, or the record goes stale.
-   Cloudflare's API limit holds uploads to about 1,100 files per 5 minutes,
-   so a full corpus upload takes about 25 minutes.
+   Cloudflare's API limit (about 1,200 calls per 5 minutes, shared with
+   `wrangler deploy`'s asset upload) stops a large upload with a 429 after
+   the first thousand or so files; rerun, and the script uploads only what is
+   still missing. Small data changes never come near it. The first upload
+   (2026-11-19) went up by hand instead: six lists of 1,000, five minutes
+   apart, about 40 minutes in all.
 4. Check (optional, while gh-pages is still the record of live):
    `node scripts/compare-live.mjs --app=<worker url> --data=<data address>`
    fetches every file in the gh-pages tree from Cloudflare (4 at a time) and
@@ -142,3 +146,36 @@ the new `sw.js` caches R2 data. Their old cached `/data/` copies stay in the
 cache unused until the cache version is next bumped. The cache version is not
 bumped here: the data did not change (CLAUDE.md: bump on data change, never
 on worker-behaviour change).
+
+## Preview verified (2026-11-19)
+
+Worker version `757abfad`, branch `claude/cloudflare-move` built from
+bfa064e0e (the commit live serves) with live's own `data/` (gh-pages
+418c356f6), data on the r2.dev test address.
+
+- `deploy:cloudflare:dry`: 4,686 pages against 4,686 in the live sitemap;
+  link check 0 broken of 335,540 links and 148,347 anchors; preflight, shared
+  LSJ and shared Cunliffe coverage all ok over the served tree; 0 of 5,261
+  data files to upload (the bucket matches the build).
+- `compare-live.mjs`, all 10,046 files of gh-pages 418c356f6 (less CNAME and
+  `.nojekyll`), 4 in flight: 9,973 byte-identical; 56 pages equal once bundle
+  names and Svelte hashes are masked; 16 bundles renamed, all served; `sw.js`
+  equal to the build's; 0 missing, 0 errors, 0 other differences; no page
+  names a bundle the build lacks; the 5 `.DS_Store` files answer 404. All 40
+  files sampled from live matched the tree.
+- Browser (built-in pane): Iliad 1 renders with its data from R2 only; the
+  word popup for μῆνιν loads the parse, the Cunliffe entry (`cunliffe-t8/m.json`
+  from R2) and the LSJ entry (the Grammata widget, from Grammata's own hosts as
+  on live); `/search/?q=μῆνιν` reads "22 scenes · 22 hits", as on live; the
+  service worker cached 60 R2 files and no same-origin data. The search's four
+  404s for `search-shards/index.json` happen on live too: Homer has no such
+  file.
+- Gates: shared vitest 2,549 passed (5 skipped); app vitest 54; `npm run
+  test:scripts` 9; svelte-check 0 errors (1 existing warning in
+  `LexiconPanel.svelte`). Pipeline untouched, pytest not run.
+- Review: Codex (gpt-6.1-sol, medium effort, confirmed from its session log)
+  reviewed the port. All six findings are fixed: the dictionary checks now
+  read the served tree; the key record is written before an upload; hard
+  links fall back to copies across volumes; compare-live checks every bundle a
+  page names and compares `sw.js` with the build's; the service-worker test
+  tells network-first from cache-first and covers offline reading.
