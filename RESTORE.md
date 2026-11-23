@@ -10,7 +10,8 @@ them have been run, when, and how long they took.
 | What | Where | Notes |
 |---|---|---|
 | Source | GitHub, `johnhboyer-sys/homer-reader` (public) | The Iliad's Greek, the Odyssey's Greek, the translations, the apparatus, the pipeline, and the app are all in it |
-| Source, second copy | GitLab, `johnhboyer/homer-reader` (private) | Every branch and tag but `gh-pages`, as of 2026-11-21. Nothing keeps it current yet. Only the owner can read it, so it is the owner's way back, not a stranger's |
+| Source, second copy | GitLab, `johnhboyer/homer-reader` (private) | Every branch and tag but `gh-pages`, as of 2026-11-21. `.github/workflows/mirror.yml` keeps it current once its deploy key and address are set; until then nothing does. Only the owner can read it, so it is the owner's way back, not a stranger's |
+| A built bundle, for each deploy | A GitHub release named after the deploy's tag (`deploy/<date>`), with the bundle and its `SHA256SUMS` | Public. `.github/workflows/release.yml` builds it from a clean checkout when `npm run deploy:cloudflare` pushes the tag; the first comes with the first deploy after this is merged |
 | A built bundle | The `homer-bundle` artifact of the newest CI run on GitHub | Kept seven days; downloading one needs a GitHub login |
 | The build's two outside inputs | Diogenes 4.7.2's release on GitHub, `pjheslin/diogenes` | 186 MB; pinned by sha256 in `pipeline/homer_pipeline/inputs.py` |
 

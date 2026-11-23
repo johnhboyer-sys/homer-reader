@@ -16,7 +16,8 @@ Cloudflare.
 
 Phase 1 is on `main`: John said "merge pr 78" on 2026-11-23, and this
 session merged homer-reader #78 (`7a13697f2e`) with all five CI jobs green.
-Phase 2 is in a PR (below); phase 3 is not started. Nothing is deployed.
+Phase 2 is in a PR, and phase 3 in a PR stacked on it (below). Nothing is
+deployed.
 John ruled on 2026-11-23 that test 3 may call two hosts of Homer's own beside
 Grammata's: CAWM's map tiles and archive.org's recitation audio. Open for
 John: the licence (below) and decision 10 for Homer's two fixtures (below).
@@ -44,6 +45,82 @@ John: the licence (below) and decision 10 for Homer's two fixtures (below).
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log records each path run |
 | Review by another model family | Codex (GPT-6.1-Sol, medium), two reads: four findings, then two gaps in the fixes; all fixed and each break shown failing; one partial-loss case recorded as known |
 | The bundle on two candidate hosts | Waits on John (decision 6, accounts), as for Aristotle and Plato |
+
+| Phase 3 step | State |
+|---|---|
+| Push the repo to a second git host | Written: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml`. Waits on Homer's deploy key (the lead session's job) |
+| Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/homer-reader.git` (below) |
+| The deploy tags its commit | Written: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
+| A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Runs first at the next deploy after this merges; about 59 MB public each time, the Kosmos text among it (below) |
+| `mirror.yml`: git on every push, the check weekly | Written. On a push, the git job skips while `MIRROR_GIT_URL` is unset and the check job never runs (this PR's run shows both skipped). The weekly check (Mondays, 11:17 UTC) runs regardless: until the key is set it cannot read the private mirror, fails, and opens one "Mirror check failed" issue, then comments on it each week |
+| `check-mirrors.mjs` and `mirrors.json` | Done: `mirrors.json` names the GitLab mirror; the check runs and fails truly (below) |
+| Review by another model family | Codex (GPT-6.1-Sol, medium): one finding, a claim in this file that the weekly check skips without the key; corrected (it runs and fails; see the record). No finding in the deploy tag, the release workflow, or the copies |
+
+## Phase 3 record
+
+**What was ported.** `scripts/mirror-git.mjs`, `scripts/mirror-check.mjs`,
+`scripts/check-mirrors.mjs`, their tests, `.github/actions/mirror-key`,
+`.github/mirror_known_hosts`, and `.github/workflows/mirror.yml` are
+Aristotle's merged files unchanged (Plato's are byte for byte the same), but
+for one test line that names the reader's base path (`/homer/`). So they
+carry every fix the three Codex reviews of Aristotle's forced (its phase 3
+record lists them). `release.yml` (Plato's) and `mirrors.json` are renamed for
+Homer: the bundle `homer-reader-<tag>.tar.gz`, its data held to
+`homer-data.johnhboyer.com`. The deploy tag (`tagPlan`, `tagCommits`,
+`uncleanFiles`, `tagDeploy`, `--no-tag`, and the lines in `main()`) is ported
+by hunk from Plato's `deploy-cloudflare.mjs`, which has the `uncleanFiles()`
+fix (untracked files asked for by name), into Homer's own script, whose gates
+differ; its tests come with it.
+
+**Checks.** Script tests 182 of 182. Five hand breaks of the ported tag code
+(an unclean tree tagged, a failed push leaving its tag, a second tag at one
+commit, an annotated tag's peeled line dropped, untracked files left to the
+`status.showUntrackedFiles` setting) each fail a test. A first try at the
+annotated-tag break (always overwrite) changed nothing, since `ls-remote`
+lists the peeled line second; the break that drops it is the real one.
+
+`mirror-check.mjs` against the GitLab mirror (read with the account key the
+lead session made for phase 0):
+
+```
+FAIL git@gitlab.com:johnhboyer/homer-reader.git: 10 of 13 refs match; 1 skipped (refs/heads/gh-pages)
+  missing on the mirror: refs/heads/claude/portability-phase1
+  missing on the mirror: refs/heads/claude/portability-phase2
+  differs: refs/heads/main is 7a13697f2e… at the source and 9e327f885c… on the mirror
+```
+
+That is the truth: the mirror is the lead session's copy of 2026-11-21;
+`main` has moved since (#75 to #78) and the two branches came after it.
+Nothing keeps it current until `mirror.yml` has its key. With those three
+(and `gh-pages`) skipped: `ok …: 10 of 10 refs match; 4 skipped (…);
+history: 809 commits, whole`. `check-mirrors.mjs
+--source=https://github.com/johnhboyer-sys/homer-reader.git` reads
+`mirrors.json` and fails the same way (`FAIL 0 of 1 mirrors whole and
+current`, the three refs named, history not checked because the refs do not
+match).
+
+**The Kosmos text in a public release (John's to judge).** `release.yml`
+attaches the whole bundle to a public GitHub release at each deploy. The
+bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND 3.0), as the
+live site serves it: verbatim, with its attribution, in each book's data. A
+release is a public download, not only a page. Whether that is within the
+licence is not decided here.
+
+**The weekly check before the key (Codex's review).** `mirror.yml`'s git
+job is guarded by `MIRROR_GIT_URL`; its check job is not (it runs on the
+schedule and by hand, never on a push). Merged before the key is set, the
+check fails each Monday, since it cannot read the private mirror without a
+key, and keeps one open issue, "Mirror check failed", with a comment a week.
+That is the truth, the mirror being stale, but it is noise. The workflow is
+the siblings' file byte for byte, so it is not changed here: set the key
+before merging this, or close the issue once it is set.
+
+**Homer's deploy key.** Not made here. When the lead session makes the pair
+and gives John the public half, John's two GitLab steps are: add it to the
+project `johnhboyer/homer-reader` as a deploy key with write access, and tick
+it under `main`'s "Allowed to push and merge" (force push left off). Then the
+lead session sets the secret `MIRROR_GIT_SSH_KEY` and the variable
+`MIRROR_GIT_URL`.
 
 ## Phase 2 record
 

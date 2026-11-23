@@ -1,0 +1,6 @@
+{
+  "git": [
+    { "name": "GitLab", "url": "git@gitlab.com:johnhboyer/homer-reader.git" }
+  ],
+  "site": []
+}
