@@ -14,17 +14,31 @@ Cloudflare.
 
 ## State (2026-11-23)
 
-Phase 1 is on `main`: John said "merge pr 78" on 2026-11-23, and this
-session merged homer-reader #78 (`7a13697f2e`) with all five CI jobs green.
-Phase 2 is in a PR, and phase 3 in a PR stacked on it (below). Nothing is
-deployed.
-John ruled on 2026-11-23 that test 3 may call two hosts of Homer's own beside
-Grammata's: CAWM's map tiles and archive.org's recitation audio. John ruled the
-rest on 2026-11-23: the licence as recommended (MIT in `LICENSE`, CC0 1.0 on
-`corpus/greek/` now, CC BY 4.0 on his own apparatus, every source on its own
-terms, listed in `sources/INVENTORY.md`); the Kosmos text goes out in public
-releases as the live site serves it (A); and decision 10, keep both fixtures
-pinned (A). The licence is a PR stacked on phase 3.
+Phases 1 to 3 and the licence are on `main`, all merged on 2026-11-23 on
+John's word: #78 (phase 1, `7a13697f2e`; "merge pr 78", merged by this
+session), then #79 (phase 2, `123b29802d`), #80 (phase 3, `8385562069`) and #81
+(the licence, `6c8070f3fc`), merged by the lead session ("Merge them"). On
+`6c8070f3fc` CI (the full Linux build, the bundle, and test 3 among its jobs),
+the Docker image build, and the Mirror run all passed. The merged branches are
+deleted. Nothing is deployed.
+
+The GitLab mirror is live: Homer's deploy key is on the GitLab project with
+push rights to protected `main` (John, 13:05), the secret and the variable are
+set, and every push to GitHub is mirrored (15 of 15 refs, history whole; see
+the phase 3 record).
+
+John's rulings of 2026-11-23: test 3 may call two hosts of Homer's own beside
+Grammata's, CAWM's map tiles and archive.org's recitation audio; the licence
+as recommended (MIT in `LICENSE`, CC0 1.0 on `corpus/greek/` now, CC BY 4.0 on
+his own apparatus, every source on its own terms, listed in
+`sources/INVENTORY.md`); the Kosmos text goes out in public releases as the
+live site serves it (A); and decision 10, keep both fixtures pinned (A).
+
+Not yet seen by anyone: the deploy tag in a real deploy, the release workflow,
+a tag push mirrored, and the weekly mirror check. All four come with the next
+deploy or the next Monday. Still open: the bundle on two candidate hosts
+(decision 6, John's accounts) and a restore by someone else from a mirror alone
+(test 5).
 
 | Phase 1 step | State |
 |---|---|
@@ -45,7 +59,7 @@ pinned (A). The licence is a PR stacked on phase 3.
 | No outside calls (test 3) | Green at `/` and at `/mirror/`: 8 of 8 visits, 3 outside hosts asked for, all allowed (Grammata, CAWM's tiles, archive.org's audio) |
 | The mirror bundle | Done: `scripts/make-bundle.mjs`, 10,048 files, 347 MB, 59 MB packed, six gates on 5,262 data files |
 | `check-served.mjs` | Done (Aristotle's, unchanged); used by the image workflow and the restore drill |
-| `Dockerfile`, Caddy, image workflow | Written; the image is built only in CI (never on the Mac), on this PR |
+| `Dockerfile`, Caddy, image workflow | Done: built only in CI (never on the Mac); the Image workflow passed on `main` at `8385562069` and `6c8070f3fc` |
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log records each path run |
 | Review by another model family | Codex (GPT-6.1-Sol, medium), two reads: four findings, then two gaps in the fixes; all fixed and each break shown failing; one partial-loss case recorded as known |
 | The bundle on two candidate hosts | Waits on John (decision 6, accounts), as for Aristotle and Plato |
@@ -54,9 +68,9 @@ pinned (A). The licence is a PR stacked on phase 3.
 |---|---|
 | Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml` with Homer's deploy key since 2026-11-23; first run 45245208945, 15 of 15 refs (below) |
 | Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/homer-reader.git` (below) |
-| The deploy tags its commit | Written: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
-| A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Runs first at the next deploy after this merges; about 59 MB public each time, the Kosmos text among it (below) |
-| `mirror.yml`: git on every push, the check weekly | Written. On a push, the git job skips while `MIRROR_GIT_URL` is unset and the check job never runs (this PR's run shows both skipped). The weekly check (Mondays, 11:17 UTC) runs regardless: until the key is set it cannot read the private mirror, fails, and opens one "Mirror check failed" issue, then comments on it each week |
+| The deploy tags its commit | Written and merged: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
+| A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Merged; runs first at the next deploy; about 59 MB public each time, the Kosmos text among it (below) |
+| `mirror.yml`: git on every push, the check weekly | Live: the key and `MIRROR_GIT_URL` are set, and the git job has mirrored every push since 2026-11-23 (first run 45245208945, 15 of 15 refs; it passed again on `main` at `6c8070f3fc`). The check job never runs on a push; the weekly check (Mondays, 11:17 UTC) has not run yet |
 | `check-mirrors.mjs` and `mirrors.json` | Done: `mirrors.json` names the GitLab mirror; the check runs and fails truly (below) |
 | Review by another model family | Codex (GPT-6.1-Sol, medium): one finding, a claim in this file that the weekly check skips without the key; corrected (it runs and fails; see the record). No finding in the deploy tag, the release workflow, or the copies |
 
