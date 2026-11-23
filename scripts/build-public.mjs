@@ -100,8 +100,12 @@ if (dataProblem) {
 console.log('\nCopying DICES speech-span apparatus into the public data root');
 const APPARATUS = join(ROOT, 'apparatus');
 for (const work of works) {
-  const src = join(APPARATUS, 'speeches', `${work}.json`);
-  if (existsSync(src)) copyFileSync(src, join(dataDir, work, 'speeches.json'));
+  // The manifest is Iliad.yaml; the apparatus file and the data folder are
+  // iliad. A Mac's disk ignores the case; Linux does not, and the copy would
+  // find nothing (CI's first full build, 2026-11-23).
+  const id = work.toLowerCase();
+  const src = join(APPARATUS, 'speeches', `${id}.json`);
+  if (existsSync(src)) copyFileSync(src, join(dataDir, id, 'speeches.json'));
 }
 const charactersSrc = join(APPARATUS, 'characters.json');
 if (existsSync(charactersSrc)) copyFileSync(charactersSrc, join(dataDir, 'characters.json'));
