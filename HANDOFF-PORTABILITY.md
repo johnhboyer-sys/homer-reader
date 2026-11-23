@@ -103,12 +103,12 @@ history: 809 commits, whole`. `check-mirrors.mjs
 current`, the three refs named, history not checked because the refs do not
 match).
 
-**The Kosmos text in a public release (John's to judge).** `release.yml`
-attaches the whole bundle to a public GitHub release at each deploy. The
-bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND 3.0), as the
-live site serves it: verbatim, with its attribution, in each book's data. A
-release is a public download, not only a page. Whether that is within the
-licence is not decided here.
+**The Kosmos text in a public release (ruled A by John, 2026-11-23).**
+`release.yml` attaches the whole bundle to a public GitHub release at each
+deploy. The bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND
+3.0), as the live site serves it: verbatim, with its attribution, in each
+book's data. A release is a public download, not only a page. John chose to
+ship it so; the licence table in `sources/INVENTORY.md` names its terms.
 
 **The weekly check before the key (Codex's review).** `mirror.yml`'s git
 job is guarded by `MIRROR_GIT_URL`; its check job is not (it runs on the
