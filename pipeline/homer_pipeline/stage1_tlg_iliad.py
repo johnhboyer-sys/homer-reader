@@ -1,5 +1,10 @@
 """Stage 1: Iliad Greek spine from the TLG Diogenes verse-mode export.
 
+The build reads the export's lines from the committed line file,
+corpus/greek/Iliad.tsv (greek_lines; made by `python -m homer_pipeline.extract`),
+and never runs Diogenes. The XML reader stays for extract and the tests'
+fixtures: both paths go through ``parse_rows``.
+
 John's decision (2026-07-17, binding): the Iliad re-bases from Perseus onto
 the TLG export of **Allen, Oxford 1931** (editio maior). Gate A (line-set
 identity, ``docs/`` scratch analysis) found the two editions identical for
@@ -43,11 +48,9 @@ import re
 import unicodedata
 from pathlib import Path
 
-from lxml import etree
-
+from . import greek_lines
 from .config import BUILD_DIR, Manifest
-from .stage1_common import collapse_ws, local_name
-from .stage1_greek import run_export
+from .stage1_common import collapse_ws
 
 # The Alexandrian obelos (athetesis mark) as this export encodes it: a plain
 # em dash inside <seg rend="Marginalia">, alone or combined with other sigla
@@ -80,12 +83,6 @@ SUPPLEMENTED_LINES: dict[int, dict[int, str]] = {
 }
 
 
-def _is_book_div(div) -> bool:
-    """True for a TLG verse-mode book container (<div type="Book" n="N">)."""
-    n = div.get("n")
-    return (div.get("type") or "").lower() == "book" and bool(n) and n.isdigit()
-
-
 # A second, unwrapped sigil this export produces: TLG Beta Code "%11" decodes
 # straight to U+2022 BULLET as literal line-initial text (not inside a <seg
 # rend="Marginalia">, unlike every other critical mark here) — confirmed
@@ -102,40 +99,10 @@ def _is_book_div(div) -> bool:
 _BULLET = "•"
 
 
-def _line_text_and_sigla(el) -> tuple[str, str | None]:
-    """Flatten an <l>, pulling ``<seg rend="Marginalia">`` sigla and any
-    stray ``_BULLET`` OUT of the Greek text stream (Alexandrian critical
-    marks are apparatus, not text) and returning them as a separate combined
-    string. ``<label type="head">`` (the title-line wrapper) and
-    milestone-only ``<pb/>``/``<space/>`` carry no Greek text and are
-    dropped, mirroring how the Perseus reader drops note/head subtrees."""
-    parts: list[str] = []
-    sigla_parts: list[str] = []
-
-    def walk(node, is_root: bool = False) -> None:
-        if not isinstance(getattr(node, "tag", None), str):
-            if not is_root and getattr(node, "tail", None):
-                parts.append(node.tail)
-            return
-        tag = local_name(node) or ""
-        if tag == "seg" and (node.get("rend") or "") == "Marginalia":
-            sigla_parts.append(collapse_ws("".join(node.itertext())).strip())
-            if node.tail:
-                parts.append(node.tail)
-            return
-        if tag == "label" and not is_root:
-            if node.tail:
-                parts.append(node.tail)
-            return
-        if node.text:
-            parts.append(node.text)
-        for child in node:
-            walk(child)
-        if not is_root and node.tail:
-            parts.append(node.tail)
-
-    walk(el, is_root=True)
-    raw = collapse_ws("".join(parts)).strip()
+def _finish(raw: str, sigla_parts: list[str]) -> tuple[str, str | None]:
+    """A line's text and sigla from what greek_lines.flatten_line took out of
+    it: the stray ``_BULLET`` moves to the sigla, and the text is NFC."""
+    sigla_parts = list(sigla_parts)
     if _BULLET in raw:
         sigla_parts.append(_BULLET)
         raw = collapse_ws(raw.replace(_BULLET, "")).strip()
@@ -144,20 +111,38 @@ def _line_text_and_sigla(el) -> tuple[str, str | None]:
     return text, sigla
 
 
+def _line_text_and_sigla(el) -> tuple[str, str | None]:
+    """Flatten an <l>, pulling ``<seg rend="Marginalia">`` sigla and any
+    stray ``_BULLET`` OUT of the Greek text stream (Alexandrian critical
+    marks are apparatus, not text) and returning them as a separate combined
+    string. ``<label type="head">`` (the title-line wrapper) and
+    milestone-only ``<pb/>``/``<space/>`` carry no Greek text and are
+    dropped, mirroring how the Perseus reader drops note/head subtrees."""
+    return _finish(*greek_lines.flatten_line(el))
+
+
 def parse_spine(
     xml_path: Path,
     manifest: Manifest,
     supplement: dict[int, dict[int, str]] | None = None,
 ) -> dict:
     """Parse a TLG verse-mode export (Diogenes ``xml-export.pl -y``) into the
-    stage1 greek_spine dict. ``supplement`` defaults to ``SUPPLEMENTED_LINES``
-    (real Book 8 data); tests may pass a synthetic dict to exercise the
-    injection mechanism without real vulgate line numbers."""
+    stage1 greek_spine dict: the tests' fixtures, and extract's proof that a
+    line file reads as its export does. The build reads the line file."""
+    return parse_rows(greek_lines.rows_from_xml(xml_path), manifest, supplement)
+
+
+def parse_rows(
+    rows: list[greek_lines.Row],
+    manifest: Manifest,
+    supplement: dict[int, dict[int, str]] | None = None,
+) -> dict:
+    """The stage1 greek_spine dict from a work's lines (greek_lines.Row, read
+    from corpus/greek/ or from an export). ``supplement`` defaults to
+    ``SUPPLEMENTED_LINES`` (real Book 8 data); tests may pass a synthetic
+    dict to exercise the injection mechanism without real vulgate line
+    numbers."""
     supplement = SUPPLEMENTED_LINES if supplement is None else supplement
-    tree = etree.parse(str(xml_path))
-    body = tree.find(".//{*}body")
-    if body is None:
-        raise ValueError(f"no TEI body in {xml_path}")
 
     segments: list[dict] = []
     headings: list[dict] = []
@@ -165,41 +150,19 @@ def parse_spine(
     non_digit_n: dict[str, int] = {}
     normalized_n: list[dict] = []  # [{book, raw, normalized}], e.g. 18/"605*"/605
 
-    book_divs = [d for d in body.iter("{*}div") if _is_book_div(d)]
-    seen_books: set[int] = set()
-    ordered_books: list[tuple[int, object]] = []
-    for div in book_divs:
-        bn = int(div.get("n"))
-        if bn in seen_books:
-            continue
-        seen_books.add(bn)
-        ordered_books.append((bn, div))
-    ordered_books.sort(key=lambda x: x[0])
+    by_book: dict[int, list[greek_lines.Row]] = {}
+    for row in rows:
+        by_book.setdefault(int(row.book), []).append(row)
 
-    for book_n, div in ordered_books:
+    for book_n, book_rows in sorted(by_book.items()):
         by_n: dict[int, dict] = {}
-        for l in div.iter("{*}l"):
-            # Only lines whose nearest book ancestor is this book div (no
-            # nesting is attested in this export, but stay strict as the
-            # Perseus reader does).
-            anc = l.getparent()
-            owner = None
-            while anc is not None:
-                if _is_book_div(anc):
-                    owner = int(anc.get("n"))
-                    break
-                anc = anc.getparent()
-            if owner is not None and owner != book_n:
-                continue
-
-            n_attr = l.get("n")
-            if n_attr is None:
-                non_digit_n["(none)"] = non_digit_n.get("(none)", 0) + 1
-                continue
+        for row in book_rows:
+            n_attr = row.n
+            line = row.text, [row.sigla] if row.sigla else []
             if n_attr == "t":
                 title_n_count += 1
                 non_digit_n["t"] = non_digit_n.get("t", 0) + 1
-                text, _sigla = _line_text_and_sigla(l)
+                text, _sigla = _finish(*line)
                 headings.append({"column": str(book_n), "n": n_attr, "text": text})
                 continue
             if n_attr.isdigit():
@@ -208,13 +171,13 @@ def parse_spine(
                 m = _DECORATED_N.match(n_attr)
                 if not m:
                     non_digit_n[n_attr] = non_digit_n.get(n_attr, 0) + 1
-                    text, _sigla = _line_text_and_sigla(l)
+                    text, _sigla = _finish(*line)
                     headings.append({"column": str(book_n), "n": n_attr, "text": text})
                     continue
                 line_no = int(m.group(1))
                 normalized_n.append({"book": book_n, "raw": n_attr, "normalized": line_no})
 
-            text, sigla = _line_text_and_sigla(l)
+            text, sigla = _finish(*line)
             if line_no in by_n:
                 continue  # first occurrence wins if a duplicate n= appears
             entry: dict = {"n": line_no, "text": text}
@@ -257,9 +220,19 @@ def parse_spine(
     }
 
 
+def read_lines(manifest: Manifest) -> list[greek_lines.Row]:
+    """The work's committed line file. The build never runs Diogenes: a
+    missing file stops it and says how the file is made."""
+    path = greek_lines.corpus_path(manifest)
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"{path} is missing; the build reads the committed Greek and never runs Diogenes. "
+            f"Make it on a machine with the TLG: python -m homer_pipeline.extract --work {greek_lines.work_name(manifest)}")
+    return greek_lines.load(path)
+
+
 def run(manifest: Manifest) -> Path:
-    xml_path = run_export(manifest)
-    spine = parse_spine(xml_path, manifest)
+    spine = parse_rows(read_lines(manifest), manifest)
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / "greek_spine.json"

@@ -51,7 +51,17 @@ const publicWorks = new Set(
     .map((name) => name.slice(0, -'-public.yaml'.length)),
 );
 
-console.log('Cleaning generated public build output');
+// The build's two inputs from outside the repo, checked once by checksum: a
+// build made with another Morpheus table or another LSJ must not pass for this
+// one. The Iliad's Greek is corpus/greek/Iliad.tsv and the Odyssey's is in
+// sources/perseus/; stage 1 never runs Diogenes (HANDOFF-PORTABILITY.md).
+// First, before anything is cleaned: a failed check leaves the last build.
+console.log('Checking the Morpheus table and the LSJ against their pins');
+run(PY, ['-m', 'homer_pipeline.inputs', 'check'], {
+  cwd: join(ROOT, 'pipeline'),
+});
+
+console.log('\nCleaning generated public build output');
 rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
 rmSync(join(ROOT, 'build', 'scene-pages'), { recursive: true, force: true });
 rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
@@ -91,8 +101,12 @@ if (dataProblem) {
 console.log('\nCopying DICES speech-span apparatus into the public data root');
 const APPARATUS = join(ROOT, 'apparatus');
 for (const work of works) {
-  const src = join(APPARATUS, 'speeches', `${work}.json`);
-  if (existsSync(src)) copyFileSync(src, join(dataDir, work, 'speeches.json'));
+  // The manifest is Iliad.yaml; the apparatus file and the data folder are
+  // iliad. A Mac's disk ignores the case; Linux does not, and the copy would
+  // find nothing (CI's first full build, 2026-11-23).
+  const id = work.toLowerCase();
+  const src = join(APPARATUS, 'speeches', `${id}.json`);
+  if (existsSync(src)) copyFileSync(src, join(dataDir, id, 'speeches.json'));
 }
 const charactersSrc = join(APPARATUS, 'characters.json');
 if (existsSync(charactersSrc)) copyFileSync(charactersSrc, join(dataDir, 'characters.json'));
@@ -206,7 +220,7 @@ run('npm', ['run', 'build'], {
 });
 
 // Deploy gate: every internal href, fragment anchor, Bekker deep link, and
-// lemma page in the emitted site must resolve. CI can't run this (the corpus
-// is machine-local), so the pre-deploy build is where it has to hold the line.
+// lemma page in the emitted site must resolve. CI's `site` job runs it too,
+// on every pull request.
 console.log('\nChecking link integrity of the built site');
 run('node', [join(ROOT, 'scripts', 'check-links.mjs'), join(ROOT, 'app', 'dist')]);
