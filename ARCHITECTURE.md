@@ -122,8 +122,8 @@ bundle with Caddy on port 80.
 | The data host | Corpus data, when `PUBLIC_DATA_ROOT` is set | None in a same-origin build |
 | None, for fonts | Web fonts | The build bundles its own under `_astro/` |
 | Grammata (`PUBLIC_GRAMMATA_LOOKUP`, and its packs on `pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev`) | The word popup's LSJ tab; the script that draws its Cunliffe tab (the record itself is this site's data); the LSJ entry on lemma pages | Stays, by a ruling of 2026-08-29. With it refused, the popup still shows its own headword, gloss, and parses, and the Cunliffe tab says "The dictionary could not be loaded." |
-| `cawm.lib.uiowa.edu` | The base tiles of the map explorer (`/maps/`, Leaflet, `LandmarkMap.svelte`) | Loaded when the map shows. Not on decision 4's list: John's call (`HANDOFF-PORTABILITY.md`) |
-| `archive.org` | The recitation MP3s ("Hear this passage"; `data/audio.json` names them) | Only when a reader turns the audio on and presses play. Not on decision 4's list: John's call |
+| `cawm.lib.uiowa.edu` | The base tiles of the map explorer (`/maps/`, Leaflet, `LandmarkMap.svelte`) | Loaded when the map shows. Allowed by John, 2026-11-23 |
+| `archive.org` | The recitation MP3s ("Hear this passage"; `data/audio.json` names them) | Only when a reader turns the audio on and presses play. Allowed by John, 2026-11-23 |
 
 Links to Logeion, Perseus, Kosmos, the sibling readers, and the support page
 are plain links a reader follows. The site carries no analytics or trackers.

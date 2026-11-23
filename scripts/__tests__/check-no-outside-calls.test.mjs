@@ -27,8 +27,8 @@ test('parseArgs: the defaults, and the base from SITE_BASE', () => {
   assert.deepEqual(parseArgs([`--dist=${dist}`, '--allow=a.test,b.test'], {}).allow, ['a.test', 'b.test']);
 });
 
-test('parseArgs: the default list is Grammata and its packs host, exactly', () => {
-  assert.deepEqual(DEFAULT_ALLOW, ['grammata.pages.dev', 'pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev']);
+test('parseArgs: the default list is Grammata and its packs host, the map tiles, and the recitation audio, exactly', () => {
+  assert.deepEqual(DEFAULT_ALLOW, ['grammata.pages.dev', 'pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev', 'cawm.lib.uiowa.edu', 'archive.org']);
 });
 
 test('parseArgs: bad arguments are usage errors', () => {

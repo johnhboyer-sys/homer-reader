@@ -63,14 +63,8 @@ runs:
 
     # Playwright is this step's tool and no package of the repo; nothing of
     # it ships. The check finds it in the npx cache this install fills.
-    # The list is the script's default (Grammata's site and packs, decision
-    # 4) plus two hosts pending John's ruling (HANDOFF-PORTABILITY.md, phase
-    # 2): cawm.lib.uiowa.edu, the map explorer's base tiles
-    # (app/src/components/maps/LandmarkMap.svelte), and archive.org, the
-    # recitation MP3s (data/audio.json). A run without --allow fails on
-    # them, which is the truth until he rules.
     - name: No outside calls
       shell: bash
       run: |
         npx --yes playwright@1.65.1 install --with-deps chromium
-        node scripts/check-no-outside-calls.mjs --allow=grammata.pages.dev,pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev,cawm.lib.uiowa.edu,archive.org
+        node scripts/check-no-outside-calls.mjs

@@ -28,8 +28,12 @@
 //
 // --allow names the hosts that may be asked for (exact names; a port other
 // than 80 or 443, or a subdomain, is another host). They are still refused.
-// The default is Grammata's site and its packs bucket (HANDOFF-PORTABILITY.md,
-// decision 4: "two hosts ... until the packs move under one name").
+// The default is Grammata's site and its packs bucket (aristotle-reader's
+// HANDOFF-PORTABILITY.md, decision 4: "two hosts ... until the packs move
+// under one name"), and two of Homer's own, which John allowed on
+// 2026-11-23: CAWM's map tiles under the map explorer
+// (app/src/components/maps/LandmarkMap.svelte) and archive.org's recitation
+// MP3s (data/audio.json).
 //
 // A <link rel="preconnect"> or "dns-prefetch" asks for no file: through a
 // proxy Chromium sends nothing that names the host, though a visitor's
@@ -53,7 +57,7 @@ import { fileURLToPath } from 'node:url';
 
 import { siteParams } from './site-params.mjs';
 
-export const DEFAULT_ALLOW = ['grammata.pages.dev', 'pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev'];
+export const DEFAULT_ALLOW = ['grammata.pages.dev', 'pub-d505f3fd993b4e01b2ab095428d0493e.r2.dev', 'cawm.lib.uiowa.edu', 'archive.org'];
 // Site files a page asks for that no build makes, each with its reason: a
 // 404 at exactly one of these paths (under the base, no query) is printed and
 // not failed. --expect-missing replaces the list. A path the build does hold
