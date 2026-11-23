@@ -367,10 +367,11 @@ made-up works W1 to W5 since Homer has one TLG work.
 
 ## The licence (ruled by John, 2026-11-23)
 
-The GitHub repo is public with no licence. For Plato John ruled "Same as
-Aristotle" (MIT for code in `LICENSE`, CC0 1.0 on `corpus/greek/`, other
-sources under their own terms in `sources/INVENTORY.md`). Homer's sources are
-not all as open, so a Homer licence section would have to name, apart from
+Until this ruling the GitHub repo was public with no licence. For Plato John
+ruled "Same as Aristotle" (MIT for code in `LICENSE`, CC0 1.0 on
+`corpus/greek/`, other sources under their own terms in
+`sources/INVENTORY.md`). Homer's sources are not all as open, so the question
+put to him listed what a Homer licence section would have to name, apart from
 the MIT code and the CC0 Greek:
 
 - **The Kosmos Society revision of Butler, CC BY-NC-ND 3.0** (`sources/kosmos/`,
@@ -385,11 +386,15 @@ the MIT code and the CC0 Greek:
 - **OpenStreetMap river courses, ODbL 1.0** (`sources/openstreetmap/`):
   attribution and share-alike on derived data.
 - **Copernicus DEM, an attribution licence** (`sources/copernicus-dem/`).
-- Public domain, named for completeness: Butler's own text (Gutenberg and
-  Wikisource), Pope (Gutenberg), Natural Earth, the terrain tiles, Cunliffe
-  (via a MIT-licensed Perseus repo), Autenrieth.
-- **John's own apparatus** (scenes, places, plates, notes): CC BY 4.0 under
-  decision 3, if he wants the same here.
+- Public domain: Butler's own text (Gutenberg and Wikisource), Pope
+  (Gutenberg), Natural Earth, the terrain tiles, the Loeb notes. Cunliffe's
+  1924 lexicon is US public domain (its 1931 proper-name file from 2027),
+  from a MIT-licensed Perseus repo; Autenrieth's 1891 text is public domain,
+  its Perseus encoding CC BY-SA.
+- **John's own apparatus** (scenes, speeches, places, plates, notes): CC BY
+  4.0, as decision 3 gave Aristotle's, except a part taken from a vendored
+  source (the plates' OpenStreetMap river layers), which keeps that source's
+  terms.
 
 Ruled (John, 2026-11-23, "what you recommend"): MIT for the code in
 `LICENSE`; CC0 1.0 on `corpus/greek/`, now ("CC0 now", after being told that
@@ -410,7 +415,8 @@ until John says (a Zenodo record cannot be withdrawn).
 
 Two tracked fixtures are in the Diogenes export's markup. Both are pinned by
 size and sha256 in `pipeline/tests/test_corpus_greek.py`, so the guard passes
-today and fails if either changes; John's ruling decides whether they stay.
+today and fails if either changes. John ruled on 2026-11-23 that both stay,
+pinned.
 
 - `pipeline/tests/fixtures/stephanus/euthyphro_p2_3.xml` (9,369 bytes,
   77 lines): Plato's fixture, copied here. John ruled A (keep, pinned) for
