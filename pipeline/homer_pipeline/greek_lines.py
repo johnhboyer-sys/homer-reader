@@ -113,6 +113,10 @@ def rows_from_xml(xml_path: Path) -> list[Row]:
     for div in body.iter("{*}div"):
         if not _is_book_div(div):
             continue
+        # The old reader read n with int(), so "01" or an Arabic-Indic digit
+        # was book 1 there and another book here.
+        if not _BOOK.fullmatch(div.get("n")):
+            raise ValueError(f"{xml_path.name}: a book number not written as plain digits: {div.get('n')!r}")
         if any(_is_book_div(a) for a in div.iterancestors("{*}div")):
             raise ValueError(f"{xml_path.name}: book {div.get('n')} inside another book")
         if div.get("n") in seen:
@@ -128,6 +132,11 @@ def rows_from_xml(xml_path: Path) -> list[Row]:
             raise ValueError(f"{xml_path.name}: a line with no number in book {book.get('n')}")
         text, sigla_parts = flatten_line(line)
         rows.append(Row(book.get("n"), n, " ".join(p for p in sigla_parts if p), text))
+    # A book with no line has no row to say it is there; the old reader gave
+    # it a segment of its own (and Book 8 its supplied lines).
+    empty = sorted(seen - {r.book for r in rows}, key=int)
+    if empty:
+        raise ValueError(f"{xml_path.name}: book {empty[0]} has no lines")
     return rows
 
 
@@ -227,6 +236,8 @@ def forbidden(text: str) -> list[str]:
     if len(lines) < 4 or not _WORK.fullmatch(lines[0]) or not lines[1].startswith("# edition: ") \
             or lines[2] != COLUMNS:
         return ["not a line file: it must open with # work, # edition and the # columns line, then lines of text"]
+    if "\t" in lines[0] or "\t" in lines[1]:
+        return ["not a line file: a tab in a heading line"]
     work = lines[0][len("# work: "):]
     controls = [line for line in lines if _CONTROL.search(line)]
     if controls:

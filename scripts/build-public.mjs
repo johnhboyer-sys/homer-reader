@@ -51,19 +51,20 @@ const publicWorks = new Set(
     .map((name) => name.slice(0, -'-public.yaml'.length)),
 );
 
-console.log('Cleaning generated public build output');
-rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
-rmSync(join(ROOT, 'build', 'scene-pages'), { recursive: true, force: true });
-rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
-
 // The build's two inputs from outside the repo, checked once by checksum: a
 // build made with another Morpheus table or another LSJ must not pass for this
 // one. The Iliad's Greek is corpus/greek/Iliad.tsv and the Odyssey's is in
 // sources/perseus/; stage 1 never runs Diogenes (HANDOFF-PORTABILITY.md).
-console.log('\nChecking the Morpheus table and the LSJ against their pins');
+// First, before anything is cleaned: a failed check leaves the last build.
+console.log('Checking the Morpheus table and the LSJ against their pins');
 run(PY, ['-m', 'homer_pipeline.inputs', 'check'], {
   cwd: join(ROOT, 'pipeline'),
 });
+
+console.log('\nCleaning generated public build output');
+rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
+rmSync(join(ROOT, 'build', 'scene-pages'), { recursive: true, force: true });
+rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
 
 for (const work of works) {
   const manifest = publicWorks.has(work) ? `${work}-public.yaml` : `${work}.yaml`;

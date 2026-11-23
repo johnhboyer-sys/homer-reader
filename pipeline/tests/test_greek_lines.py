@@ -43,6 +43,22 @@ def test_a_book_number_twice_is_refused(tmp_path):
         gl.rows_from_xml(_xml(tmp_path, _book("1", '<l n="1">α</l>') + _book("1", '<l n="2">β</l>')))
 
 
+def test_a_book_with_no_lines_is_refused(tmp_path):
+    # Codex's review: the old reader gave an empty book a segment (and Book 8
+    # its four supplied lines); the line file has no row to carry it.
+    with pytest.raises(ValueError, match="book 1 has no lines"):
+        gl.rows_from_xml(_xml(tmp_path, _book("1", "") + _book("2", '<l n="1">α</l>')))
+
+
+@pytest.mark.parametrize("n", ["01", "\u0661"])   # "01", and an Arabic-Indic one: int() reads both as 1
+def test_a_book_number_spelled_two_ways_is_refused(tmp_path, n):
+    # Codex's review: "01" passed the duplicate check beside "1", and the old
+    # reader kept only the first while the line file merged them.
+    body = _book("1", '<l n="1">α</l>') + _book(n, '<l n="2">β</l>')
+    with pytest.raises(ValueError, match="book number"):
+        gl.rows_from_xml(_xml(tmp_path, body))
+
+
 @pytest.mark.parametrize("line", ['<l>α</l>', '<l n="">α</l>'])
 def test_a_line_with_no_number_is_refused(tmp_path, line):
     # The old reader counted it under "(none)" and dropped it; none is attested.
@@ -190,6 +206,9 @@ def test_forbidden_checks_the_heading_lines_too():
     assert any("markup" in p for p in gl.forbidden(CLEAN.replace("# edition: e", "# edition: <TEI>e</TEI>")))
     for columns in ("mh=nin a)/eide", "mhnin\tn\tsigla\ttext", "book\tn\ttext", "Stephanus-page\tsection\tn\ttext"):
         assert any("not a line file" in p for p in gl.forbidden(CLEAN.replace("book\tn\tsigla\ttext", columns)))
+    # Codex's review: a tab in a heading line passed.
+    assert any("not a line file" in p or "control" in p for p in gl.forbidden(CLEAN.replace("# edition: e", "# edition: e\tmh=nin")))
+    assert any("not a line file" in p or "control" in p for p in gl.forbidden(CLEAN.replace("# work: T", "# work: T\tx")))
 
 
 def test_forbidden_passes_the_clean_file():
