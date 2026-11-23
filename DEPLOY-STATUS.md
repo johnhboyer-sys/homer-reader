@@ -4,6 +4,23 @@ Ledger for John. Since 2026-11-19 the site runs on Cloudflare: the Worker
 `homer-reader` and the R2 bucket `homer-reader-data` (`docs/cloudflare.md`).
 Before that, GitHub Pages. Every deploy is John-gated. Newest first.
 
+## Deploy — 2026-11-23: lexicon sort; lemma-accents review fixes, PR #75, #76
+
+Worker `homer-reader` version `7c433304` (source: main `24cee78df`). John: "Merge", then "Let's go".
+App-only build of main with `PUBLIC_DATA_ROOT=https://homer-data.johnhboyer.com` over `build/dist`
+fetched from R2 by the bucket record (5,259 keys; `lemma-accents.json` and each work's `rows.json` left
+out, since the build makes them), then `npm run deploy:cloudflare`. Data: 0 files to upload (the
+rebuilt `lemma-accents.json` matches R2). `VERSION` stays `v6`.
+
+**What shipped.**
+- **Lexicon (PR #76).** The index gains A–Ω / By count buttons (`?sort=count`).
+- **Search (PR #75, port of aristotle-reader #238).** `greekFold` reads ᾽ as an elision; `formKey` groups
+  it with ’; a lemma index without `meta.json` fails the build.
+
+Gates: 4,686 pages · 0 broken of 335,540 links · preflight ok · shared LSJ and Cunliffe coverage ok.
+Live-verified: `/`, `/search/`, `/lemma/` 200; `/lemma/` carries the A–Ω and By count buttons;
+`_astro/Search.B_SZ2TCR.js` and `_astro/search.BWikd3pq.js` on live are byte-identical to the build.
+
 ## Deploy — 2026-11-19: move to Cloudflare; lemma accents, PR #72, #73
 
 Worker `homer-reader` version `52617c73` (source: main `1a34c08bb`, on branch
