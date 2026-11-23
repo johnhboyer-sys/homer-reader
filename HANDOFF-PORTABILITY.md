@@ -52,9 +52,9 @@ John: the licence (below) and decision 10 for Homer's two fixtures (below).
 | Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/homer-reader.git` (below) |
 | The deploy tags its commit | Written: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
 | A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Runs first at the next deploy after this merges; about 59 MB public each time, the Kosmos text among it (below) |
-| `mirror.yml`: git on every push, the check weekly | Written; both jobs skip while `MIRROR_GIT_URL` is unset (this PR's run shows it) |
+| `mirror.yml`: git on every push, the check weekly | Written. On a push, the git job skips while `MIRROR_GIT_URL` is unset and the check job never runs (this PR's run shows both skipped). The weekly check (Mondays, 11:17 UTC) runs regardless: until the key is set it cannot read the private mirror, fails, and opens one "Mirror check failed" issue, then comments on it each week |
 | `check-mirrors.mjs` and `mirrors.json` | Done: `mirrors.json` names the GitLab mirror; the check runs and fails truly (below) |
-| Review by another model family | PHASE3_REVIEW |
+| Review by another model family | Codex (GPT-6.1-Sol, medium): one finding, a claim in this file that the weekly check skips without the key; corrected (it runs and fails; see the record). No finding in the deploy tag, the release workflow, or the copies |
 
 ## Phase 3 record
 
@@ -105,6 +105,15 @@ bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND 3.0), as the
 live site serves it: verbatim, with its attribution, in each book's data. A
 release is a public download, not only a page. Whether that is within the
 licence is not decided here.
+
+**The weekly check before the key (Codex's review).** `mirror.yml`'s git
+job is guarded by `MIRROR_GIT_URL`; its check job is not (it runs on the
+schedule and by hand, never on a push). Merged before the key is set, the
+check fails each Monday, since it cannot read the private mirror without a
+key, and keeps one open issue, "Mirror check failed", with a comment a week.
+That is the truth, the mirror being stale, but it is noise. The workflow is
+the siblings' file byte for byte, so it is not changed here: set the key
+before merging this, or close the issue once it is set.
 
 **Homer's deploy key.** Not made here. When the lead session makes the pair
 and gives John the public half, John's two GitLab steps are: add it to the
