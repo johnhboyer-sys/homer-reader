@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 import subprocess
 from pathlib import Path
@@ -282,10 +281,10 @@ def test_a_back_file_that_cannot_be_removed_stops_no_later_put_back(tmp_path, mo
 # may hold a handful (the tests' made-up Greek, a doc's example) and no header
 # or export name.
 
-# A line or line-break element with a number, in either quote, with or
-# without a namespace prefix: <l n="1">, <l rend="x" n='1a'>, <lb n="1"/>,
-# <tei:l n="1">.
-EXPORT_LINE = re.compile(r"""<(?:[\w.-]+:)?lb?\b[^<>]*?\bn\s*=\s*["'][^"'<>]*["']""")
+# A line or line-break element with a number, in either quote and either
+# case, with or without a namespace prefix or a space after "<": <l n="1">,
+# <l rend="x" n='1a'>, <lb n="1"/>, <tei:l n="1">, <L N="1">, < l n="1">.
+EXPORT_LINE = re.compile(r"""<\s*(?:[^\s<>/:="']+:)?lb?\b[^<>]*?\bn\s*=\s*["'][^"'<>]*["']""", re.IGNORECASE)
 # Written with \s+ so that this file does not match itself.
 EXPORT_HEADER = re.compile(r"generated\s+by\s+Diogenes|from\s+the\s+TLG\s+corpus")
 EXPORT_NAME = re.compile(r"(^|/)tlg\d{7}\.xml$", re.I)
@@ -355,20 +354,27 @@ def export_problems(files: dict[str, bytes]) -> list[str]:
     return problems
 
 
-def _blob(p: Path) -> bytes:
-    """The bytes git keeps for a tracked path: a symlink's blob is its target
-    string, which can hold anything."""
-    return os.fsencode(os.readlink(p)) if p.is_symlink() else p.read_bytes()
-
-
-def _tracked() -> dict[str, bytes]:
-    names = subprocess.run(["git", "ls-files", "-z"], cwd=REPO_ROOT, capture_output=True, check=True).stdout.split(b"\0")
-    out = {}
-    for raw in filter(None, names):
-        name = raw.decode("utf-8")
-        p = REPO_ROOT / name
-        if p.is_symlink() or p.is_file():
-            out[name] = _blob(p)
+def _tracked(root: Path = REPO_ROOT) -> dict[str, bytes]:
+    """Every path in git's index with the bytes git stores for it, read from
+    git and not the working tree: a symlink's blob is its target string, and
+    a file deleted from the working tree, or left out of a sparse checkout,
+    keeps its blob. Submodules (mode 160000) have no blob here."""
+    index = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=root, capture_output=True, check=True).stdout
+    entries = []
+    for raw in filter(None, index.split(b"\0")):
+        meta, name = raw.split(b"\t", 1)
+        mode, sha, _stage = meta.split(b" ")
+        if mode != b"160000":
+            entries.append((name.decode("utf-8"), sha))
+    batch = subprocess.run(["git", "cat-file", "--batch"], cwd=root, input=b"".join(sha + b"\n" for _n, sha in entries),
+                           capture_output=True, check=True).stdout
+    out, at = {}, 0
+    for name, sha in entries:
+        end = batch.index(b"\n", at)
+        got_sha, kind, size = batch[at:end].split(b" ")
+        assert got_sha == sha and kind == b"blob", (name, batch[at:end])
+        out[name] = batch[end + 1:end + 1 + int(size)]
+        at = end + 1 + int(size) + 1
     return out
 
 
@@ -401,6 +407,11 @@ PERSEUS = "sources/perseus/tlg0012.tlg001.perseus-grc2.xml"
     ({"sources/x.xml": ("This XML text was generated " + "by Diogenes").encode("utf-16")}, "header words"),
     ({f"sources/part{i}.xml": "".join(f'<l n="{n}">λόγος</l>' for n in range(1, 21)).encode() for i in range(5)}, "export lines in all"),
     ({"same size": TINY}, "the pinned file changed"),
+    # Codex's second read: upper case, a space after "<", a prefix with a
+    # character outside \w.
+    ({"sources/x.xml": "".join(f'<L N="{n}">α</L>' for n in range(1, 41)).encode()}, "40 export lines"),
+    ({"sources/x.xml": "".join(f'< l n="{n}">α</l>' for n in range(1, 41)).encode()}, "40 export lines"),
+    ({"sources/x.xml": "".join(f'<a\u00b7b:l n="{n}">α</a\u00b7b:l>' for n in range(1, 41)).encode()}, "40 export lines"),
     # Codex's review: an export whose elements carry a namespace prefix.
     ({"sources/x.xml": ('<tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">'
                         + "".join(f'<tei:l n="{n}">λόγος</tei:l>' for n in range(1, 41)) + "</tei:TEI>").encode()},
@@ -419,15 +430,24 @@ def test_export_shaped_text_outside_the_pins_fails(files, wanted):
     assert any(wanted in p for p in export_problems({**base, **files})), export_problems({**base, **files})
 
 
-def test_a_tracked_symlink_is_read_as_the_text_git_stores(tmp_path):
-    # Codex's review: git keeps a symlink's target string as its blob, and the
-    # scan skipped links; an export can sit in that string.
-    # A short export: macOS holds a link's target to 1,024 bytes.
-    target = "".join(f'<l n="{n}">α</l>' for n in range(1, 41))
-    link = tmp_path / "copy"
-    link.symlink_to(target)
-    assert _blob(link) == target.encode()
-    assert any("40 export lines" in p for p in export_problems({"sources/copy": _blob(link), **_pinned()}))
+def test_the_scan_reads_what_git_stores_not_the_working_tree(tmp_path):
+    # Codex's reviews: git keeps a symlink's target string as its blob, and a
+    # tracked file whose working copy is gone keeps its blob too; the scan
+    # skipped both. It reads every blob from git's index.
+    def git(*args):
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+    git("init", "-q")
+    target = "".join(f'<l n="{n}">α</l>' for n in range(1, 41))   # macOS holds a link's target to 1,024 bytes
+    (tmp_path / "copy").symlink_to(target)
+    (tmp_path / "gone.xml").write_text(target, encoding="utf-8")
+    (tmp_path / "plain.txt").write_text("λόγος\n", encoding="utf-8")
+    git("add", "copy", "gone.xml", "plain.txt")
+    (tmp_path / "gone.xml").unlink()
+    files = _tracked(tmp_path)
+    assert files == {"copy": target.encode(), "gone.xml": target.encode(), "plain.txt": "λόγος\n".encode()}
+    problems = export_problems({**files, **_pinned()})
+    assert any(p.startswith("copy: 40 export lines") for p in problems), problems
+    assert any(p.startswith("gone.xml: 40 export lines") for p in problems), problems
 
 
 def test_a_few_made_up_lines_pass():
