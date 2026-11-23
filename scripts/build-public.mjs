@@ -56,6 +56,15 @@ rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
 rmSync(join(ROOT, 'build', 'scene-pages'), { recursive: true, force: true });
 rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
 
+// The build's two inputs from outside the repo, checked once by checksum: a
+// build made with another Morpheus table or another LSJ must not pass for this
+// one. The Iliad's Greek is corpus/greek/Iliad.tsv and the Odyssey's is in
+// sources/perseus/; stage 1 never runs Diogenes (HANDOFF-PORTABILITY.md).
+console.log('\nChecking the Morpheus table and the LSJ against their pins');
+run(PY, ['-m', 'homer_pipeline.inputs', 'check'], {
+  cwd: join(ROOT, 'pipeline'),
+});
+
 for (const work of works) {
   const manifest = publicWorks.has(work) ? `${work}-public.yaml` : `${work}.yaml`;
   console.log(`\nBuilding ${work} from manifests/${manifest}`);
@@ -206,7 +215,7 @@ run('npm', ['run', 'build'], {
 });
 
 // Deploy gate: every internal href, fragment anchor, Bekker deep link, and
-// lemma page in the emitted site must resolve. CI can't run this (the corpus
-// is machine-local), so the pre-deploy build is where it has to hold the line.
+// lemma page in the emitted site must resolve. CI's `site` job runs it too,
+// on every pull request.
 console.log('\nChecking link integrity of the built site');
 run('node', [join(ROOT, 'scripts', 'check-links.mjs'), join(ROOT, 'app', 'dist')]);

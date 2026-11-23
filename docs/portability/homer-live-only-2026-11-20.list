@@ -1,0 +1,5 @@
+# Files live serves (the 2026-11-20 snapshot) that no build makes, for
+# scripts/compare-snapshot.mjs --live-only. One path per line, under data/.
+# The bucket's own record of every key a deploy has uploaded
+# (scripts/deploy-cloudflare.mjs writes it; docs/cloudflare.md).
+_deploy/keys.json

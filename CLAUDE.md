@@ -16,8 +16,14 @@ non-negotiable.
 
 ## Hard rules
 
-- Greek source is TLG (licensed, local, Diogenes-readable, patched `-y` verse
-  export). **Corpus source text is never committed.** Same posture as the siblings.
+- Iliad Greek source is TLG (licensed, local), exported by Diogenes 4.7.2's
+  built-in `-y` verse mode (the old patch is obsolete). **Decision 1 (John,
+  2026-11-20): the line-level Greek is committed**, `corpus/greek/Iliad.tsv`,
+  written by `python -m homer_pipeline.extract` on a machine with the TLG; the
+  build reads only that and never runs Diogenes. Raw TLG files, beta code, and
+  the Diogenes XML are still never committed (`build/` stays ignored;
+  `pipeline/tests/test_corpus_greek.py` guards it). The Odyssey's Greek is the
+  vendored Perseus file. Plan and record: `HANDOFF-PORTABILITY.md`.
 - Website translations: free/public-domain only, judged by **US** copyright rules
   (pre-1931 as of 2026). In: Murray (1919/1924–25), Butler (1898/1900), Pope
   (1715–26), Autenrieth, LSJ, Cunliffe (1924). NEVER: Lattimore, Fitzgerald,
@@ -222,11 +228,12 @@ non-negotiable.
   `node_modules` or `build/`. `uv sync` in `pipeline/` does NOT install
   pytest (it is declared nowhere) — add it with
   `uv pip install --python .venv/bin/python pytest`. `npm install` is needed
-  separately in `app/` and `shared/` (no workspaces). The Iliad TLG export
-  subprocess fails in-sandbox with exit 25 (`stage1_greek.py:42-56`,
-  `docs/PHASE0-FINDINGS.md:33-38`); copy the cached
-  `build/export/Diogenes-Resources/xml/tlg/tlg0012001.xml` from the main
-  checkout.
+  separately in `app/` and `shared/` (no workspaces). No TLG export is
+  needed since 2026-11-23: the build reads `corpus/greek/Iliad.tsv`. (The
+  old export call died with exit 25 because it passed Diogenes no `HOME`;
+  `extract` sets it.) Without Diogenes.app, `python -m homer_pipeline.inputs
+  fetch --dir <folder>` and `DIOGENES_DATA=<folder>` give the build its
+  Morpheus table and LSJ.
 - `build:public` in a worktree (2026-08-31, cost the shared `build/dist`):
   the script's FIRST step deletes `build/dist`, and only then spawns
   `<repo>/pipeline/.venv/bin/python` — which a worktree does not have (see the

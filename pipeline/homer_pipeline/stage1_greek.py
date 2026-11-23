@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
 from pathlib import Path
 
 from lxml import etree
@@ -30,33 +29,6 @@ def exported_xml_path(manifest: Manifest) -> Path:
         / "tlg"
         / f"tlg{w['tlg_author']}{w['tlg_work']}.xml"
     )
-
-
-def run_export(manifest: Manifest) -> Path:
-    """Run Diogenes xml-export.pl in verse mode (-y) unless already done."""
-    out = exported_xml_path(manifest)
-    if out.exists():
-        return out
-    w = manifest.data["work"]
-    EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "perl",
-            "xml-export.pl",
-            "-c", "tlg",
-            "-n", w["tlg_author"],
-            "-y",
-            "-o", str(EXPORT_DIR),
-        ],
-        cwd=manifest.diogenes_server(),
-        env={"TLG_DIR": str(manifest.tlg_dir()), "PATH": "/usr/bin:/bin"},
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    if not out.exists():
-        raise FileNotFoundError(f"export ran but {out} is missing")
-    return out
 
 
 def _line_text(el: etree._Element, strip_bars: bool = False) -> str:
@@ -310,7 +282,12 @@ def parse_spine(xml_path: Path, manifest: Manifest) -> dict:
 
 
 def run(manifest: Manifest) -> Path:
-    xml_path = run_export(manifest)
+    # Homer has no Bekker or Stephanus work: this path is the sibling readers'
+    # and reads an export already on disk. The build never runs Diogenes
+    # (HANDOFF-PORTABILITY.md, decision 1); the Iliad reads corpus/greek/.
+    xml_path = exported_xml_path(manifest)
+    if not xml_path.exists():
+        raise FileNotFoundError(f"{xml_path} is missing, and the build never runs Diogenes")
     spine = parse_spine(xml_path, manifest)
     out = BUILD_DIR / "stage1" / "greek_spine.json"
     out.parent.mkdir(parents=True, exist_ok=True)
