@@ -5,6 +5,11 @@ import svelte from '@astrojs/svelte';
 
 import sitemap from '@astrojs/sitemap';
 
+import { siteParams } from '../scripts/site-params.mjs';
+
+// Build parameters SITE_ORIGIN and SITE_BASE; unset, the primary site at the root.
+const { site, base } = siteParams();
+
 export default defineConfig({
   // GitHub Pages one-off build served at the domain root (no Cloudflare/R2 on
   // this project — John, 2026-07-17). `base` prefixes every app path; app
@@ -15,8 +20,10 @@ export default defineConfig({
   // Custom domain (John, 2026-10-21): GitHub Pages serves the site at the
   // root of homer.johnhboyer.com; app/public/CNAME holds the domain so every
   // deploy keeps it. The old github.io/homer-reader/ URLs redirect here.
-  site: 'https://homer.johnhboyer.com',
-  base: '/',
+  // Since 2026-11-19 Cloudflare serves it (docs/cloudflare.md). Both come from
+  // scripts/site-params.mjs, which scripts/check-links.mjs reads too.
+  site,
+  base,
   // Astro 7 changed the default to 'jsx', which strips whitespace between
   // inline elements on separate lines — it ran words together on every page
   // ("Back to the corpusSearch"). `true` keeps the Astro 6 behaviour.
