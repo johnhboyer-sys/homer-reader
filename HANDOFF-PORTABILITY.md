@@ -14,9 +14,12 @@ Cloudflare.
 
 ## State (2026-11-23)
 
-Phase 1 is in a PR (below). Phases 2 and 3 are not started. Nothing is
-merged or deployed. Open for John: the licence (below) and decision 10 for
-Homer's two fixtures (below).
+Phase 1 is on `main`: John said "merge pr 78" on 2026-11-23, and this
+session merged homer-reader #78 (`7a13697f2e`) with all five CI jobs green.
+Phase 2 is in a PR (below); phase 3 is not started. Nothing is deployed.
+John ruled on 2026-11-23 that test 3 may call two hosts of Homer's own beside
+Grammata's: CAWM's map tiles and archive.org's recitation audio. Open for
+John: the licence (below) and decision 10 for Homer's two fixtures (below).
 
 | Phase 1 step | State |
 |---|---|
@@ -25,9 +28,124 @@ Homer's two fixtures (below).
 | The line file gives stage 1 the export's spine | Done: byte for byte the same three ways (old code on the XML, new code on the line file, new code on the XML), 2,075,799 bytes; 24 books, 15,687 lines, 2,815 with sigla, 528 bracketed |
 | Morpheus table and LSJ pinned by checksum, folder from the environment | Done: the same two files as Aristotle's pins, byte for byte (sha256 `dfca7ef1…`, `af72685a…`); `inputs check` runs first in `build:public`; `inputs fetch` for a machine without Diogenes |
 | Machine paths out of the public build | Nothing to take out: the manifests name only Diogenes.app, as the local default for `extract` and the two inputs, and `../TLG Files/TLG` as `TLG_DIR`'s default |
-| CI runs the full build and uploads it | CI_PENDING |
-| Same output as live (test 2) | Laptop build done: 5,262 of 5,262 data files byte for byte the snapshot's; the app at `9e327f885` 4,787 of 4,787 files equal (4,725 byte for byte, 62 once 67 folder names are swapped). Linux build: CI_TEST2 |
+| CI runs the full build and uploads it | Done: the `site` job. Run 45223733485 passed in 6 min 20 s: inputs fetched and matched their pins, 0 broken of 335,540 links, 10,049 files packed with a `SHA256SUMS` |
+| Same output as live (test 2) | Laptop build done: 5,262 of 5,262 data files byte for byte the snapshot's; the app at `9e327f885` 4,787 of 4,787 files equal (4,725 byte for byte, 62 once 67 folder names are swapped). Linux build (CI's artifact): 10,049 of 10,049 files read against its sums, 5,262 of 5,262 data files byte for byte the snapshot's |
 | Review by another model family | Done: Codex (GPT-6.1-Sol, medium), two reads. First: seven findings, five fixed with tests first, two answered. Second, of the fixes: two gaps left in the export scan, both fixed with tests first |
+
+| Phase 2 step | State |
+|---|---|
+| Build parameters for origin, base path, and the Grammata address | Done: `SITE_ORIGIN`, `SITE_BASE` (`scripts/site-params.mjs`, read by the Astro config and the link check), `PUBLIC_GRAMMATA_LOOKUP`. Unset, the app is 10,050 of 10,050 files byte for byte the phase 1 build |
+| A build at a test base path passes the link check | Done: `/mirror/` at another origin, 4,687 pages, 335,540 links, 0 broken. The same build checked as if at `/` reads all 335,540 as broken and exits 1 |
+| Fonts self-hosted | Already so (bundled under `_astro/`); test 3 proves it: no font host asked for, and a planted Google stylesheet link fails it |
+| No outside calls (test 3) | Green at `/` and at `/mirror/`: 8 of 8 visits, 3 outside hosts asked for, all allowed (Grammata, CAWM's tiles, archive.org's audio) |
+| The mirror bundle | Done: `scripts/make-bundle.mjs`, 10,048 files, 347 MB, 59 MB packed, six gates on 5,262 data files |
+| `check-served.mjs` | Done (Aristotle's, unchanged); used by the image workflow and the restore drill |
+| `Dockerfile`, Caddy, image workflow | Written; the image is built only in CI (never on the Mac), on this PR |
+| `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log records each path run |
+| Review by another model family | Codex (GPT-6.1-Sol, medium), two reads: four findings, then two gaps in the fixes; all fixed and each break shown failing; one partial-loss case recorded as known |
+| The bundle on two candidate hosts | Waits on John (decision 6, accounts), as for Aristotle and Plato |
+
+## Phase 2 record
+
+**Parameters.** As in Plato: `scripts/site-params.mjs` checks `SITE_ORIGIN` (a
+bare origin) and `SITE_BASE` (a path with a slash at each end), and both
+`app/astro.config.mjs` and `scripts/check-links.mjs` read it. The link check
+runs only as a script now, and under a base it fails a root-relative link
+that leaves the base out. Homer already wrote `robots.txt` from the config,
+and its `offline.html` names no file by path (`sw.js` finds it from its own
+scope), so neither changed. `PUBLIC_GRAMMATA_LOOKUP` is read in place in
+`LexiconPanel.svelte` (Homer's popup) and `LemmaPage.astro`, with the old
+address as its default; `shared/__tests__/grammata-address.test.ts` holds
+both to one form (put back to a fixed string, one fails it).
+
+How it was checked: built with only the live data address set, the app is
+10,050 of 10,050 files byte for byte the phase 1 build, which matched the
+snapshot. Built with `SITE_BASE=/mirror/ SITE_ORIGIN=https://mirror.example.org`,
+the link check at that base finds 0 broken of 335,540 links, and the
+canonical link, the card image, `robots.txt`, and the sitemap name the new
+origin and base.
+
+**The bundle.** `scripts/make-bundle.mjs` is Plato's with Homer's gates, the
+ones `deploy:cloudflare` and `build:public` run: `homer_pipeline.preflight`
+over the data (which covers the public-domain and Creative Commons lists, so
+the Kosmos text's attribution), and the shared LSJ and Cunliffe coverage
+checks (run with `BUILD_DIR` at a scratch folder whose `dist` is the data);
+then Plato's lemma-page check and JSON check. A Python gate passes only on
+exit 0 with its own success line. The real run: `ok …: 10048 files,
+347474436 bytes, packed to 58810853; left out CNAME; 5 gates passed on 5262
+data files (preflight, shared LSJ coverage, shared Cunliffe coverage, lemma
+pages, JSON); unpacked and read back against SHA256SUMS`. One lemma file
+taken away: refused (`lemma pages: 1 slug has no file, first: menis`). One
+book file cut short: refused by preflight and by the JSON check. The two
+real-gate tests skip by name where the pipeline's Python is missing (CI's
+`scripts` job); the `site` job runs the real gates.
+
+**No outside calls (test 3).** `scripts/check-no-outside-calls.mjs` is
+Plato's method with Homer's eight visits: `iliad/book/1/` (2,000 Greek and
+2,000 English letters at least), the word popup (headword, gloss, parse,
+then the Cunliffe tab, which must get its record from the site), a search
+for μῆνιν (a hit linking to a page of this build), `lemma/menis/`, the
+Trojan Plain plate (drawn as SVG from `data/plates/`), the map explorer
+(Leaflet), the recitation player (the audio setting on, play pressed), and
+the book again under the service worker. The Cunliffe entry is the site's
+data, but Grammata's script draws it, so under the check (which refuses even
+allowed hosts) the tab ends on "The dictionary could not be loaded."; the
+visit requires the site's record to arrive first. One expected 404:
+`data/search-shards/index.json`, which search asks for and no Homer build
+makes (live answers 404 too). Results: `ok app/dist at /: 8 of 8 visits, 128
+requests to the site (0 not found, 4 expected), 3 outside hosts asked for,
+all allowed (grammata.pages.dev x2, cawm.lib.uiowa.edu x8, archive.org x1);
+control seen`, and at `/mirror/` the same. A planted Google stylesheet link
+and the Cunliffe shard taken away each turned it red, by name. Its 16
+browser fixtures pass here.
+
+**Two hosts beyond decision 4, ruled by John.** The first run found
+`cawm.lib.uiowa.edu` (the map explorer's base tiles, `LandmarkMap.svelte`),
+and a scan of the source found `archive.org` (the recitation MP3s, named in
+`data/audio.json`, fetched only on play), which the added audio visit then
+saw. John, 2026-11-23: "allow both". Both are on the script's default list.
+
+**The restore drill.** From a bundle made on the Mac: unpacked and
+`shasum -c` clean in 7 seconds; served by Python's test server,
+`check-served.mjs` read all 10,047 files with their bytes and failed only on
+that server's missing 404 page. Logged in `RESTORE.md`.
+
+**Review.** Codex (GPT-6.1-Sol, medium; the session log shows both) read
+phase 2 statically and found four things. (1) An emptied
+`data/cunliffe-t8/<letter>.json` passed every bundle gate and the popup
+visit, which took any 200: the bundle now runs a sixth gate, "Cunliffe
+records" (every key of the shared Cunliffe, 7,550 today, has a record in the
+T8 shard the reader fetches; emptying `m.json` gives `366 Cunliffe keys have
+no record, first: ma/`), and the visit requires the served shard to hold
+records. (2) The two dictionary checks print their success line and exit 0
+when they examined no key (empty analyses): their gates now also require
+`checked N referenced keys` with N above 0. (3) The audio visit took any
+source, a `data:` URL among them: it now requires a recording
+`data/audio.json` names and a request the browser made for it; the hand
+break of this fix first failed for the wrong reason (the visit did not take
+`dist`), which was fixed. (4) A doc command in `ARCHITECTURE.md` named the
+wrong manifest folder; corrected and run. The new unit tests failed before
+each fix; both visit breaks were run on the real build and each failed by
+name. It found nothing in the parameters, the Grammata address, the
+Dockerfile, Caddy, or the workflows. A second read, of the fixes, closed (2) and
+(4) and found the two visits still loose: the Cunliffe step took a shard of
+other words' records, and the audio step took any named recording. The
+Cunliffe step now requires a record whose headword is the popup card's own
+(a shard of one unrelated record fails: `holds no record for μῆνις`); the
+audio step finds the recording `data/audio.json` names for the line the
+pressed button stands on, and requires both the player's source and the
+browser's request to be that one. Known and left from that read: the
+dictionary gates pass if any key at all was checked, so a partial loss of
+analyses would pass them (preflight does not require token coverage); the
+original finding was the zero-key case.
+
+**Known and left.** As in Aristotle and Plato: saved searches keep whole
+paths, base included, in the browser's storage, so a saved search does not
+follow a site to another base. A full `pytest` after a build rewrites both
+works' `vocab.json` in `build/dist` (two tests in `test_apparatus_vocab.py`
+run the vocabulary stage on the real build); a build after it puts them
+back. The heavy `shared` corpus tests were not rerun on the Mac after a
+crash (John: the CPU was overloaded); CI runs the suite.
 
 ## Phase 1 record
 
