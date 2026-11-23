@@ -119,7 +119,10 @@ That is the truth, the mirror being stale, but it is noise. The workflow is
 the siblings' file byte for byte, so it is not changed here: set the key
 before merging this, or close the issue once it is set.
 
-**Homer's deploy key.** Not made here. When the lead session makes the pair
+**Homer's deploy key (2026-11-23).** The lead session made the pair and put
+the private half in the repository secret. John confirmed at 13:05 that
+GitLab has the key and the protected-branch setting: "gitlabs has key and
+protected branches set up properly". Not made here. When the lead session makes the pair
 and gives John the public half, John's two GitLab steps are: add it to the
 project `johnhboyer/homer-reader` as a deploy key with write access, and tick
 it under `main`'s "Allowed to push and merge" (force push left off). Then the
@@ -381,7 +384,8 @@ Ruled (John, 2026-11-23, "what you recommend"): MIT for the code in
 `LICENSE`; CC0 1.0 on `corpus/greek/`, now ("CC0 now", after being told that
 Allen's 1931 text enters the US public domain on 1 January 2027 under the
 95-year rule, and that a critical edition of an ancient text holds thin
-copyright at most); CC BY 4.0 on his own apparatus; every source on its own
+copyright at most; asked again by the lead session, John answered "Now" at
+13:04); CC BY 4.0 on his own apparatus; every source on its own
 terms. The table is at the head of `sources/INVENTORY.md`. (Much of the
 apparatus is AI-drafted, and US law gives no copyright to work without human
 authorship; CC BY on those parts does no harm and may not bind.)
