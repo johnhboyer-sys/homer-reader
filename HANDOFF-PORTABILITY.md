@@ -52,7 +52,7 @@ pinned (A). The licence is a PR stacked on phase 3.
 
 | Phase 3 step | State |
 |---|---|
-| Push the repo to a second git host | Written: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml`. Waits on Homer's deploy key (the lead session's job) |
+| Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml` with Homer's deploy key since 2026-11-23; first run 45245208945, 15 of 15 refs (below) |
 | Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/homer-reader.git` (below) |
 | The deploy tags its commit | Written: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
 | A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Runs first at the next deploy after this merges; about 59 MB public each time, the Kosmos text among it (below) |
@@ -122,7 +122,18 @@ before merging this, or close the issue once it is set.
 **Homer's deploy key (2026-11-23).** The lead session made the pair and put
 the private half in the repository secret. John confirmed at 13:05 that
 GitLab has the key and the protected-branch setting: "gitlabs has key and
-protected branches set up properly". Not made here. When the lead session makes the pair
+protected branches set up properly". Not made here.
+
+The lead session tested the key (it reads `homer-reader`, GitLab refuses it on
+`plato-reader`, a dry-run push to `main` is accepted), deleted the local pair
+(the private half is in the secret alone), and set `MIRROR_GIT_URL` at
+19:05:31Z. Mirror run 45245208945, started by this session's push 11 seconds
+before the variable existed, had skipped; the lead reran it at 19:05:40Z: the
+git job passed, `15 of 15 refs match the source after the push; 1 left out
+(refs/heads/gh-pages)`. `mirror-check.mjs` from the Mac afterwards: 15 of 15
+refs match, history 831 commits, whole. Not yet seen: a push to `main`
+mirrored (it comes with #80's merge), a tag push, the weekly check, and the
+release workflow. When the lead session makes the pair
 and gives John the public half, John's two GitLab steps are: add it to the
 project `johnhboyer/homer-reader` as a deploy key with write access, and tick
 it under `main`'s "Allowed to push and merge" (force push left off). Then the
