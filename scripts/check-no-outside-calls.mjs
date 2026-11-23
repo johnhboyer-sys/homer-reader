@@ -48,7 +48,7 @@
 // - traffic that is not HTTP, such as WebRTC's UDP. The site uses none.
 //
 // Exit 0 ok, 1 failure, 2 bad arguments.
-import { createReadStream, existsSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import http from 'node:http';
 import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
@@ -440,6 +440,10 @@ export const SITE_VISITS = [
       await tab.click();
       const served = await record;
       if (!served || served.status() !== 200) throw new Error(`the site did not serve the Cunliffe record (${served ? served.status() : 'no request'})`);
+      // Codex's review: a 200 alone passed an emptied shard.
+      const shard = await served.json().catch(() => null);
+      const records = shard && typeof shard === 'object' ? Object.values(shard).filter((v) => Array.isArray(v) && v.length).length : 0;
+      if (!records) throw new Error(`the Cunliffe shard ${new URL(served.url()).pathname} holds no record`);
       await page.waitForFunction(() => {
         const entry = document.querySelector('.word-sidebar .card-entry');
         const m = entry?.querySelector('.cunliffe-mount');
@@ -514,17 +518,25 @@ export const SITE_VISITS = [
     // element's src to that passage's MP3, which the recitation's manifest
     // (data/audio.json) names on archive.org.
     name: 'recitation audio',
-    run: async ({ page, url }) => {
+    run: async ({ page, url, dist }) => {
       if (!page.url().endsWith(WORK)) await openWork(page, url);
       await page.evaluate(() => localStorage.setItem('reader-audio', 'true'));
       await page.reload(LOAD);
       const play = page.locator('button.audio-play').first();
       await play.waitFor({ timeout: 30000 }).catch(() => { throw new Error('no play button with the audio setting on'); });
+      // The recordings the manifest names: every "url" in data/audio.json.
+      const named = new Set();
+      const walk = (v) => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) (k === 'url' && typeof x === 'string' ? named.add(x) : walk(x)); };
+      walk(JSON.parse(readFileSync(path.join(dist, 'data', 'audio.json'), 'utf8')));
+      const asked = page.waitForRequest((r) => named.has(r.url()), { timeout: 15000 }).catch(() => null);
       await play.click();
       const src = await page.waitForFunction(() => document.querySelector('audio')?.getAttribute('src'), null, { timeout: 15000 })
         .then((h) => h.jsonValue()).catch(() => null);
-      if (!src) throw new Error('pressing play gave the player no source');
       await page.evaluate(() => localStorage.removeItem('reader-audio'));
+      if (!src) throw new Error('pressing play gave the player no source');
+      // Codex's review: any source passed, a data: URL among them.
+      if (!named.has(src)) throw new Error(`the player's source is not a recording data/audio.json names: ${src.slice(0, 80)}`);
+      if (!(await asked)) throw new Error(`the browser never asked for the recording: ${src}`);
     },
   },
   {

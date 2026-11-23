@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-import { HOST_FILES, jsonCheck, lemmaCheck, makeBundle, pyReport } from '../make-bundle.mjs';
+import { HOST_FILES, cunliffeCheck, jsonCheck, lemmaCheck, makeBundle, pyReport } from '../make-bundle.mjs';
 import { verifyTarget } from '../verify-snapshot.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../make-bundle.mjs', import.meta.url));
@@ -298,13 +298,14 @@ test('the real gates: each Python gate runs on the folder’s data and its failu
   try {
     const served = function* (filter) { if (filter('manifest.json')) yield { path: 'data/Cat/manifest.json', text: '{}' }; };
     const reports = dataGates(served, { dataDir: path.join(s.dist, 'data') });
-    assert.deepEqual(reports.map(([name]) => name), ['preflight', 'shared LSJ coverage', 'shared Cunliffe coverage', 'lemma pages', 'JSON']);
+    assert.deepEqual(reports.map(([name]) => name), ['preflight', 'shared LSJ coverage', 'shared Cunliffe coverage', 'Cunliffe records', 'lemma pages', 'JSON']);
     for (const [name, report] of reports.slice(0, 3)) {     // a folder with no work of Homer's in it
       assert.equal(report.ok, false, name);
       assert.match(report.problems.join('\n'), /^exit [1-9]/m, name);
     }
-    assert.equal(reports[3][1].ok, false);                      // this small site has no lemma index
-    assert.equal(reports[4][1].ok, true);
+    assert.equal(reports[3][1].ok, false);                      // this small site has no Cunliffe
+    assert.equal(reports[4][1].ok, false);                      // nor a lemma index
+    assert.equal(reports[5][1].ok, true);
   } finally { rmSync(s.root, { recursive: true, force: true }); }
 });
 
@@ -336,6 +337,38 @@ test('a Python gate passes on exit 0 with its own success line, and on nothing e
   assert.match(failed.problems.join('\n'), /iliad: book-01\.json: no scenes/);
   assert.match(pyReport({ status: 1, stdout: '', stderr: 'FAIL: shared LSJ dir missing: x\n' }, pass).problems.join('\n'), /FAIL: shared LSJ dir missing/);
   assert.equal(pyReport({ status: null, stdout: '', error: new Error('spawn ENOENT') }, pass).ok, false);
+});
+
+// Codex's review of phase 2: the dictionary checks pass on exit 0 and their
+// success line even when they examined no key at all.
+test('a dictionary gate that checked no key does not pass', () => {
+  const pass = [/^OK: every referenced Cunliffe key resolves/m, /checked [1-9]\d* referenced keys/];
+  const said = (n) => `Shared Cunliffe: 7550 entries across 24 shards; checked ${n} referenced keys across 2 works.\nOK: every referenced Cunliffe key resolves in the shared dictionary.\n`;
+  assert.equal(pyReport({ status: 0, stdout: said(11089) }, pass).ok, true);
+  assert.equal(pyReport({ status: 0, stdout: said(0) }, pass).ok, false);
+  assert.match(pyReport({ status: 0, stdout: said(0) }, pass).problems.join('\n'), /without its success line/);
+});
+
+// Codex's review of phase 2: an emptied data/cunliffe-t8 shard passed every
+// gate, and the popup's Cunliffe tab had no record to show.
+test('the Cunliffe records: every key of the shared Cunliffe has its record where the reader looks', () => {
+  const files = (map) => function* (filter) {
+    for (const [p, v] of Object.entries(map)) if (filter(p.split('/').pop())) yield { path: p, text: JSON.stringify(v) };
+  };
+  const rec = [{ head: 'μά', key: 'ma/' }];
+  const good = { 'data/cunliffe/m.json': { 'ma/': {}, '*me/neos': {} }, 'data/cunliffe-t8/m.json': { 'ma/': rec, '*me/neos': rec } };
+  assert.deepEqual(cunliffeCheck(files(good)), { ok: true, problems: [], read: 2 });
+  // the shard emptied
+  const emptied = { ...good, 'data/cunliffe-t8/m.json': {} };
+  assert.match(cunliffeCheck(files(emptied)).problems.join('\n'), /2 Cunliffe keys have no record, first: /);
+  // a record with nothing in it, and a record in another letter's shard
+  assert.equal(cunliffeCheck(files({ ...good, 'data/cunliffe-t8/m.json': { 'ma/': [], '*me/neos': rec } })).ok, false);
+  assert.equal(cunliffeCheck(files({ ...good, 'data/cunliffe-t8/m.json': { '*me/neos': rec }, 'data/cunliffe-t8/a.json': { 'ma/': rec } })).ok, false);
+  // a T8 shard gone, and no Cunliffe key at all
+  assert.equal(cunliffeCheck(files({ 'data/cunliffe/m.json': good['data/cunliffe/m.json'] })).ok, false);
+  assert.match(cunliffeCheck(files({})).problems.join('\n'), /no Cunliffe key/);
+  // a name outside the two folders is not read as either
+  assert.equal(cunliffeCheck(files({ ...good, 'data/iliad/cunliffe/m.json': { 'zz': {} } })).ok, true);
 });
 
 test('the lemma pages: an index that lists slugs, each with its file', () => {

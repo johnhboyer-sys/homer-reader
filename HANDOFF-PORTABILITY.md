@@ -38,11 +38,11 @@ John: the licence (below) and decision 10 for Homer's two fixtures (below).
 | A build at a test base path passes the link check | Done: `/mirror/` at another origin, 4,687 pages, 335,540 links, 0 broken. The same build checked as if at `/` reads all 335,540 as broken and exits 1 |
 | Fonts self-hosted | Already so (bundled under `_astro/`); test 3 proves it: no font host asked for, and a planted Google stylesheet link fails it |
 | No outside calls (test 3) | Green at `/` and at `/mirror/`: 8 of 8 visits, 3 outside hosts asked for, all allowed (Grammata, CAWM's tiles, archive.org's audio) |
-| The mirror bundle | Done: `scripts/make-bundle.mjs`, 10,048 files, 347 MB, 59 MB packed, five gates on 5,262 data files |
+| The mirror bundle | Done: `scripts/make-bundle.mjs`, 10,048 files, 347 MB, 59 MB packed, six gates on 5,262 data files |
 | `check-served.mjs` | Done (Aristotle's, unchanged); used by the image workflow and the restore drill |
 | `Dockerfile`, Caddy, image workflow | Written; the image is built only in CI (never on the Mac), on this PR |
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log records each path run |
-| Review by another model family | PHASE2_REVIEW |
+| Review by another model family | Codex (GPT-6.1-Sol, medium): four findings, all fixed; three in code, each shown failing first |
 | The bundle on two candidate hosts | Waits on John (decision 6, accounts), as for Aristotle and Plato |
 
 ## Phase 2 record
@@ -109,6 +109,25 @@ saw. John, 2026-11-23: "allow both". Both are on the script's default list.
 `shasum -c` clean in 7 seconds; served by Python's test server,
 `check-served.mjs` read all 10,047 files with their bytes and failed only on
 that server's missing 404 page. Logged in `RESTORE.md`.
+
+**Review.** Codex (GPT-6.1-Sol, medium; the session log shows both) read
+phase 2 statically and found four things. (1) An emptied
+`data/cunliffe-t8/<letter>.json` passed every bundle gate and the popup
+visit, which took any 200: the bundle now runs a sixth gate, "Cunliffe
+records" (every key of the shared Cunliffe, 7,550 today, has a record in the
+T8 shard the reader fetches; emptying `m.json` gives `366 Cunliffe keys have
+no record, first: ma/`), and the visit requires the served shard to hold
+records. (2) The two dictionary checks print their success line and exit 0
+when they examined no key (empty analyses): their gates now also require
+`checked N referenced keys` with N above 0. (3) The audio visit took any
+source, a `data:` URL among them: it now requires a recording
+`data/audio.json` names and a request the browser made for it; the hand
+break of this fix first failed for the wrong reason (the visit did not take
+`dist`), which was fixed. (4) A doc command in `ARCHITECTURE.md` named the
+wrong manifest folder; corrected and run. The new unit tests failed before
+each fix; both visit breaks were run on the real build and each failed by
+name. It found nothing in the parameters, the Grammata address, the
+Dockerfile, Caddy, or the workflows.
 
 **Known and left.** As in Aristotle and Plato: saved searches keep whole
 paths, base included, in the browser's storage, so a saved search does not

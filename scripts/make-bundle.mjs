@@ -54,14 +54,43 @@ export function jsonCheck(served) {
 }
 
 // A Python gate's run as a report: it passed if it exited 0 and printed its
-// own success line (`pass`), so a run that examined nothing, or never
-// started, does not pass.
+// own success line (`pass`, one pattern or a list that must all match), so a
+// run that examined nothing, or never started, does not pass.
 export function pyReport({ status, stdout = '', stderr = '', error }, pass) {
-  if (status === 0 && pass.test(stdout)) return { ok: true, problems: [] };
+  const needs = Array.isArray(pass) ? pass : [pass];
+  if (status === 0 && needs.every((re) => re.test(stdout))) return { ok: true, problems: [] };
   const said = `${stdout}\n${stderr}`.split('\n').filter((line) => line.trim());
   const lines = said.filter((line) => /FAIL|MISSING|:/.test(line)).slice(0, 5);
   if (status === 0) return { ok: false, problems: [`exit 0 without its success line; last: ${said.slice(-1)[0] ?? 'nothing'}`] };
   return { ok: false, problems: [`exit ${status ?? 'none'}${error ? ` (${error.message})` : ''}`, ...lines] };
+}
+
+// The shard data.ts's cunliffeShard() picks for a key: its first letter a-z,
+// past any "*", else "_".
+const cunliffeShard = (key) => [...key].find((ch) => ch !== '*' && /[a-z]/.test(ch)) ?? '_';
+
+// The popup's Cunliffe tab reads a word's record from
+// data/cunliffe-t8/<letter>.json by the key the shared Cunliffe
+// (data/cunliffe/<letter>.json, which verify_shared_cunliffe holds to every
+// work's analyses) gives it. Every such key must have a record there, in the
+// shard the reader fetches. Codex's review of phase 2: an emptied T8 shard
+// passed every other gate.
+export function cunliffeCheck(served) {
+  const keys = new Set(), t8 = new Map();
+  const shardOf = (p) => /^data\/(cunliffe|cunliffe-t8)\/([^/]+)\.json$/.exec(p);
+  for (const f of served((n) => n.endsWith('.json'))) {
+    const m = shardOf(f.path);
+    if (!m) continue;
+    let d;
+    try { d = JSON.parse(f.text); } catch { continue; }      // the JSON check names it
+    if (!d || typeof d !== 'object' || Array.isArray(d)) continue;
+    if (m[1] === 'cunliffe') for (const k of Object.keys(d)) keys.add(k);
+    else for (const [k, v] of Object.entries(d)) t8.set(`${m[2]}\0${k}`, v);
+  }
+  if (!keys.size) return { ok: false, problems: ['no Cunliffe key in data/cunliffe/'], read: 0 };
+  const missing = [...keys].filter((k) => { const v = t8.get(`${cunliffeShard(k)}\0${k}`); return !Array.isArray(v) || !v.length; });
+  return { ok: !missing.length, read: keys.size,
+    problems: missing.length ? [`${missing.length} Cunliffe key${missing.length === 1 ? ' has' : 's have'} no record, first: ${missing[0]}`] : [] };
 }
 
 // The lemma pages' index lists slugs, and each has its file. No gate above
@@ -96,8 +125,10 @@ export function dataGates(served, { dataDir, files = [] }) {
       `import sys; from pathlib import Path; import homer_pipeline.${module} as m; m.BUILD_DIR = Path(sys.argv[1]); sys.exit(m.main())`, tmp]);
     return [
       ['preflight', pyReport(py(['-m', 'homer_pipeline.preflight', data, path.join(ROOT, 'manifests')]), /^preflight ok:/m)],
-      ['shared LSJ coverage', pyReport(dictionary('verify_shared_lsj'), /^OK: every referenced LSJ key resolves/m)],
-      ['shared Cunliffe coverage', pyReport(dictionary('verify_shared_cunliffe'), /^OK: every referenced Cunliffe key resolves/m)],
+      // and each must have checked some key: on empty analyses they pass with none
+      ['shared LSJ coverage', pyReport(dictionary('verify_shared_lsj'), [/^OK: every referenced LSJ key resolves/m, /checked [1-9]\d* referenced keys/])],
+      ['shared Cunliffe coverage', pyReport(dictionary('verify_shared_cunliffe'), [/^OK: every referenced Cunliffe key resolves/m, /checked [1-9]\d* referenced keys/])],
+      ['Cunliffe records', cunliffeCheck(served)],
       ['lemma pages', lemmaCheck(served, files)],
       ['JSON', jsonCheck(served)],
     ];
