@@ -290,7 +290,7 @@ EXPORT_HEADER = re.compile(r"generated\s+by\s+Diogenes|from\s+the\s+TLG\s+corpus
 EXPORT_NAME = re.compile(r"(^|/)tlg\d{7}\.xml$", re.I)
 FEW = 30   # well under a book of the Iliad (the shortest runs to 424 lines)
 # In all tracked files but the pinned ones together, so an export split small
-# fails too: 51 today (the tests' made-up Greek, 26 of them in this file and
+# fails too: 62 today (the tests' made-up Greek, 37 of them in this file and
 # test_greek_lines.py, and doc examples); 80 leaves room for a new test, and
 # is a fifth of the shortest book.
 ALL = 80
