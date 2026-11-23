@@ -19,8 +19,12 @@ session merged homer-reader #78 (`7a13697f2e`) with all five CI jobs green.
 Phase 2 is in a PR, and phase 3 in a PR stacked on it (below). Nothing is
 deployed.
 John ruled on 2026-11-23 that test 3 may call two hosts of Homer's own beside
-Grammata's: CAWM's map tiles and archive.org's recitation audio. Open for
-John: the licence (below) and decision 10 for Homer's two fixtures (below).
+Grammata's: CAWM's map tiles and archive.org's recitation audio. John ruled the
+rest on 2026-11-23: the licence as recommended (MIT in `LICENSE`, CC0 1.0 on
+`corpus/greek/` now, CC BY 4.0 on his own apparatus, every source on its own
+terms, listed in `sources/INVENTORY.md`); the Kosmos text goes out in public
+releases as the live site serves it (A); and decision 10, keep both fixtures
+pinned (A). The licence is a PR stacked on phase 3.
 
 | Phase 1 step | State |
 |---|---|
@@ -347,7 +351,7 @@ from plato-reader's `main` (one comment changed), with their tests;
 `extract.write_all` and its seven tests are Aristotle's, run here against
 made-up works W1 to W5 since Homer has one TLG work.
 
-## The licence (open: John's)
+## The licence (ruled by John, 2026-11-23)
 
 The GitHub repo is public with no licence. For Plato John ruled "Same as
 Aristotle" (MIT for code in `LICENSE`, CC0 1.0 on `corpus/greek/`, other
@@ -373,12 +377,21 @@ the MIT code and the CC0 Greek:
 - **John's own apparatus** (scenes, places, plates, notes): CC BY 4.0 under
   decision 3, if he wants the same here.
 
-Question for John: the same as Aristotle and Plato (MIT code, CC0 on
-`corpus/greek/`, everything else under its own terms, listed), with the
-Kosmos text and the OSM and Perseus derivatives named as exceptions? That is
-the recommendation. No licence file is added until he says.
+Ruled (John, 2026-11-23, "what you recommend"): MIT for the code in
+`LICENSE`; CC0 1.0 on `corpus/greek/`, now ("CC0 now", after being told that
+Allen's 1931 text enters the US public domain on 1 January 2027 under the
+95-year rule, and that a critical edition of an ancient text holds thin
+copyright at most); CC BY 4.0 on his own apparatus; every source on its own
+terms. The table is at the head of `sources/INVENTORY.md`. (Much of the
+apparatus is AI-drafted, and US law gives no copyright to work without human
+authorship; CC BY on those parts does no harm and may not bind.)
 
-## Decision 10 for Homer (open: John's)
+The Kosmos text in public releases, ruled A the same day: the release ships
+the bundle as built, the text in it as the live site serves it, and the
+licence table names its terms. Zenodo and the Internet Archive get no copy
+until John says (a Zenodo record cannot be withdrawn).
+
+## Decision 10 for Homer (ruled A by John, 2026-11-23: "keep em")
 
 Two tracked fixtures are in the Diogenes export's markup. Both are pinned by
 size and sha256 in `pipeline/tests/test_corpus_greek.py`, so the guard passes
@@ -393,7 +406,7 @@ today and fails if either changes; John's ruling decides whether they stay.
   the export's markup, with made-up signs. The Iliad's lines are the text
   `corpus/greek/Iliad.tsv` now publishes under decision 1.
 
-Options: **A, keep both, pinned** (as now); B, replace them with made-up
+John chose A on 2026-11-23. The options were: **A, keep both, pinned** (as now); B, replace them with made-up
 Greek (the old files stay in history either way; rewriting public history is
 John's call). Recommendation: A, for the reason John gave for Plato: the
 Greek is public already, and what the files add is the export's TEI markup,

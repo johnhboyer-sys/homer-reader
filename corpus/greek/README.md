@@ -37,7 +37,9 @@ The second line names the edition, taken from the work's manifest
 
 ## Licence
 
-Not yet stated; John decides (`HANDOFF-PORTABILITY.md`).
+These files are released under CC0 1.0 Universal
+(https://creativecommons.org/publicdomain/zero/1.0/). The texts are
+ancient; the files add no claim of their own.
 
 ## Making the files
 

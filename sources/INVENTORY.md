@@ -1,7 +1,36 @@
 # Sources inventory — provenance and licenses
 
 All fetched 2026-07-17. US copyright rules apply (PD = pre-1931 as of 2026).
-The TLG corpus is licensed/local and is **never** vendored here (see CLAUDE.md).
+The TLG's own files, its beta code, and the Diogenes export are **never**
+committed here; the Iliad's Greek is committed as a line file,
+`corpus/greek/Iliad.tsv` (decision 1, CLAUDE.md).
+
+## Licences in this repository (John, 2026-11-23)
+
+| Part | Licence |
+|---|---|
+| The code (pipeline, app, shared, scripts) | MIT, in `LICENSE` |
+| `corpus/greek/` (the Iliad's Greek, Allen 1931, one printed line per row) | CC0 1.0 |
+| John's own apparatus and derived data (`apparatus/`: scenes, speeches, places, plates, notes) | CC BY 4.0 |
+| Everything under `sources/`, and site data built from it | Its own terms, below. Not covered by `LICENSE` |
+
+The exceptions that bind most:
+
+- **The Kosmos Society revision of Butler** (`kosmos/`), CC BY-NC-ND 3.0:
+  non-commercial, no derivatives, attribution. It is shown verbatim, and it
+  is in each book's built data beside public-domain texts, so a built data
+  file can hold more than one licence.
+- **Perseus TEI** (`perseus/`), CC BY-SA 4.0 for the encoding: the Odyssey's
+  Greek, Murray's English, and the LSJ. Data built from them stays CC BY-SA 4.0.
+- **OpenStreetMap river courses** (`openstreetmap/`), ODbL 1.0: the plates'
+  river geometry is offered under ODbL.
+- **DICES speech data** (`dices/`), CC BY 4.0; **Copernicus DEM**
+  (`copernicus-dem/`), attribution.
+
+The site's built bundle, which each deploy attaches to a public GitHub
+release, carries all of these; the Kosmos text goes out in it as the live
+site serves it (John, 2026-11-23). Zenodo and the Internet Archive get no
+copy until John says.
 
 ## perseus/ — PerseusDL/canonical-greekLit @ master (CC-BY-SA 4.0 encoding)
 

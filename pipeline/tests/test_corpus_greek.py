@@ -295,7 +295,8 @@ FEW = 30   # well under a book of the Iliad (the shortest runs to 424 lines)
 # is a fifth of the shortest book.
 ALL = 80
 PINNED = {
-    # Decision 10, open (John rules): two test fixtures in the export's markup.
+    # Decision 10, ruled A by John on 2026-11-23 ("keep em"): two test
+    # fixtures in the export's markup, kept and pinned.
     "pipeline/tests/fixtures/stephanus/euthyphro_p2_3.xml": {
         "bytes": 9369, "sha256": "38226581bfbb162fc7b8e67e375d954ba708cfb58fc240bd103543c3001420eb", "lines": 77,
         "why": "Plato's fixture, copied here; ruled A (kept, pinned) for plato-reader on 2026-11-21"},
