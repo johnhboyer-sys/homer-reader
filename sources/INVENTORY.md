@@ -1,7 +1,40 @@
 # Sources inventory — provenance and licenses
 
 All fetched 2026-07-17. US copyright rules apply (PD = pre-1931 as of 2026).
-The TLG corpus is licensed/local and is **never** vendored here (see CLAUDE.md).
+The TLG's own files, its beta code, and the Diogenes export are **never**
+committed here; the Iliad's Greek is committed as a line file,
+`corpus/greek/Iliad.tsv` (decision 1, CLAUDE.md).
+
+## Licences in this repository (John, 2026-11-23)
+
+| Part | Licence |
+|---|---|
+| The code (pipeline, app, shared, scripts) | MIT, in `LICENSE` |
+| `corpus/greek/` (the Iliad's Greek, Allen 1931, one printed line per row) | CC0 1.0 |
+| John's own apparatus and derived data (`apparatus/`: scenes, speeches, places, plates, notes) | CC BY 4.0, except the plates' river layers, which are OpenStreetMap data under ODbL 1.0 (below) |
+| Everything under `sources/`, and site data built from it | Its own terms, below. Not covered by `LICENSE` |
+
+The exceptions that bind most:
+
+- **The Kosmos Society revision of Butler** (`kosmos/`), CC BY-NC-ND 3.0:
+  non-commercial, no derivatives, attribution. It is shown verbatim, and it
+  is in each book's built data beside public-domain texts, so a built data
+  file can hold more than one licence.
+- **Perseus TEI** (`perseus/`), CC BY-SA 4.0 for the encoding: the six files
+  listed below (the Odyssey's Greek, the Monro-Allen Iliad, Murray's English,
+  the Power-Nagy Butler kept for line markers). Data built from them stays
+  CC BY-SA 4.0.
+- **The LSJ** (`grc.lsj.xml`, Perseus's, from Diogenes 4.7.2; pinned, not
+  vendored): CC BY-SA. The site's lexicon data built from it stays CC BY-SA.
+- **OpenStreetMap river courses** (`openstreetmap/`), ODbL 1.0: the plates'
+  river geometry is offered under ODbL.
+- **DICES speech data** (`dices/`), CC BY 4.0; **Copernicus DEM**
+  (`copernicus-dem/`), attribution.
+
+The site's built bundle, which each deploy attaches to a public GitHub
+release, carries all of these; the Kosmos text goes out in it as the live
+site serves it (John, 2026-11-23). Zenodo and the Internet Archive get no
+copy until John says.
 
 ## perseus/ — PerseusDL/canonical-greekLit @ master (CC-BY-SA 4.0 encoding)
 
@@ -160,13 +193,20 @@ brackets and notes included).
   **ODbL 1.0: attribution required, and share-alike applies to derivative
   databases — which these files and the plates' river layers are.** No
   public-domain substitute exists (measured: Natural Earth 1:10m has no
-  watercourse inside the Troad sheet). Accepting the obligation is John's
-  call; `sources/openstreetmap/README.md` states it in full and gives the
-  alternative.
+  watercourse inside the Troad sheet). `sources/openstreetmap/README.md`
+  states it in full and gives the alternative.
+
+## autenrieth/ — Autenrieth, A Homeric Dictionary (partial)
+
+The 1891 English translation is public domain in the US; Perseus's TEI
+encoding is CC BY-SA (attribute Perseus Digital Library, Tufts University).
+Provenance and the partial state are in `autenrieth/PROVENANCE.md`.
+
+## loeb-notes/ — the Loeb Iliad and Odyssey notes
+
+Public domain in the US (Odyssey 1919; Iliad 1924 and 1925). Provenance in
+`loeb-notes/README.md`.
 
 ## Still to vendor (later phases)
 
-- Autenrieth, A Homeric Dictionary (Eng. tr. 1880s, PD) — no clean structured
-  source exists; legacy Perseus Hopper scrape is a time-boxed Phase 2 attempt,
-  else fast-follow (see docs/PHASE0-FINDINGS.md (c)/(d)).
 - CAWM map tiles are hotlinked (CC BY 4.0), not vendored.

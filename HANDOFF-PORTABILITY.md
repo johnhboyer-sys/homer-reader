@@ -19,8 +19,12 @@ session merged homer-reader #78 (`7a13697f2e`) with all five CI jobs green.
 Phase 2 is in a PR, and phase 3 in a PR stacked on it (below). Nothing is
 deployed.
 John ruled on 2026-11-23 that test 3 may call two hosts of Homer's own beside
-Grammata's: CAWM's map tiles and archive.org's recitation audio. Open for
-John: the licence (below) and decision 10 for Homer's two fixtures (below).
+Grammata's: CAWM's map tiles and archive.org's recitation audio. John ruled the
+rest on 2026-11-23: the licence as recommended (MIT in `LICENSE`, CC0 1.0 on
+`corpus/greek/` now, CC BY 4.0 on his own apparatus, every source on its own
+terms, listed in `sources/INVENTORY.md`); the Kosmos text goes out in public
+releases as the live site serves it (A); and decision 10, keep both fixtures
+pinned (A). The licence is a PR stacked on phase 3.
 
 | Phase 1 step | State |
 |---|---|
@@ -48,7 +52,7 @@ John: the licence (below) and decision 10 for Homer's two fixtures (below).
 
 | Phase 3 step | State |
 |---|---|
-| Push the repo to a second git host | Written: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml`. Waits on Homer's deploy key (the lead session's job) |
+| Push the repo to a second git host | Done: `scripts/mirror-git.mjs` (Aristotle's, unchanged), run by `mirror.yml` with Homer's deploy key since 2026-11-23; first run 45245208945, 15 of 15 refs (below) |
 | Check a git mirror | Done: `scripts/mirror-check.mjs`, run for real against `git@gitlab.com:johnhboyer/homer-reader.git` (below) |
 | The deploy tags its commit | Written: `npm run deploy:cloudflare` tags `deploy/<date>` after the Worker deploy succeeds and pushes the tag; `--no-tag` holds it back; the dry run never tags. Not yet run in a real deploy |
 | A release for each deploy tag | Written: `.github/workflows/release.yml`, the shared `site-bundle` action, then the bundle's data held to `homer-data.johnhboyer.com`, then `gh release create`. Runs first at the next deploy after this merges; about 59 MB public each time, the Kosmos text among it (below) |
@@ -99,12 +103,12 @@ history: 809 commits, whole`. `check-mirrors.mjs
 current`, the three refs named, history not checked because the refs do not
 match).
 
-**The Kosmos text in a public release (John's to judge).** `release.yml`
-attaches the whole bundle to a public GitHub release at each deploy. The
-bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND 3.0), as the
-live site serves it: verbatim, with its attribution, in each book's data. A
-release is a public download, not only a page. Whether that is within the
-licence is not decided here.
+**The Kosmos text in a public release (ruled A by John, 2026-11-23).**
+`release.yml` attaches the whole bundle to a public GitHub release at each
+deploy. The bundle holds the Kosmos Society revision of Butler (CC BY-NC-ND
+3.0), as the live site serves it: verbatim, with its attribution, in each
+book's data. A release is a public download, not only a page. John chose to
+ship it so; the licence table in `sources/INVENTORY.md` names its terms.
 
 **The weekly check before the key (Codex's review).** `mirror.yml`'s git
 job is guarded by `MIRROR_GIT_URL`; its check job is not (it runs on the
@@ -115,7 +119,21 @@ That is the truth, the mirror being stale, but it is noise. The workflow is
 the siblings' file byte for byte, so it is not changed here: set the key
 before merging this, or close the issue once it is set.
 
-**Homer's deploy key.** Not made here. When the lead session makes the pair
+**Homer's deploy key (2026-11-23).** The lead session made the pair and put
+the private half in the repository secret. John confirmed at 13:05 that
+GitLab has the key and the protected-branch setting: "gitlabs has key and
+protected branches set up properly". Not made here.
+
+The lead session tested the key (it reads `homer-reader`, GitLab refuses it on
+`plato-reader`, a dry-run push to `main` is accepted), deleted the local pair
+(the private half is in the secret alone), and set `MIRROR_GIT_URL` at
+19:05:31Z. Mirror run 45245208945, started by this session's push 11 seconds
+before the variable existed, had skipped; the lead reran it at 19:05:40Z: the
+git job passed, `15 of 15 refs match the source after the push; 1 left out
+(refs/heads/gh-pages)`. `mirror-check.mjs` from the Mac afterwards: 15 of 15
+refs match, history 831 commits, whole. Not yet seen: a push to `main`
+mirrored (it comes with #80's merge), a tag push, the weekly check, and the
+release workflow. When the lead session makes the pair
 and gives John the public half, John's two GitLab steps are: add it to the
 project `johnhboyer/homer-reader` as a deploy key with write access, and tick
 it under `main`'s "Allowed to push and merge" (force push left off). Then the
@@ -347,12 +365,13 @@ from plato-reader's `main` (one comment changed), with their tests;
 `extract.write_all` and its seven tests are Aristotle's, run here against
 made-up works W1 to W5 since Homer has one TLG work.
 
-## The licence (open: John's)
+## The licence (ruled by John, 2026-11-23)
 
-The GitHub repo is public with no licence. For Plato John ruled "Same as
-Aristotle" (MIT for code in `LICENSE`, CC0 1.0 on `corpus/greek/`, other
-sources under their own terms in `sources/INVENTORY.md`). Homer's sources are
-not all as open, so a Homer licence section would have to name, apart from
+Until this ruling the GitHub repo was public with no licence. For Plato John
+ruled "Same as Aristotle" (MIT for code in `LICENSE`, CC0 1.0 on
+`corpus/greek/`, other sources under their own terms in
+`sources/INVENTORY.md`). Homer's sources are not all as open, so the question
+put to him listed what a Homer licence section would have to name, apart from
 the MIT code and the CC0 Greek:
 
 - **The Kosmos Society revision of Butler, CC BY-NC-ND 3.0** (`sources/kosmos/`,
@@ -367,22 +386,37 @@ the MIT code and the CC0 Greek:
 - **OpenStreetMap river courses, ODbL 1.0** (`sources/openstreetmap/`):
   attribution and share-alike on derived data.
 - **Copernicus DEM, an attribution licence** (`sources/copernicus-dem/`).
-- Public domain, named for completeness: Butler's own text (Gutenberg and
-  Wikisource), Pope (Gutenberg), Natural Earth, the terrain tiles, Cunliffe
-  (via a MIT-licensed Perseus repo), Autenrieth.
-- **John's own apparatus** (scenes, places, plates, notes): CC BY 4.0 under
-  decision 3, if he wants the same here.
+- Public domain: Butler's own text (Gutenberg and Wikisource), Pope
+  (Gutenberg), Natural Earth, the terrain tiles, the Loeb notes. Cunliffe's
+  1924 lexicon is US public domain (its 1931 proper-name file from 2027),
+  from a MIT-licensed Perseus repo; Autenrieth's 1891 text is public domain,
+  its Perseus encoding CC BY-SA.
+- **John's own apparatus** (scenes, speeches, places, plates, notes): CC BY
+  4.0, as decision 3 gave Aristotle's, except a part taken from a vendored
+  source (the plates' OpenStreetMap river layers), which keeps that source's
+  terms.
 
-Question for John: the same as Aristotle and Plato (MIT code, CC0 on
-`corpus/greek/`, everything else under its own terms, listed), with the
-Kosmos text and the OSM and Perseus derivatives named as exceptions? That is
-the recommendation. No licence file is added until he says.
+Ruled (John, 2026-11-23, "what you recommend"): MIT for the code in
+`LICENSE`; CC0 1.0 on `corpus/greek/`, now ("CC0 now", after being told that
+Allen's 1931 text enters the US public domain on 1 January 2027 under the
+95-year rule, and that a critical edition of an ancient text holds thin
+copyright at most; asked again by the lead session, John answered "Now" at
+13:04); CC BY 4.0 on his own apparatus; every source on its own
+terms. The table is at the head of `sources/INVENTORY.md`. (Much of the
+apparatus is AI-drafted, and US law gives no copyright to work without human
+authorship; CC BY on those parts does no harm and may not bind.)
 
-## Decision 10 for Homer (open: John's)
+The Kosmos text in public releases, ruled A the same day: the release ships
+the bundle as built, the text in it as the live site serves it, and the
+licence table names its terms. Zenodo and the Internet Archive get no copy
+until John says (a Zenodo record cannot be withdrawn).
+
+## Decision 10 for Homer (ruled A by John, 2026-11-23: "keep em")
 
 Two tracked fixtures are in the Diogenes export's markup. Both are pinned by
 size and sha256 in `pipeline/tests/test_corpus_greek.py`, so the guard passes
-today and fails if either changes; John's ruling decides whether they stay.
+today and fails if either changes. John ruled on 2026-11-23 that both stay,
+pinned.
 
 - `pipeline/tests/fixtures/stephanus/euthyphro_p2_3.xml` (9,369 bytes,
   77 lines): Plato's fixture, copied here. John ruled A (keep, pinned) for
@@ -393,7 +427,7 @@ today and fails if either changes; John's ruling decides whether they stay.
   the export's markup, with made-up signs. The Iliad's lines are the text
   `corpus/greek/Iliad.tsv` now publishes under decision 1.
 
-Options: **A, keep both, pinned** (as now); B, replace them with made-up
+John chose A on 2026-11-23. The options were: **A, keep both, pinned** (as now); B, replace them with made-up
 Greek (the old files stay in history either way; rewriting public history is
 John's call). Recommendation: A, for the reason John gave for Plato: the
 Greek is public already, and what the files add is the export's TEI markup,
