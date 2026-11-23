@@ -440,10 +440,15 @@ export const SITE_VISITS = [
       await tab.click();
       const served = await record;
       if (!served || served.status() !== 200) throw new Error(`the site did not serve the Cunliffe record (${served ? served.status() : 'no request'})`);
-      // Codex's review: a 200 alone passed an emptied shard.
+      // Codex's reviews: a 200 alone passed an emptied shard, and a shard of
+      // other words' records passed a count. It must hold this card's word.
       const shard = await served.json().catch(() => null);
-      const records = shard && typeof shard === 'object' ? Object.values(shard).filter((v) => Array.isArray(v) && v.length).length : 0;
-      if (!records) throw new Error(`the Cunliffe shard ${new URL(served.url()).pathname} holds no record`);
+      const heads = new Set();
+      if (shard && typeof shard === 'object' && !Array.isArray(shard)) {
+        for (const recs of Object.values(shard)) if (Array.isArray(recs)) for (const r of recs) if (typeof r?.head === 'string') heads.add(r.head.normalize('NFC'));
+      }
+      const headword = card.lemma.replace(/\s*\(\d+\)\s*$/, '').trim().normalize('NFC');
+      if (!heads.has(headword)) throw new Error(`the Cunliffe shard ${new URL(served.url()).pathname} holds no record for ${headword}`);
       await page.waitForFunction(() => {
         const entry = document.querySelector('.word-sidebar .card-entry');
         const m = entry?.querySelector('.cunliffe-mount');
@@ -524,19 +529,22 @@ export const SITE_VISITS = [
       await page.reload(LOAD);
       const play = page.locator('button.audio-play').first();
       await play.waitFor({ timeout: 30000 }).catch(() => { throw new Error('no play button with the audio setting on'); });
-      // The recordings the manifest names: every "url" in data/audio.json.
-      const named = new Set();
-      const walk = (v) => { if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) (k === 'url' && typeof x === 'string' ? named.add(x) : walk(x)); };
-      walk(JSON.parse(readFileSync(path.join(dist, 'data', 'audio.json'), 'utf8')));
-      const asked = page.waitForRequest((r) => named.has(r.url()), { timeout: 15000 }).catch(() => null);
+      // The recording data/audio.json names for the line the button stands
+      // on (the Greek line's id is L<book>-<line>). Codex's reviews: any
+      // source passed, a data: URL among them; then any named recording.
+      const at = await play.evaluate((b) => b.closest('.greek-line')?.id ?? '');
+      const m = /^L(\d+)-(\d+)$/.exec(at);
+      if (!m) throw new Error(`the play button is not on a numbered line (${at || 'no id'})`);
+      const book = JSON.parse(readFileSync(path.join(dist, 'data', 'audio.json'), 'utf8'))?.works?.iliad?.[m[1]];
+      const want = (book?.chunks ?? []).find((c) => Array.isArray(c.lines) && c.lines[0] === Number(m[2]))?.url;
+      if (!want) throw new Error(`data/audio.json names no recording for Il. ${m[1]}.${m[2]}`);
+      const asked = page.waitForRequest((r) => r.url() === want, { timeout: 15000 }).catch(() => null);
       await play.click();
       const src = await page.waitForFunction(() => document.querySelector('audio')?.getAttribute('src'), null, { timeout: 15000 })
         .then((h) => h.jsonValue()).catch(() => null);
       await page.evaluate(() => localStorage.removeItem('reader-audio'));
-      if (!src) throw new Error('pressing play gave the player no source');
-      // Codex's review: any source passed, a data: URL among them.
-      if (!named.has(src)) throw new Error(`the player's source is not a recording data/audio.json names: ${src.slice(0, 80)}`);
-      if (!(await asked)) throw new Error(`the browser never asked for the recording: ${src}`);
+      if (src !== want) throw new Error(`the player's source is ${src ? src.slice(0, 80) : 'empty'}, not the recording for Il. ${m[1]}.${m[2]} (${want})`);
+      if (!(await asked)) throw new Error(`the browser never asked for the recording: ${want}`);
     },
   },
   {

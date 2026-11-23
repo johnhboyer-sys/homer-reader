@@ -42,7 +42,7 @@ John: the licence (below) and decision 10 for Homer's two fixtures (below).
 | `check-served.mjs` | Done (Aristotle's, unchanged); used by the image workflow and the restore drill |
 | `Dockerfile`, Caddy, image workflow | Written; the image is built only in CI (never on the Mac), on this PR |
 | `ARCHITECTURE.md`, `RESTORE.md` | Written; `RESTORE.md`'s log records each path run |
-| Review by another model family | Codex (GPT-6.1-Sol, medium): four findings, all fixed; three in code, each shown failing first |
+| Review by another model family | Codex (GPT-6.1-Sol, medium), two reads: four findings, then two gaps in the fixes; all fixed and each break shown failing; one partial-loss case recorded as known |
 | The bundle on two candidate hosts | Waits on John (decision 6, accounts), as for Aristotle and Plato |
 
 ## Phase 2 record
@@ -127,7 +127,17 @@ break of this fix first failed for the wrong reason (the visit did not take
 wrong manifest folder; corrected and run. The new unit tests failed before
 each fix; both visit breaks were run on the real build and each failed by
 name. It found nothing in the parameters, the Grammata address, the
-Dockerfile, Caddy, or the workflows.
+Dockerfile, Caddy, or the workflows. A second read, of the fixes, closed (2) and
+(4) and found the two visits still loose: the Cunliffe step took a shard of
+other words' records, and the audio step took any named recording. The
+Cunliffe step now requires a record whose headword is the popup card's own
+(a shard of one unrelated record fails: `holds no record for μῆνις`); the
+audio step finds the recording `data/audio.json` names for the line the
+pressed button stands on, and requires both the player's source and the
+browser's request to be that one. Known and left from that read: the
+dictionary gates pass if any key at all was checked, so a partial loss of
+analyses would pass them (preflight does not require token coverage); the
+original finding was the zero-key case.
 
 **Known and left.** As in Aristotle and Plato: saved searches keep whole
 paths, base included, in the browser's storage, so a saved search does not
