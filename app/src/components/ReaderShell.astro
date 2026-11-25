@@ -405,14 +405,7 @@ const intro =
         </a>
         <span class="bar-divider" aria-hidden="true"></span>
         <button type="button" class="settings-toggle" aria-label="Reader settings" aria-expanded="false">
-          <svg class="settings-icon" width="18" height="14" viewBox="0 0 18 14" aria-hidden="true" fill="currentColor" stroke="none">
-            <rect x="1" y="0" width="16" height="1.5" rx="0.75"/>
-            <circle cx="5.5" cy="0.75" r="2.5"/>
-            <rect x="1" y="6.25" width="16" height="1.5" rx="0.75"/>
-            <circle cx="12.5" cy="7" r="2.5"/>
-            <rect x="1" y="12.5" width="16" height="1.5" rx="0.75"/>
-            <circle cx="7.5" cy="13.25" r="2.5"/>
-          </svg>
+          <span class="settings-icon settings-aa" aria-hidden="true">Aa</span>
           <span class="settings-text">Settings</span>
         </button>
         <HelpButton client:load />
@@ -496,7 +489,7 @@ const intro =
             {n > 1 && (
               <a class="nav-stepper-arrow" href={`${base}${workPath(workId, n - 1)}`} aria-label="Previous book"><svg width="7" height="12" viewBox="0 0 7 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1L1 6l5 5"/></svg></a>
             )}
-            <span class="nav-stepper-label">Book {label}</span>
+            <span class="nav-stepper-label"><span class="nav-stepper-word">Book </span>{label}</span>
             {n < work.books && (
               <a class="nav-stepper-arrow" href={`${base}${workPath(workId, n + 1)}`} aria-label="Next book"><svg width="7" height="12" viewBox="0 0 7 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg></a>
             )}
@@ -1240,17 +1233,6 @@ const intro =
             title={artPlate.caption}
           ></span>
         )}
-        {/* First-visit tip. Static markup in the page flow (never a toast
-            over the poem), so a first visit lays out with it already in
-            place and nothing shifts; the head script hides it before paint
-            once it has been seen. */}
-        <div class="reader-tip" id="reader-tip" role="status">
-          <span class="tip-text">Click on any Greek word to parse it and see its definition(s)!</span>
-          <span class="tip-actions">
-            <button type="button" class="tip-more" id="tip-more">More tips →</button>
-            <button type="button" class="tip-got" id="tip-got">Got it</button>
-          </span>
-        </div>
         <div class="bh-foot">
           {apparatus && (apparatus.where || apparatus.who?.length || apparatus.day) && (
             <div class="bh-meta">
@@ -1272,6 +1254,18 @@ const intro =
             </div>
           )}
         </div>
+        {/* First-visit tip: static markup in the page flow (never a toast
+            over the text). On a wide screen it is a card in the drawing's
+            cell of the head, so it costs the poem no height and nothing
+            shifts when it goes; on a phone it is a strip under the head.
+            The head script hides it before paint once it has been seen. */}
+        <div class="reader-tip" id="reader-tip" role="status">
+          <span class="tip-copy">
+            <span class="tip-text">Click on any Greek word to parse it and see its definition(s)!</span>
+            <button type="button" class="tip-more" id="tip-more">More tips →</button>
+          </span>
+          <button type="button" class="tip-got" id="tip-got">Got it</button>
+        </div>
       </div>
     </section>
   )}
@@ -1284,8 +1278,12 @@ const intro =
       var got = document.getElementById('tip-got');
       var more = document.getElementById('tip-more');
       if (got) got.addEventListener('click', seen);
+      // "More tips" does not mark the tip seen itself: Help does that when
+      // it actually opens (HelpButton's markSeen). A click that lands before
+      // the Help island has mounted is kept in __arHelpPending, which the
+      // island honours on mount, so the tip is never dismissed for nothing.
       if (more) more.addEventListener('click', function () {
-        seen();
+        window.__arHelpPending = true;
         window.dispatchEvent(new CustomEvent('open-help'));
       });
     })();
@@ -1330,9 +1328,13 @@ const intro =
       <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
       <span>Go to</span>
     </button>
+    <button type="button" class="dock-btn" data-dock="posture" aria-pressed="false" aria-label="Reader mode">
+      <svg width="20" height="17" viewBox="0 0 20 17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.2C8.2 1.9 5.2 1.4 1.5 1.6v12c3.7-.2 6.7.3 8.5 1.6 1.8-1.3 4.8-1.8 8.5-1.6v-12c-3.7-.2-6.7.3-8.5 1.6z"/><path d="M10 3.2v12"/></svg>
+      <span>Reader</span>
+    </button>
     <button type="button" class="dock-btn" data-dock="settings" aria-expanded="false">
       <svg width="20" height="16" viewBox="0 0 18 14" aria-hidden="true" fill="currentColor"><rect x="1" y="0" width="16" height="1.5" rx="0.75"/><circle cx="5.5" cy="0.75" r="2.5"/><rect x="1" y="6.25" width="16" height="1.5" rx="0.75"/><circle cx="12.5" cy="7" r="2.5"/><rect x="1" y="12.5" width="16" height="1.5" rx="0.75"/><circle cx="7.5" cy="13.25" r="2.5"/></svg>
-      <span>View</span>
+      <span>Settings</span>
     </button>
   </nav>
   <script is:inline>
@@ -1340,7 +1342,7 @@ const intro =
       var header = document.querySelector('.page-header');
       var dock = document.querySelector('.reader-dock');
       if (!header || !dock) return;
-      var target = { toc: '.toc-toggle', scenes: '.scenes-toggle', goto: '.command-palette-trigger', settings: '.settings-toggle' };
+      var target = { toc: '.toc-toggle', scenes: '.scenes-toggle', goto: '.command-palette-trigger', settings: '.settings-toggle', posture: '#nav-posture-action' };
       dock.addEventListener('click', function (e) {
         var btn = e.target.closest && e.target.closest('.dock-btn');
         if (!btn) return;
@@ -1351,6 +1353,15 @@ const intro =
         var b = dock.querySelector('[data-dock="' + name + '"]');
         if (b) b.setAttribute('aria-expanded', String(open));
       };
+      // Reader mode is a pressed state, not a panel. The first value comes
+      // from the same pre-paint attribute the header reads.
+      var posture = dock.querySelector('[data-dock="posture"]');
+      var pressed = function (on) { if (posture) posture.setAttribute('aria-pressed', String(on)); };
+      pressed(document.documentElement.getAttribute('data-rposture') === 'reading');
+      window.addEventListener('reading-state', function (e) { pressed(!!e.detail.reading); });
+      if (posture) posture.addEventListener('click', function () {
+        pressed(posture.getAttribute('aria-pressed') !== 'true');
+      });
       window.addEventListener('scenes-state', function (e) { sync('scenes', e.detail.open); });
       window.addEventListener('settings-state', function (e) { sync('settings', e.detail.open); });
       new MutationObserver(function () { sync('toc', document.body.classList.contains('toc-open')); })
