@@ -10,7 +10,9 @@
   const SEEN_KEY = 'ar-help-seen';
 
   let showHelp = false;
-  let showTip = false;
+  // In the server HTML so the first visit does not pop a toast over the poem
+  // after paint. onMount hides it when this browser has already dismissed it.
+  let showTip = true;
   let helpModal: HTMLDivElement;
   let helpTrigger: HTMLElement | null = null;
 
@@ -76,7 +78,7 @@
     window.addEventListener('open-help', openHelp);
     let seen = false;
     try { seen = !!localStorage.getItem(SEEN_KEY); } catch {}
-    if (!seen) showTip = true;
+    if (seen) showTip = false;
   });
   onDestroy(() => {
     if (typeof window !== 'undefined') {
@@ -205,29 +207,32 @@
     .help-trigger { display: none; }
   }
 
-  /* First-visit tip — a small dismissible toast at the bottom of the viewport. */
+  /* First-visit tip — a bar in the header's padding, not a toast over the text.
+     Positioning against .page-header is in shared/styles/redesign.css. */
   .reader-tip {
-    position: fixed;
-    left: 50%;
-    bottom: 1.25rem;
-    transform: translateX(-50%);
-    /* Rise gently into view rather than snapping in. One-shot entrance ⇒
-       keyframe; the X-centring is preserved by animating from a lower Y. */
-    animation: tip-in 0.24s cubic-bezier(0.2, 0, 0, 1);
-    z-index: 60;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    bottom: auto;
+    transform: none;
+    animation: none;
+    z-index: 2;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
-    justify-content: center;
-    max-width: min(34rem, calc(100vw - 2rem));
-    padding: 0.7rem 1rem;
-    background: var(--popup-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: var(--popup-shadow);
+    justify-content: space-between;
+    max-width: none;
+    width: auto;
+    padding: 0.4rem 1.1rem;
+    background: var(--page-bg);
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
     font-family: var(--font-ui);
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     color: var(--text);
   }
   .tip-text { line-height: 1.4; }

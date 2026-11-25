@@ -1,0 +1,196 @@
+/* Round 1 redesign. Loaded after the token block by being appended to
+   global.css so these rules win on equal specificity. Skin stays tokens. */
+
+@font-face {
+  font-family: "Gentium Book Plus";
+  src: url("/fonts/gentium-book-plus-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0370-03FF, U+1F00-1FFF, U+2000-206F, U+2190-21FF, U+2200-22FF;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/cormorant-garamond-500.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-017F, U+2010-206F, U+2190-2193;
+}
+
+/* ── One masthead ─────────────────────────────────────────────────── */
+.simple-header .home-wordmark .wordmark-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  line-height: 1;
+}
+.home-wordmark .wordmark-eyebrow {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+}
+.page-header,
+.simple-header {
+  background: var(--col-bg);
+  border-bottom: 1px solid var(--border);
+}
+.page-header {
+  padding-top: 0.4rem;
+  padding-bottom: 0.35rem;
+  align-items: center;
+}
+
+/* First-visit tip lives in the header's own padding, never over the poem
+   and never over the mobile scene sheet. */
+.page-header:has(.reader-tip) { padding-bottom: 3.1rem; }
+@media (max-width: 680px) {
+  .page-header:has(.reader-tip) { padding-bottom: 4.6rem; }
+}
+
+/* ── Reader: get line 1 up ────────────────────────────────────────── */
+.contour-band { display: none; }
+
+.nav-panel {
+  margin-top: 0.28rem;
+  padding-top: 0.28rem;
+  padding-bottom: 0.28rem;
+  background: var(--nav-panel-bg);
+}
+
+.book-plate.book-plate {
+  margin: 0.15rem 0 0.45rem;
+  padding: 0.1rem 0 0.4rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+}
+.book-plate::before { content: none; }
+.book-plate-greek {
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+.book-plate-argument {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+.book-plate-meta {
+  border-top: 0;
+  padding-top: 0.2rem;
+  margin-top: 0.15rem;
+}
+.plate-art {
+  height: 54px;
+  width: min(200px, 18vw);
+  opacity: 0.72;
+}
+
+.reader-body { padding-top: 0.45rem; }
+.reader-controls {
+  margin: 0 0 0.45rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+.segment {
+  margin-bottom: 1.25rem;
+  border-top: 0;
+  padding-top: 0.15rem;
+}
+.seg-ref { margin-bottom: 0.2rem; }
+.verse-bracket-legend {
+  margin: 0 0 0.3rem;
+  color: var(--text-mid);
+}
+
+/* Language is an underline; mode is a pill. They no longer match. */
+.nav-view-toggle {
+  align-items: flex-end;
+  gap: 0.1rem;
+  background: transparent;
+  border: 0;
+  padding: 0 0 0.1rem;
+}
+.nav-view-toggle::before {
+  content: "Text";
+  align-self: center;
+  margin-right: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+.nav-view-toggle button {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--text-mid);
+  font-weight: 550;
+  padding: 0.28rem 0.45rem 0.2rem;
+}
+.nav-view-toggle button + button { border-left: 0; }
+.nav-view-toggle button:hover { background: transparent; color: var(--text); }
+.nav-view-toggle button.active {
+  background: transparent;
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.nav-posture-seg {
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+}
+.nav-posture-seg::before {
+  content: "Mode";
+  margin: 0 0.4rem 0 0.45rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+.nav-posture-seg button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+.nav-posture-seg button + button { border-left: 0; }
+.nav-posture-seg button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.nav-trans-select,
+.nav-trans-label {
+  max-width: 16.5rem;
+  min-width: 11rem;
+}
+
+@media (max-width: 680px) {
+  .reader-body { padding: 0.35rem 0.85rem 5.5rem; }
+  .book-plate-greek { font-size: 1.2rem; }
+  .book-plate-argument {
+    font-size: 0.98rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .reader-controls { margin-bottom: 0.3rem; }
+  .reader-body.view-both .greek-col {
+    font-size: 1.12rem;
+    line-height: 1.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-tip { animation: none; }
+}

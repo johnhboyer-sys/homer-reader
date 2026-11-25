@@ -61,16 +61,15 @@
    change, so these are system-only stacks (font-display swap is moot with
    no network request, but harmless to note: no blocking font fetch remains). */
 :root {
-  --font-greek:   Palatino, "Palatino Linotype", "Times New Roman", Georgia, serif;
-  --font-english: "Iowan Old Style", Charter, Georgia, serif;
-  --font-ui:      Optima, Seravek, "Gill Sans", "Gill Sans MT", sans-serif;
-  /* Display face: cartouche titles, masthead wordmark, section headings that
-     want a bit more presence than the UI face. Not used pre-Aegean, so no
-     prior value to record above. */
-  --font-display: "Big Caslon", "Hoefler Text", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-greek:   "Gentium Book Plus", Palatino, "Palatino Linotype", "Times New Roman", Georgia, serif;
+  --font-english: "Gentium Book Plus", "Iowan Old Style", Charter, Georgia, serif;
+  --font-ui:      system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Display face: cartouche titles, masthead wordmark, section headings.
+     Cormorant is Latin-only; Greek in a display slot falls through to Gentium. */
+  --font-display: "Gentium Book Plus", "Palatino Linotype", Palatino, Georgia, serif;
 
-  --col-bg:       #DBD8DC;  /* Wine-dark --ground-panel: cool bone, raised surfaces */
-  --page-bg:      #E7E7E9;  /* Wine-dark --ground: cool bone, page background */
+  --col-bg:       #FBF7F0;  /* warm paper, raised surfaces */
+  --page-bg:      #F3EEE4;  /* warm paper, page background */
   --text:         #241827;  /* Wine-dark --ink */
   --text-mid:     #5B4C58;  /* Wine-dark --ink-soft */
   --text-light:   #5B4C58;  /* collapsed onto --ink-soft: the palette defines only two
@@ -101,7 +100,7 @@
                                 (John, 2026-07-21: "too much pink" — tempered the palette,
                                 same wine identity) — see docs/DESIGN.md and the dark-theme
                                 block below for the matching shift. */
-  --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
+  --border:       #D4CBBC;  /* warm hairline */
   /* Land/sea fills (2026-07-28, contrast fix): land↔sea used to differ by
      only 1.086:1 here and, worse, INVERT in dark theme (land lighter here,
      darker there) — a reader who learns "pale is land" learned the opposite
@@ -131,7 +130,7 @@
   --scene-map-coast:      #565060; /* coast boundary; darkened so it clears 3:1 over
                                      the blue sea (3.99:1) as well as the land (6.68:1) */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
-  --popup-bg:     #DBD8DC;  /* same raised surface as --col-bg */
+  --popup-bg:     #FBF7F0;  /* same raised surface as --col-bg */
   --popup-shadow: 0 4px 24px rgba(0,0,0,.18);
   --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 20%, transparent);
@@ -296,7 +295,7 @@
   /* Semantic colours used in a few hardcoded spots; aliased here so the dark
      theme can remap them. */
   --on-accent:    #f5f9f8;   /* text/icon sitting on an --accent fill */
-  --input-bg:     #ffffff;   /* text inputs, modals */
+  --input-bg:     #FFFCF7;   /* text inputs, modals */
   --hit-bg:       #ffe29b;   /* search-hit token highlight */
   --target-bg:    #fff3d6;   /* jumped-to line tint */
   --mark-bg:      #ffe29b;   /* <mark> in English/search results */
@@ -306,10 +305,10 @@
   /* Greek (Palatino) and English (Iowan Old Style) balanced so neither column
      dominates: equal-ish optical size, and Greek verse leading compressed
      toward the English so the two columns sit at roughly the same height. */
-  --lh-greek:     1.7;
-  --lh-english:   1.72;
-  --fs-greek:     1.05rem;
-  --fs-english:   1.08rem;  /* nudged up to balance the two typefaces' x-heights */
+  --lh-greek:     1.55;
+  --lh-english:   1.55;
+  --fs-greek:     1.2rem;   /* 19.2px — a reading size, not a UI size */
+  --fs-english:   1.2rem;
   --fs-ref:       0.78rem;
   --fs-linenum:   0.72rem;
 
@@ -335,8 +334,8 @@
    prior teal-black. Activated by data-theme="dark" on <html>, set by
    ThemeInit before paint. */
 :root[data-theme="dark"] {
-  --col-bg:       #211828;  /* Wine-dark --ground-panel dark */
-  --page-bg:      #181120;  /* Wine-dark --ground dark */
+  --col-bg:       #1C1916;  /* warm night, raised surfaces */
+  --page-bg:      #12100E;  /* warm night, page background */
   --text:         #EDE6E8;  /* Wine-dark --ink dark (bone) */
   --text-mid:     #B7A9B4;  /* Wine-dark --ink-soft dark */
   --text-light:   #B7A9B4;  /* same collapse as light mode, see note above */
@@ -351,7 +350,7 @@
                                 not re-paletted; contrast re-verified, see scratchpad
                                 contrast-check run). Was #D98BA3. */
   --accent-light: #E4B3AA;  /* Wine-dark --gold-deco dark. Was #E8A6BA. */
-  --border:       #3A2C38;  /* Wine-dark --rule dark */
+  --border:       #3C352C;  /* warm night hairline */
   --scene-map-sea:        #0A1C2A; /* deep Aegean water, deepened so warm land reads
                                        lighter than sea in BOTH themes */
   --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
@@ -391,7 +390,7 @@
   --plate-relief-12:      #86734B;
   --plate-contour:        #C2B189; /* band hairline, dark: lighter than every ramp step,
                                      see the :root block's comment */
-  --popup-bg:     #211828;
+  --popup-bg:     #1C1916;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 24%, transparent);
@@ -404,7 +403,7 @@
   --draft:        #8FB0C9;  /* slate-blue, see the light-theme --draft comment above */
 
   --on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */
-  --input-bg:     #1d2426;
+  --input-bg:     #241F1A;
   --hit-bg:       rgba(255, 196, 110, 0.28);   /* translucent so light text stays readable */
   --target-bg:    rgba(255, 196, 110, 0.14);
   --mark-bg:      rgba(255, 196, 110, 0.30);
@@ -475,7 +474,7 @@
      swap, so the row still reads as a deliberate band rather than the page
      continuing under the header — a plain-grey copy of --page-bg tried
      first read as barely separated. */
-  --nav-panel-bg: color-mix(in srgb, var(--accent) 16%, var(--page-bg));
+  --nav-panel-bg: #E8E0D2;  /* warm band, not an accent wash */
 }
 
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */
@@ -4938,3 +4937,203 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 }
 .trans-licence a { color: inherit; text-decoration: underline; }
 .settings-trans .trans-licence { display: block; margin: 0.35rem 0 0; }
+/* Round 1 redesign. Loaded after the token block by being appended to
+   global.css so these rules win on equal specificity. Skin stays tokens. */
+
+@font-face {
+  font-family: "Gentium Book Plus";
+  src: url("/fonts/gentium-book-plus-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0370-03FF, U+1F00-1FFF, U+2000-206F, U+2190-21FF, U+2200-22FF;
+}
+/* ── One masthead ─────────────────────────────────────────────────── */
+.simple-header .home-wordmark .wordmark-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  line-height: 1;
+}
+.home-wordmark .wordmark-eyebrow {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+}
+.page-header,
+.simple-header {
+  background: var(--col-bg);
+  border-bottom: 1px solid var(--border);
+}
+.page-header {
+  padding-top: 0.28rem;
+  padding-bottom: 0.2rem;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+/* The tip hangs just under the header, in reserved margin, so it cannot
+   cover the icon row, the poem, or the mobile scene sheet. */
+.page-header .reader-tip.reader-tip {
+  position: absolute;
+  top: 100%;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  flex-wrap: nowrap;
+  padding: 0.22rem 0.9rem;
+  font-size: 0.78rem;
+}
+.page-header:has(.reader-tip) { margin-bottom: 2.15rem; }
+@media (max-width: 680px) {
+  .page-header .reader-tip.reader-tip { flex-wrap: wrap; padding: 0.28rem 0.7rem; }
+  .page-header:has(.reader-tip) { margin-bottom: 5rem; }
+}
+
+/* ── Reader: get line 1 up ────────────────────────────────────────── */
+.contour-band { display: none; }
+
+.nav-panel {
+  margin-top: 0.12rem;
+  padding-top: 0.12rem;
+  padding-bottom: 0.12rem;
+  background: var(--nav-panel-bg);
+}
+
+.book-plate.book-plate {
+  margin: 0.05rem 0 0.1rem;
+  padding: 0 7.5rem 0.1rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+}
+.book-plate::before { content: none; }
+.book-plate-greek {
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+.book-plate-argument {
+  margin: 0.04rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+.book-plate-meta {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0.04rem;
+  color: var(--text);
+}
+.plate-art {
+  top: auto;
+  bottom: 0.15rem;
+  transform: none;
+  height: 34px;
+  width: min(150px, 16vw);
+  opacity: 0.6;
+}
+
+.reader-body { padding-top: 0.1rem; }
+.reader-controls {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.segment {
+  margin-bottom: 1.1rem;
+  border-top: 0;
+  padding-top: 0;
+}
+.seg-ref { margin-bottom: 0; line-height: 1.15; }
+.verse-bracket-legend {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+/* Language is an underline; mode is a pill. They no longer match. */
+.nav-view-toggle {
+  align-items: flex-end;
+  gap: 0.1rem;
+  background: transparent;
+  border: 0;
+  padding: 0 0 0.1rem;
+}
+.nav-view-toggle::before {
+  content: "Text";
+  align-self: center;
+  margin-right: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+.nav-view-toggle button {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--text-mid);
+  font-weight: 550;
+  padding: 0.28rem 0.45rem 0.2rem;
+}
+.nav-view-toggle button + button { border-left: 0; }
+.nav-view-toggle button:hover { background: transparent; color: var(--text); }
+.nav-view-toggle button.active {
+  background: transparent;
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.nav-posture-seg {
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+}
+.nav-posture-seg::before {
+  content: "Mode";
+  margin: 0 0.4rem 0 0.45rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+.nav-posture-seg button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+.nav-posture-seg button + button { border-left: 0; }
+.nav-posture-seg button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.nav-trans-select,
+.nav-trans-label {
+  max-width: 16.5rem;
+  min-width: 11rem;
+}
+
+@media (max-width: 680px) {
+  .reader-body { padding: 0.35rem 0.85rem 5.5rem; }
+  .book-plate-greek { font-size: 1.2rem; }
+  .book-plate-argument { font-size: 0.98rem; }
+  .reader-controls { margin-bottom: 0.3rem; }
+  .reader-body.view-both .greek-col {
+    font-size: 1.12rem;
+    line-height: 1.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-tip { animation: none; }
+}

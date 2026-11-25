@@ -304,7 +304,6 @@ const intro =
         else {
           var s = localStorage.getItem('reader-view');
           if (s === 'greek' || s === 'english' || s === 'both') v = s;
-          else if (window.matchMedia('(max-width: 680px)').matches) v = 'english';
           else v = 'both';
         }
         if (v !== 'both') document.documentElement.setAttribute('data-rview', v);

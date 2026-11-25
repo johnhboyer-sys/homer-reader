@@ -2679,10 +2679,9 @@
     } else {
       const saved = (() => { try { return localStorage.getItem('reader-view'); } catch { return null; } })();
       if (saved === 'greek' || saved === 'english' || saved === 'both') view = saved;
-      // No saved choice: a phone defaults to English only (the bilingual columns
-      // are cramped on a narrow screen); desktop stays bilingual. The toggle —
-      // and any saved choice — overrides this on either.
-      else if (window.matchMedia('(max-width: 680px)').matches) view = 'english';
+      // No saved choice: both languages. On a phone the existing stacked
+      // alignment puts Greek above English for each group, so the Greek is
+      // on the first screen instead of a side column that will not fit.
     }
     const validTrans = new Set([...translations.map(t => t.id), ...(canCompare ? ['compare'] : [])]);
     const savedTrans = (() => { try { return localStorage.getItem(TRANS_KEY); } catch { return null; } })();

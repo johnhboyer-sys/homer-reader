@@ -1,14 +1,6 @@
 ---
-// The single shell header/wordmark shared by every non-reader surface — the
-// homepage masthead, SEO landers, apparatus/index pages and utility pages
-// (Design punch-list #4, 2026-07-18). Before this, ~16 pages hand-rolled their
-// own <header class="simple-header"> with three drifted wordmarks ("Homer",
-// "Home", plain-div "The Homer Reader") and inconsistent nav sets. This is the
-// one source of truth: the full "The Homer Reader" wordmark + eyebrow (the same
-// unit the reader toolbar carries, so the reader reads as an extension of the
-// shell, not a different site) and one canonical nav set. The page's own h1
-// supplies its label; the header instead makes every primary section visible
-// and marks the section containing the current path.
+// One site header. Groups: Read, Atlas, People, Language, plus Search,
+// About, and the theme toggle. The same component on every non-reader page.
 import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
@@ -20,24 +12,48 @@ const pathname = base && Astro.url.pathname.startsWith(`${base}/`)
   ? Astro.url.pathname.slice(base.length)
   : Astro.url.pathname;
 
-const sections = [
-  { label: 'Iliad', href: `${base}/iliad`, prefix: '/iliad' },
-  { label: 'Odyssey', href: `${base}/odyssey`, prefix: '/odyssey' },
-  { label: 'Maps', href: `${base}/maps/`, prefix: '/maps' },
-  { label: 'Timeline', href: `${base}/timeline/`, prefix: '/timeline' },
-  { label: 'Characters', href: `${base}/characters/`, prefix: '/characters' },
-  { label: 'Places', href: `${base}/places/`, prefix: '/places' },
-  { label: 'Genealogies', href: `${base}/genealogies/`, prefix: '/genealogies' },
-  { label: 'Vocabulary', href: `${base}/vocabulary/`, prefix: '/vocabulary' },
-  { label: 'Formulas', href: `${base}/formulas/`, prefix: '/formulas' },
-  { label: 'Repetitions', href: `${base}/repetitions/`, prefix: '/repetitions' },
+const groups = [
+  {
+    label: 'Read',
+    items: [
+      { label: 'Iliad', href: `${base}/iliad`, prefix: '/iliad' },
+      { label: 'Odyssey', href: `${base}/odyssey`, prefix: '/odyssey' },
+    ],
+  },
+  {
+    label: 'Atlas',
+    items: [
+      { label: 'Maps', href: `${base}/maps/`, prefix: '/maps' },
+      { label: 'Timeline', href: `${base}/timeline/`, prefix: '/timeline' },
+      { label: 'Places', href: `${base}/places/`, prefix: '/places' },
+    ],
+  },
+  {
+    label: 'People',
+    items: [
+      { label: 'Characters', href: `${base}/characters/`, prefix: '/characters' },
+      { label: 'Genealogies', href: `${base}/genealogies/`, prefix: '/genealogies' },
+    ],
+  },
+  {
+    label: 'Language',
+    items: [
+      { label: 'Vocabulary', href: `${base}/vocabulary/`, prefix: '/vocabulary' },
+      { label: 'Formulas', href: `${base}/formulas/`, prefix: '/formulas' },
+      { label: 'Repetitions', href: `${base}/repetitions/`, prefix: '/repetitions' },
+      { label: 'Phrases', href: `${base}/phrases/`, prefix: '/phrases' },
+      { label: 'Advanced', href: `${base}/advanced`, prefix: '/advanced' },
+    ],
+  },
+];
+
+const singles = [
   { label: 'Search', href: `${base}/search`, prefix: '/search' },
-  { label: 'Advanced', href: `${base}/advanced`, prefix: '/advanced' },
-  { label: 'Phrases', href: `${base}/phrases/`, prefix: '/phrases' },
   { label: 'About', href: `${base}/about`, prefix: '/about' },
 ];
 
 const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
+const groupCurrent = (items: { prefix: string }[]) => items.some((item) => isCurrent(item.prefix));
 ---
 <header class="simple-header site-header">
   <div class="header-title">
@@ -48,28 +64,58 @@ const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith
   </div>
   <nav class="header-actions site-nav" aria-label="Site">
     <div class="site-nav-links">
-      {sections.map((section) => (
+      {groups.map((group) => (
+        <div class:list={['nav-group', { 'is-current': groupCurrent(group.items) }]}>
+          <span class="nav-group-label">{group.label}</span>
+          {group.items.map((item) => (
+            <a
+              href={item.href}
+              class:list={['search-link', 'site-nav-link', { 'is-current': isCurrent(item.prefix) }]}
+              aria-current={isCurrent(item.prefix) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      ))}
+      {singles.map((item) => (
         <a
-          href={section.href}
-          class:list={['search-link', 'site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
-          aria-current={isCurrent(section.prefix) ? 'page' : undefined}
+          href={item.href}
+          class:list={['search-link', 'site-nav-link', 'site-nav-single', { 'is-current': isCurrent(item.prefix) }]}
+          aria-current={isCurrent(item.prefix) ? 'page' : undefined}
         >
-          {section.label}
+          {item.label}
         </a>
       ))}
     </div>
     <details class="site-nav-mobile">
-      <summary>Sections</summary>
+      <summary>Menu</summary>
       <div class="site-nav-menu">
-        {sections.map((section) => (
-          <a
-            href={section.href}
-            class:list={['site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
-            aria-current={isCurrent(section.prefix) ? 'page' : undefined}
-          >
-            {section.label}
-          </a>
+        {groups.map((group) => (
+          <div class="nav-menu-group">
+            <span class="nav-group-label">{group.label}</span>
+            {group.items.map((item) => (
+              <a
+                href={item.href}
+                class:list={['site-nav-link', { 'is-current': isCurrent(item.prefix) }]}
+                aria-current={isCurrent(item.prefix) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
         ))}
+        <div class="nav-menu-group">
+          {singles.map((item) => (
+            <a
+              href={item.href}
+              class:list={['site-nav-link', { 'is-current': isCurrent(item.prefix) }]}
+              aria-current={isCurrent(item.prefix) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
       </div>
     </details>
     <ThemeToggle />
@@ -78,28 +124,61 @@ const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith
 
 <style>
   .site-header .site-nav {
-    gap: 0.45rem;
+    gap: 0.75rem;
+    align-items: center;
   }
 
   .site-header .site-nav-links {
     display: flex;
-    align-items: center;
-    gap: 0.12rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.05rem 0.45rem;
+    justify-content: flex-end;
+  }
+
+  .site-header .nav-group {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.05rem 0.15rem;
+  }
+
+  .site-header .nav-group-label {
+    margin-right: 0.28rem;
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .site-header .nav-group.is-current .nav-group-label {
+    text-decoration: underline;
+    text-underline-offset: 0.28em;
   }
 
   .site-header .site-nav-link {
     border-bottom: 1px solid transparent;
     border-radius: 0;
-    font-size: 0.72rem;
-    letter-spacing: 0.01em;
-    line-height: 1.25;
-    padding: 0.2rem 0.25rem !important;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    line-height: 1.2;
+    padding: 0.12rem 0.16rem !important;
+    color: var(--text);
     white-space: nowrap;
   }
 
   .site-header .site-nav-link.is-current {
     border-bottom-color: var(--accent);
     color: var(--accent);
+    font-weight: 650;
+  }
+
+  .site-header .site-nav-single {
+    align-self: center;
     font-weight: 600;
   }
 
@@ -109,60 +188,82 @@ const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith
   }
 
   .site-header .site-nav-mobile summary {
-    color: var(--text-mid);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--page-bg);
+    color: var(--text);
     cursor: pointer;
     font-family: var(--font-ui);
-    font-size: 0.78rem;
+    font-size: 0.92rem;
+    font-weight: 650;
     list-style: none;
-    padding: 0.2rem 0.25rem;
     white-space: nowrap;
   }
 
-  .site-header .site-nav-mobile summary::-webkit-details-marker {
-    display: none;
-  }
+  .site-header .site-nav-mobile summary::-webkit-details-marker { display: none; }
 
-  .site-header .site-nav-mobile summary::after {
-    content: ' ▾';
-  }
+  .site-header .site-nav-mobile summary::after { content: ' \25BE'; }
+
+  .site-header .site-nav-mobile[open] summary::after { content: ' \25B4'; }
 
   .site-header .site-nav-mobile summary:focus-visible,
   .site-header .site-nav-link:focus-visible {
-    outline: 2px solid var(--accent-light);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 
   .site-header .site-nav-menu {
     background: var(--col-bg);
-    border: 1px solid var(--border);
-    box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--text) 16%, transparent);
-    display: grid;
-    gap: 0.1rem;
-    min-width: 11rem;
-    padding: 0.35rem;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 0.6rem 1.4rem color-mix(in srgb, var(--text) 16%, transparent);
+    display: block;
+    max-height: min(70vh, 32rem);
+    overflow: auto;
+    padding: 0.4rem 0.85rem 1rem;
     position: absolute;
     right: 0;
-    top: calc(100% + 0.4rem);
-    z-index: 1;
+    top: calc(100% + 0.45rem);
+    width: min(22rem, calc(100vw - 1.5rem));
+    z-index: 30;
+  }
+
+  .site-header .nav-menu-group { padding: 0.35rem 0 0.15rem; }
+
+  .site-header .nav-menu-group .nav-group-label {
+    display: block;
+    margin: 0.35rem 0.2rem 0.15rem;
   }
 
   .site-header .site-nav-menu .site-nav-link {
-    color: var(--text-mid);
-    padding: 0.35rem 0.45rem !important;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--text);
+    padding: 0.35rem 0.55rem !important;
   }
 
   .site-header .site-nav-menu .site-nav-link:hover {
-    background: var(--border);
+    background: var(--page-bg);
     color: var(--accent);
   }
 
-  @media (max-width: 1050px) {
-    .site-header .site-nav-links {
-      display: none;
-    }
-
-    .site-header .site-nav-mobile {
-      display: block;
+  @media (max-width: 1360px) {
+    .site-header .site-nav-links { display: none; }
+    .site-header .site-nav-mobile { display: block; }
+    .site-header .site-nav-menu {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 3.4rem;
+      width: auto;
+      max-height: calc(100vh - 3.6rem);
+      border-radius: 0;
     }
   }
 </style>

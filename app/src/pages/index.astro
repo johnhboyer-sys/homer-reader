@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { getWork, workPath, workLanding } from '@shared/lib/works';
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Pwa from '../components/Pwa.astro';
 import DoorCards from '../components/DoorCards.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
@@ -139,29 +139,7 @@ const supportHref = `${base}/support`;
   <CommandPalette client:load />
   <h1 class="sr-only">The Homer Reader — The Iliad &amp; Odyssey in Greek &amp; English</h1>
 
-  <header class="masthead">
-    <div class="wrap masthead-inner">
-      <div class="wordmark">
-        The Homer Reader
-        <small>The Iliad &amp; Odyssey &middot; Greek and English</small>
-      </div>
-      <nav class="primary-nav" aria-label="Primary">
-        <a href={iliadLandingHref}>Iliad</a>
-        <a href={odysseyLandingHref}>Odyssey</a>
-        <a href={mapsHref}>Maps</a>
-        <a href={timelineHref}>Timeline</a>
-        <a href={charactersHref}>Characters</a>
-        <a href={placesHref}>Places</a>
-        <a href={genealogiesHref}>Genealogies</a>
-        <a href={vocabularyHref}>Vocabulary</a>
-        <a href={formulasHref}>Formulas</a>
-        <a href={repetitionsHref}>Repetitions</a>
-        <a href={searchHref}>Search</a>
-        <a href={aboutHref}>About</a>
-        <ThemeToggle />
-      </nav>
-    </div>
-  </header>
+  <SiteHeader />
 
   <section class="hero" aria-label="The two epics">
     <svg class="hero-horizon" viewBox="0 0 1400 900" preserveAspectRatio="none" aria-hidden="true">
@@ -377,25 +355,15 @@ const supportHref = `${base}/support`;
       overflow: hidden;
       isolation: isolate;
       --hero-ink: #EDE6E8;
-      --hero-ink-soft: #B7A9B4;
-      --hero-accent: #D59186;
-      --hero-accent-bright: #E4B3AA;
+      --hero-ink-soft: #E4D8CC;
+      --hero-accent: #E4B3AA;
+      --hero-accent-bright: #F3D2C8;
       --hero-rule: #3A2C38;
       --hero-rule-strong: #C17067;
       --hero-focus: #E4B3AA;
       color: var(--hero-ink);
-      /* DUSK — default posture. --hero-bg-mid is a pre-mixed OPAQUE hex (navy warmed
-         toward a dusty violet), not an alpha color — an alpha stop here would
-         interpolate its alpha channel too and let the page's own (light) body
-         background bleed through the hero at that seam, reading as a harsh bright
-         streak. Opaque avoids that entirely. */
-      --hero-bg-1: #141B30;
-      --hero-bg-2: #1B2743;
-      --hero-bg-3: #262F52;
-      --hero-bg-mid: #333248;
-      --hero-point-mult: 0.55;
-      --hero-fire-scale: 0.72;
-      background: linear-gradient(158deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 42%, var(--hero-bg-mid) 50%, var(--hero-bg-2) 58%, var(--hero-bg-3) 100%);
+      background: transparent;
+      padding: 0.85rem clamp(1rem, 2.5vw, 1.75rem) 0.15rem;
     }
     .hero .dusk-hide { display: none; }
     :root[data-theme="dark"] .hero {
@@ -417,18 +385,9 @@ const supportHref = `${base}/support`;
     }
     :root[data-theme="light"] .hero .dusk-hide { display: none; }
 
-    .hero::before {
-      /* diffuse ember wash, low-left, under Iliad — siege/pyre, barely there (static;
-         the discrete .fire points below carry the flicker so this doesn't compete) */
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 62% 52% at 12% 100%, rgba(218,132,50,0.40), transparent 74%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero::after {
-      /* moonlight-on-water glint — sea/Odyssey side only, drifting very slowly */
+    .hero::before { content: none; }
+    .hero::after { content: none; display: none; }
+    .hero-after-retired {
       content: "";
       position: absolute;
       /* Left edge sits AT the 50% panel divider, and the mask fades the
@@ -462,6 +421,7 @@ const supportHref = `${base}/support`;
        flicker (Il. 8.553-565 — the Trojan watchfires, "as many as the stars" —
        same vocabulary as the stars below, warm and grounded instead of cool
        and high) ---- */
+    .hero .fire, .hero .star, .hero .hero-horizon { display: none !important; }
     .fire {
       position: absolute;
       border-radius: 50%;
@@ -572,7 +532,10 @@ const supportHref = `${base}/support`;
       z-index: 2;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: min(84vh, 46rem);
+      gap: 0.7rem;
+      min-height: 0;
+      max-width: 76rem;
+      margin: 0 auto;
     }
     @media (max-width: 899.98px) {
       .hero-grid {
@@ -585,12 +548,13 @@ const supportHref = `${base}/support`;
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 0.55rem;
-      padding: clamp(2.25rem, 6vw, 4.5rem) clamp(1.25rem, 4.5vw, 3.75rem);
+      justify-content: flex-start;
+      gap: 0.32rem;
+      padding: 1.2rem 1.35rem 1.15rem;
       text-decoration: none;
       color: inherit;
       overflow: hidden;
+      min-height: 0;
     }
     .epic-panel:hover .epic-cta { color: var(--hero-accent-bright); border-top-color: var(--hero-accent-bright); }
     .epic-panel:hover .epic-title { color: #F5EFE2; }
@@ -602,24 +566,25 @@ const supportHref = `${base}/support`;
     .epic-iliad {
       align-items: flex-start;
       text-align: left;
-      border-right: 1px solid rgba(36,53,76,0.55);
-      background:
-        radial-gradient(ellipse 80% 55% at 22% 100%, rgba(214,120,44,0.38), transparent 70%),
-        linear-gradient(170deg, rgba(120,60,26,0.10) 0%, rgba(160,80,32,0.22) 78%, rgba(190,100,40,0.28) 100%);
+      border-right: 0;
+      background: linear-gradient(165deg, #2A140C 0%, #4A2412 62%, #6A3414 100%);
     }
     @media (max-width: 899.98px) {
-      .epic-iliad { border-right: none; border-bottom: 1px solid rgba(36,53,76,0.55); padding-bottom: 2.5rem; }
+      .hero { padding: 0.55rem 0.75rem 0; }
+      .epic-panel { padding: 0.95rem 1rem 0.9rem; gap: 0.22rem; }
+      .epic-title { font-size: 2.15rem; }
+      .epic-iliad { border-right: none; border-bottom: 0; padding-bottom: 0.95rem; }
+      .epic-panel > :not(.epic-art):not(.fire):not(.star) { max-width: none; }
     }
     .epic-odyssey {
       align-items: flex-end;
       text-align: right;
-      padding-top: clamp(3.5rem, 9vw, 6.5rem);
-      background:
-        radial-gradient(ellipse 85% 60% at 84% 0%, rgba(140,190,240,0.22), transparent 72%),
-        linear-gradient(350deg, rgba(30,60,110,0.10) 0%, rgba(70,120,190,0.16) 80%, rgba(120,170,230,0.18) 100%);
+      padding-top: 1.2rem;
+      background: linear-gradient(200deg, #0E1C33 0%, #163056 58%, #1E4A72 100%);
     }
     @media (max-width: 899.98px) {
-      .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 2.5rem; }
+      .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 0.95rem; }
+      .epic-odyssey > :not(.epic-art):not(.fire):not(.star) { margin-left: 0; }
     }
 
     .epic-kicker {
@@ -642,7 +607,7 @@ const supportHref = `${base}/support`;
        headline now; the Greek becomes the sub-line. Shared size for both
        panels; "The Odyssey", the wider title, fits its half-column at every
        2-col viewport. */
-    .epic-title { font-size: clamp(2.3rem, 5.2vw, 5.6rem); }
+    .epic-title { font-size: clamp(2.15rem, 3.6vw, 3.5rem); }
     .epic-iliad .epic-title { margin-left: -0.05rem; }
     .epic-odyssey .epic-title { margin-right: -0.04rem; }
     /* Flaxman line motifs behind each panel's content (John's round-2
@@ -651,19 +616,26 @@ const supportHref = `${base}/support`;
        tint via background color, so no per-theme asset variants. */
     .epic-art {
       position: absolute;
-      inset: 0;
+      top: 1rem;
+      bottom: 1rem;
+      width: 26%;
       pointer-events: none;
       background: var(--hero-ink);
-      opacity: 0.30;
-      -webkit-mask: var(--art) center 62% / 88% auto no-repeat;
-      mask: var(--art) center 62% / 88% auto no-repeat;
+      opacity: 0.38;
+      -webkit-mask: var(--art) center / contain no-repeat;
+      mask: var(--art) center / contain no-repeat;
       z-index: 0;
     }
-    .epic-art-iliad {
-      -webkit-mask-position: center 16%;
-      mask-position: center 16%;
+    .epic-art-iliad { right: 0.4rem; }
+    .epic-art-odyssey { left: 0.4rem; right: auto; }
+    .epic-panel > :not(.epic-art):not(.fire):not(.star) {
+      position: relative;
+      z-index: 1;
+      max-width: 70%;
     }
-    .epic-panel > :not(.epic-art):not(.fire):not(.star) { position: relative; z-index: 1; }
+    @media (min-width: 900px) {
+      .epic-odyssey > :not(.epic-art):not(.fire):not(.star) { margin-left: auto; }
+    }
     @media (max-width: 899.98px) { .epic-art { display: none; } }
     .epic-greek-sub {
       display: block;
@@ -674,7 +646,7 @@ const supportHref = `${base}/support`;
       margin-top: 0.4rem;
     }
     .epic-epigraph {
-      margin: 0.9rem 0 0;
+      margin: 0.35rem 0 0;
       width: 100%;
       max-width: 30rem;
     }
@@ -693,7 +665,7 @@ const supportHref = `${base}/support`;
       margin-top: 0.2rem;
     }
     .epic-argument {
-      margin: 0.75rem 0 0;
+      margin: 0.3rem 0 0;
       width: 100%;
       max-width: 30rem;
       font-family: var(--font-english);
@@ -703,14 +675,23 @@ const supportHref = `${base}/support`;
     }
     .epic-cta {
       display: inline-block;
-      margin-top: 1.1rem;
-      padding-top: 0.55rem;
-      border-top: 1px solid var(--hero-rule-strong);
+      width: fit-content;
+      margin-top: 0.55rem;
+      padding: 0.48rem 0.9rem;
+      border-top: 0;
+      border-radius: 999px;
+      background: #F6F1E7;
+      color: #2A140C;
       font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--hero-accent);
+    }
+    .epic-panel:hover .epic-cta {
+      background: #F3D2C8;
+      color: #2A140C;
+      border-top-color: transparent;
     }
 
     /* ================= THREE DOORS ================= */
@@ -741,12 +722,13 @@ const supportHref = `${base}/support`;
       .apparatus-grid { grid-template-columns: 1fr; }
     }
     .app-item h3 {
-      margin: 0 0 0.55rem;
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-mid);
+      margin: 0 0 0.4rem;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--text);
     }
     .app-item p {
       margin: 0;
@@ -844,6 +826,29 @@ const supportHref = `${base}/support`;
       font: inherit; font-size: 0.78rem; color: var(--text-mid);
     }
     .home-foot button:hover { color: var(--accent); }
+
+    @media (max-width: 899.98px) {
+      .hero { padding: 0.4rem 0.65rem 0; }
+      .epic-panel {
+        padding: 0.65rem 0.8rem 0.6rem;
+        gap: 0.08rem;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 0.65rem; }
+      .epic-panel > :not(.epic-art):not(.fire):not(.star),
+      .epic-odyssey > :not(.epic-art):not(.fire):not(.star) {
+        max-width: none;
+        margin-left: 0;
+      }
+      .epic-kicker { font-size: 0.58rem; letter-spacing: 0.06em; }
+      .epic-title { font-size: 1.85rem; margin: 0; line-height: 0.95; }
+      .epic-greek-sub { font-size: 0.95rem; margin-top: 0; letter-spacing: 0.08em; }
+      .epic-epigraph { margin-top: 0.15rem; }
+      .epic-epigraph .gk { font-size: 0.9rem; }
+      .epic-argument { margin-top: 0.1rem; font-size: 0.86rem; line-height: 1.3; }
+      .epic-cta { margin-top: 0.35rem; padding: 0.36rem 0.72rem; }
+    }
 
     /* Feedback modal (unchanged mechanism, kept from the prior homepage — no
        other page hosts a bug/feature-report entry point). */
