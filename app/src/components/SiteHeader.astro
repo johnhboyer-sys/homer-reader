@@ -7,8 +7,9 @@
 // Navigation is grouped, not a flat row: the two poems are direct links, the
 // rest sit in three short menus (Atlas, People, Language), then Search and the
 // theme switch. From 900px down the groups fold into one menu sheet with
-// 44px rows. The menus are plain CSS (:hover / :focus-within, and a <details>
-// for the phone sheet), so the header ships no script of its own.
+// 44px rows. Without script the menus are plain CSS (:hover / :focus-within,
+// and a <details> for the phone sheet); with it, lib/site-menu.ts makes the
+// three triggers real disclosures (aria-expanded, Enter/Space, Escape).
 import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
@@ -57,11 +58,11 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
       <span class="sh-rule" aria-hidden="true"></span>
       {groups.map((g) => (
         <div class="sh-group">
-          <button type="button" class:list={['sh-link', 'sh-group-btn', { 'is-current': groupCurrent(g) }]} aria-haspopup="true">
+          <button type="button" class:list={['sh-link', 'sh-group-btn', { 'is-current': groupCurrent(g) }]} aria-controls={`sh-menu-${g.label.toLowerCase()}`}>
             {g.label}
             <svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1l3.5 3.5L8 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <div class="sh-menu">
+          <div class="sh-menu" id={`sh-menu-${g.label.toLowerCase()}`}>
             {g.items.map((i) => (
               <a class:list={['sh-menu-link', { 'is-current': isCurrent(i) }]} href={i.href} aria-current={isCurrent(i) ? 'page' : undefined}>{i.label}</a>
             ))}
@@ -72,7 +73,7 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     </nav>
 
     <div class="sh-tools">
-      <a class:list={['sh-search', { 'is-current': isCurrent(search) }]} href={search.href} aria-current={isCurrent(search) ? 'page' : undefined}>
+      <a class:list={['sh-search', { 'is-current': isCurrent(search) }]} href={search.href} aria-label="Search" aria-current={isCurrent(search) ? 'page' : undefined}>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
         <span>Search</span>
       </a>
@@ -99,14 +100,19 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
           ))}
           <div class="sh-sheet-group">
             <p class="sh-sheet-label">The edition</p>
-            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(search) }]} href={search.href}>Search</a>
-            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(about) }]} href={about.href}>About</a>
+            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(search) }]} href={search.href} aria-current={isCurrent(search) ? 'page' : undefined}>Search</a>
+            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(about) }]} href={about.href} aria-current={isCurrent(about) ? 'page' : undefined}>About</a>
           </div>
         </nav>
       </details>
     </div>
   </div>
 </header>
+
+<script>
+  import { initSiteMenus } from '../lib/site-menu';
+  document.querySelectorAll<HTMLElement>('header.sh').forEach((h) => initSiteMenus(h));
+</script>
 
 <style>
   .sh {
@@ -156,19 +162,21 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     border-radius: var(--radius-1);
     background: none;
     font: 500 0.875rem/1 var(--font-ui);
-    color: var(--text-mid);
+    color: var(--text);
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
   }
   .sh-link:hover,
-  .sh-group:hover > .sh-link,
-  .sh-group:focus-within > .sh-link { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .sh:not(.sh-js) .sh-group:hover > .sh-link,
+  .sh:not(.sh-js) .sh-group:focus-within > .sh-link,
+  .sh-group.is-open > .sh-link { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .sh-group.is-open > .sh-group-btn svg { transform: rotate(180deg); }
   .sh-link.is-current { color: var(--accent); }
   .sh-rule { width: 1px; height: 1.125rem; background: var(--border); margin: 0 0.5rem; }
 
   .sh-group { position: relative; }
-  .sh-group-btn svg { opacity: 0.7; }
+  .sh-group-btn svg { opacity: 0.8; }
   .sh-menu {
     position: absolute;
     top: 100%;
@@ -188,8 +196,12 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
   /* A bridge across the gap between the button and its menu, so the pointer
      can travel down without the menu closing under it. */
   .sh-menu::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 0.75rem; }
-  .sh-group:hover > .sh-menu,
-  .sh-group:focus-within > .sh-menu {
+  /* Without script: hover or focus opens. With it (.sh-js, set by
+     lib/site-menu.ts): the is-open class is the one source of truth, so
+     Escape can close a menu while focus is still on its trigger. */
+  .sh:not(.sh-js) .sh-group:hover > .sh-menu,
+  .sh:not(.sh-js) .sh-group:focus-within > .sh-menu,
+  .sh-group.is-open > .sh-menu {
     visibility: visible;
     opacity: 1;
     transform: translateY(6px);
@@ -217,7 +229,7 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     border-radius: var(--radius-pill);
     background: var(--col-bg);
     font: 500 0.875rem/1 var(--font-ui);
-    color: var(--text-mid);
+    color: var(--text);
     text-decoration: none;
   }
   .sh-search:hover, .sh-search.is-current { border-color: var(--accent); color: var(--accent); }
@@ -230,7 +242,7 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: none;
-    color: var(--text-mid);
+    color: var(--text);
   }
   .sh :global(.theme-toggle:hover) { color: var(--accent); background: color-mix(in srgb, var(--text) 6%, transparent); border-color: transparent; }
 
@@ -302,14 +314,19 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     .sh-inner { padding: 0 var(--space-4); gap: var(--space-3); }
     .sh-search { width: 2.75rem; height: 2.75rem; padding: 0; justify-content: center; }
     .sh-search span { display: none; }
-    .sh :global(.theme-toggle) { width: 2.75rem; height: 2.75rem; }
+    /* Three round buttons of one kind: search, theme, menu. */
+    .sh :global(.theme-toggle) { width: 2.75rem; height: 2.75rem; border-color: var(--border); background: var(--col-bg); }
   }
   @media (max-width: 430px) {
     .sh-wordmark { font-size: 1.25rem; }
     .sh-inner { gap: var(--space-2); }
-    .sh-tools { gap: 0.125rem; }
+    .sh-tools { gap: 0.375rem; }
     .sh-mobile summary span { display: none; }
     .sh-mobile summary { width: 2.75rem; padding: 0; justify-content: center; }
+  }
+  @media (max-width: 350px) {
+    .sh-tools { gap: 0.125rem; }
+    .sh-wordmark { font-size: 1.125rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sh-menu { transition: none; }

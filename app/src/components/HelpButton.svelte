@@ -29,6 +29,7 @@
         ? document.activeElement
         : null;
     showHelp = true;
+    (window as unknown as { __arHelpPending?: boolean }).__arHelpPending = false;
     markSeen();
     await tick();
     helpModal?.focus();
@@ -72,6 +73,9 @@
     // The Contents sidebar (mobile) opens this same modal via a custom event,
     // since its own "?" trigger is hidden on mobile.
     window.addEventListener('open-help', openHelp);
+    // The book head's "More tips" may have been clicked before this island
+    // mounted (ReaderShell.astro sets the flag); open now rather than lose it.
+    if ((window as unknown as { __arHelpPending?: boolean }).__arHelpPending) openHelp();
   });
   onDestroy(() => {
     if (typeof window !== 'undefined') {
