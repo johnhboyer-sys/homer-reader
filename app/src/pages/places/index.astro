@@ -5,6 +5,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -88,78 +89,78 @@ const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'm
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <style is:global>
+  <style>
     body { overflow-x: hidden; max-width: 100%; }
-    .places-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .places-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .places-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 1.4rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
-    .places-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
-    .places-jump a:hover { border-bottom-color: var(--accent); }
-    .places-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .places-legend { display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem 1rem; max-width: 65rem; margin-top: 1.8rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
-    .places-legend h2 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; }
-    .places-legend ul { display: flex; flex-wrap: wrap; gap: .35rem .9rem; margin: 0; padding: 0; list-style: none; }
-    .certainty-label { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; white-space: nowrap; }
-    .certainty-label[data-certainty="certain"] { color: var(--accent); }
-    .certainty-label[data-certainty="traditional"] { color: var(--text); }
-    .certainty-label[data-certainty="speculative"] { color: var(--text-mid); }
-    .certainty-label[data-certainty="mythical"] { color: var(--text-light); }
-    .places-list { max-width: 65rem; margin: 0; padding: 0; list-style: none; }
-    .place-letter { scroll-margin-top: 1rem; }
-    .place-letter h2 { font-family: var(--font-ui); font-size: .78rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--text-mid); margin: 2rem 0 .2rem; padding-top: .6rem; border-top: 2px solid var(--rule-strong); }
-    .place-letter:first-child h2 { margin-top: 0; padding-top: 0; border-top: none; }
-    .place-entry { padding: 1.2rem 0; border-bottom: 1px solid var(--border); }
-    .place-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .55rem; }
-    .place-heading h3 { font-family: var(--font-display); font-size: 1.28rem; font-weight: 400; line-height: 1.2; }
-    .place-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .95rem; }
-    .place-heading .certainty-label { margin-left: auto; }
-    .place-note { max-width: 62rem; margin: .38rem 0 0; color: var(--text-mid); font-size: .92rem; line-height: 1.55; }
-    .place-tradition { margin: .42rem 0 0; color: var(--text-mid); font-family: var(--font-ui); font-size: .74rem; line-height: 1.45; }
-    .place-links { display: flex; flex-wrap: wrap; gap: .3rem .7rem; margin-top: .48rem; font-family: var(--font-ui); font-size: .72rem; line-height: 1.45; }
-    .place-links a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
-    .place-links a:hover { border-bottom-color: var(--accent); }
-    .place-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    @media (max-width: 480px) {
-      h1 { font-size: 1.6rem; }
-      .place-heading .certainty-label { margin-left: 0; flex-basis: 100%; }
+    /* The certainty legend doubles as the filter; on a phone it sits on its
+       own line under the search field instead of jamming a heading. */
+    .places-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); padding-bottom: var(--space-5); }
+    .places-tools h2 { font: 600 var(--step--1)/1 var(--font-ui); color: var(--text-mid); }
+    .places-tools .pg-find { flex: 1 1 16rem; max-width: 22rem; }
+    .places-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+    .places-legend .pg-chip { text-transform: capitalize; }
+    @media (max-width: 760px) {
+      .places-tools .pg-find { flex-basis: 100%; max-width: none; }
+      .places-legend { width: 100%; }
+      .places-legend .pg-chips { gap: 0.375rem; }
+      .places-legend .pg-chip { padding: 0 0.75rem; }
     }
   </style>
   <Pwa />
+  <!-- The filter field needs script; without it the page is the full list. -->
+  <noscript><style is:inline>.pg-js { display: none !important; }</style></noscript>
 </head>
 <body>
   <SiteHeader section="Places" />
-  <main class="places-body">
-    <h1>Places {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
-    <p class="places-intro">A gazetteer for the Iliad and Odyssey. Each entry cites its anchoring passage(s); these curated citations are not an exhaustive concordance.</p>
-    <nav class="places-jump" aria-label="Jump to a letter">
-      {letters.map((letter) => <a href={`#letter-${letter}`}>{letter}</a>)}
+  <main class="pg places-body">
+    <header class="pg-head">
+      <p class="pg-eyebrow">Atlas</p>
+      <h1 class="pg-title">Places {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+      <p class="pg-intro places-intro">A gazetteer for the Iliad and Odyssey. Each entry cites its anchoring passage(s); these curated citations are not an exhaustive concordance.</p>
+    </header>
+    <div class="places-tools">
+      <label class="pg-find pg-js">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
+        <input type="search" id="places-find" placeholder="Find a place" autocomplete="off" spellcheck="false" aria-label="Find a place by name" />
+      </label>
+      <aside class="places-legend" aria-labelledby="certainty-legend">
+        <h2 id="certainty-legend">Certainty</h2>
+        <ul class="pg-chips">
+          {certaintyTiers.map((tier) => <li><button type="button" class="pg-chip" data-tier={tier} aria-pressed="false"><span class="pg-tier certainty-label" data-certainty={tier}>{tier}</span></button></li>)}
+        </ul>
+      </aside>
+      <span class="pg-count" id="places-count" aria-live="polite"></span>
+    </div>
+    <nav class="pg-bar" aria-label="Jump to a letter">
+      <div class="pg-jump places-jump">
+        {letters.map((letter) => <a href={`#letter-${letter}`} data-letter={letter}>{letter}</a>)}
+      </div>
     </nav>
-    <aside class="places-legend" aria-labelledby="certainty-legend">
-      <h2 id="certainty-legend">Certainty</h2>
-      <ul>
-        {certaintyTiers.map((tier) => <li><span class="certainty-label" data-certainty={tier}>{tier}</span></li>)}
-      </ul>
-    </aside>
-    <ol class="places-list">
+    <ol class="pg-rows places-list" id="places-list">
       {placeRows.map((row) => row.kind === 'letter' ? (
-        <li class="place-letter"><h2 id={`letter-${row.letter}`}>{row.letter}</h2></li>
+        <li class="pg-letter place-letter" data-letter={row.letter}><h2 id={`letter-${row.letter}`}>{row.letter}</h2></li>
       ) : (
-        <li class="place-entry">
+        <li class="pg-entry place-entry" data-name={row.place.name} data-tier={row.place.certainty} data-letter={row.place.name.charAt(0).toUpperCase()}>
           <div class="place-heading">
-            <h3>{row.place.name}</h3>
-            <span class="place-greek" lang="grc">{row.place.greek}</span>
-            <span class="certainty-label" data-certainty={row.place.certainty}>{row.place.certainty}</span>
+            <h3 class="pg-entry-name">{row.place.name}</h3>
+            <span class="pg-entry-greek place-greek" lang="grc">{row.place.greek}</span>
+            <p class="pg-entry-mark"><span class="pg-tier certainty-label" data-certainty={row.place.certainty}>{row.place.certainty}</span></p>
           </div>
-          <p class="place-note">{row.place.note}</p>
-          {row.place.tradition && <p class="place-tradition"><strong>Tradition:</strong> {row.place.tradition}</p>}
-          <div class="place-links">
-            {row.place.pleiades && <a href={row.place.pleiades} target="_blank" rel="noopener">Pleiades</a>}
-            {row.place.mentions.map((mention) => <a href={citationHref(mention)} aria-label={citationLabel(mention)}>{citationText(mention)}</a>)}
+          <div class="pg-entry-body">
+            <p class="place-note">{row.place.note}</p>
+            {row.place.tradition && <p class="is-minor place-tradition"><strong>Tradition:</strong> {row.place.tradition}</p>}
+            <div class="pg-cites place-links">
+              {row.place.pleiades && <a class="pg-cite" href={row.place.pleiades} target="_blank" rel="noopener">Pleiades</a>}
+              {row.place.mentions.map((mention) => <a class="pg-cite" href={citationHref(mention)} aria-label={citationLabel(mention)}>{citationText(mention)}</a>)}
+            </div>
           </div>
         </li>
       ))}
     </ol>
+    <p class="pg-empty" id="places-empty" hidden>No place matches.</p>
   </main>
+  <script>
+    import { wireIndexFilter } from '../../lib/index-filter';
+    wireIndexFilter({ list: 'places-list', input: 'places-find', count: 'places-count', empty: 'places-empty', chips: '.places-legend [data-tier]', chipKey: 'tier' });
+  </script>
 </body>
 </html>

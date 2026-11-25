@@ -35,13 +35,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <style is:global>
   .saved {
     width: 100%;
-    max-width: 1152px;
+    /* Same column and title size as the other reference pages. */
+    max-width: 82rem;
     margin: 0 auto;
-    padding: 48px 72px 72px;
+    padding: clamp(2rem, 4.2vw, 3.5rem) var(--space-5) 72px;
     font-family: var(--font-ui);
     color: var(--text);
   }
-  .saved h1 { margin: 0 0 18px; font: 400 2.75rem/1.1 var(--font-display); color: var(--text); }
+  .saved h1 { margin: 0 0 18px 0; font: 400 clamp(2.5rem, 4.6vw, 3.75rem)/1.02 var(--font-display); letter-spacing: -0.02em; color: var(--text); }
   .saved .saved-page { max-width: 760px; }
   .saved .sv-label { margin: 0; font: 500 1rem/1.4 var(--font-ui); color: var(--text-mid); }
   .saved .sv-tools { display: flex; flex-wrap: wrap; gap: 0 28px; margin-top: 10px; }
@@ -86,6 +87,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .saved .sv-item > .sv-input { margin-top: 10px; }
   @media (max-width: 960px) {
     .saved { padding: 28px 16px 48px; }
-    .saved h1 { font-size: 2.25rem; }
+    .saved h1 { font-size: clamp(2.25rem, 10.5vw, 2.75rem); }
   }
 </style>

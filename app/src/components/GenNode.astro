@@ -137,26 +137,27 @@ const incomingDashed = father?.nonHomeric === true;
     display: inline-flex;
     flex-direction: column;
     gap: 0.15rem;
-    padding: 0.45rem 0.65rem;
-    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-1);
     background: var(--col-bg);
     box-sizing: border-box;
     min-width: 7.5rem;
-    min-height: 2.4rem;
+    min-height: 2.75rem;
     justify-content: center;
   }
-  .mtree-card .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
-  .mtree-card .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
+  .mtree-card .gen-name { font-family: var(--font-display); font-weight: 400; font-size: 1.1875rem; line-height: 1.15; color: var(--text); }
+  .mtree-card .gen-greek { font-family: var(--font-greek); font-size: 1rem; line-height: 1.25; color: var(--text-mid); }
   /* index.astro's global .gen-role rule can't reach markup this component
      renders (same scoping gap noted above), so the chart card styles its
      own role text directly. */
   .mtree-card .gen-role {
     font-family: var(--font-english);
     font-style: italic;
-    font-size: 0.72rem;
+    font-size: 0.9375rem;
     line-height: 1.4;
     color: var(--text-mid);
-    margin-top: 0.1rem;
+    margin-top: 0.125rem;
   }
   /* Wraps [tie, spouse card] as one atomic flex item so a row wrap never
      strands the "+" away from the card it's pairing. */
@@ -167,6 +168,6 @@ const incomingDashed = father?.nonHomeric === true;
      later tradition, dotted = named but not a character in this edition. */
   .mtree-spouse.non-homeric { border-style: dashed; border-color: var(--accent); }
   .mtree-spouse.non-homeric .gen-name { color: var(--accent); }
-  .mtree-spouse.external { border-style: dotted; color: var(--text-light); font-style: italic; }
+  .mtree-spouse.external { border-style: dotted; color: var(--text-mid); font-style: italic; }
   .mtree-spouse.external.non-homeric { border-style: dashed; }
 </style>

@@ -21,6 +21,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -55,6 +56,9 @@ const jsonLd = {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <ThemeInit />
+  <!-- The prose opens with italic titles; fetching the italic face with the
+       others keeps its paragraphs from re-wrapping after first paint. -->
+  <link rel="preload" as="font" type="font/woff2" href={`${base}/fonts/gentium-book-plus-400i-latin.woff2`} crossorigin />
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
@@ -74,60 +78,22 @@ const jsonLd = {
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
     body { overflow-x: hidden; max-width: 100%; }
-    .about-body {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 2rem 1rem 4rem;
-      font-family: var(--font-english);
-      font-size: 0.95rem;
-      line-height: 1.75;
-      color: var(--text);
-    }
-    h1 {
-      font-family: var(--font-display);
-      font-weight: 400;
-      font-size: 1.9rem;
-      margin: 0 0 1.2rem;
-    }
-    h2 {
-      font-family: var(--font-ui);
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin: 2rem 0 0.4rem;
-      letter-spacing: .02em;
-    }
-    h2:first-of-type { margin-top: 0.5rem; }
-    p { margin: 0 0 0.9rem; }
-    a { color: var(--accent); }
-    .about-lede { font-size: 1.02rem; color: var(--text); }
-    .draft-example {
-      margin: 0 0 1.1rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--border);
-      background: var(--col-bg);
-      font-size: 0.88rem;
-      color: var(--text-mid);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .about-seealso {
-      margin-top: 2.25rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-      font-size: 0.9rem;
-      color: var(--text-mid);
-    }
+    /* Layout is the shared reference-page pattern (styles/edition-pages.css):
+       title block, then prose with each heading in the left column. */
+    .about-lede { max-width: 50rem; color: var(--text); }
+    .about-lede em, .pg-prose em { font-style: italic; }
+    .pg-prose .draft-badge { font-size: var(--step--2); vertical-align: 0.15em; }
+    .about-seealso { color: var(--text-mid); font-size: 1.0625rem; line-height: 1.6; }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="About" />
 
-  <main class="about-body">
-    <h1>About the Homer Reader</h1>
-    <p class="about-lede">
+  <main class="pg about-body">
+    <header class="pg-head">
+    <h1 class="pg-title">About the Homer Reader</h1>
+    <p class="pg-intro about-lede">
       The Homer Reader is a free parallel Greek&ndash;English edition of the
       <em>Iliad</em> and the <em>Odyssey</em>: the full Greek text of both
       poems beside a public-domain English translation, with click-to-parse
@@ -135,7 +101,9 @@ const jsonLd = {
       apparatus of maps, marginal scene summaries, timelines, and
       genealogies. There is no ad, no paywall, and no account.
     </p>
+    </header>
 
+    <div class="pg-prose">
     <h2>Its sources</h2>
     <p>
       The Greek text comes from T.&nbsp;W. Allen&rsquo;s 1931 edition of the
@@ -193,11 +161,13 @@ const jsonLd = {
       occasion, but they don&rsquo;t mind one either.
     </p>
 
+    <span class="pg-prose-label" aria-hidden="true"></span>
     <div class="about-seealso">
       If you enjoy the Catalogue of Ships map, Ethan Mollick built a lovely
       independent visualization of the same roster &mdash; worth a look:
       <a href="https://catalogue-of-ships.netlify.app" target="_blank" rel="noopener">
         catalogue-of-ships.netlify.app</a>.
+    </div>
     </div>
   </main>
 </body>

@@ -15,6 +15,7 @@ import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import { workPath } from '@shared/lib/works';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -68,50 +69,96 @@ const jsonLd = {
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
     body { overflow-x: hidden; max-width: 100%; }
-    /* Center the short funnel content in the viewport instead of top-loading it
-       and trailing a half-screen of empty page (#13). The block fills the space
-       below the sticky shell header; whitespace is distributed above and below. */
-    .start-body {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: var(--space-6) 1rem;
-      min-height: calc(100dvh - 3.6rem);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      font-family: var(--font-english);
-      color: var(--text);
+    /* The funnel's title panel: one dark band that carries both poems' grounds
+       from the home page (Iliad ember low on the left, Odyssey sea high on the
+       right), so an outside visitor lands on the same edition the home page
+       shows. Colours are the home hero's, local until they are tokens. */
+    .start-hero {
+      --hero-ink: #F6F0E4;
+      --hero-ink-soft: #D5CABB;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      color: var(--hero-ink);
+      background:
+        radial-gradient(70% 90% at 8% 130%, rgba(214, 106, 46, 0.55) 0%, rgba(160, 62, 30, 0.22) 40%, rgba(160, 62, 30, 0) 70%),
+        radial-gradient(60% 90% at 96% -30%, rgba(74, 142, 176, 0.5) 0%, rgba(40, 96, 130, 0.22) 42%, rgba(40, 96, 130, 0) 72%),
+        linear-gradient(180deg, #17151C 0%, #1B1820 100%);
     }
+    .start-hero-inner {
+      position: relative;
+      max-width: 82rem;
+      margin: 0 auto;
+      padding: clamp(2.5rem, 10vh, 6.5rem) var(--space-5) clamp(2.5rem, 9vh, 6rem);
+    }
+    .start-eyebrow { font-family: var(--font-greek); font-size: 0.875rem; letter-spacing: 0.34em; color: #F0B28A; margin: 0 0 1rem; }
+    .start-eyebrow span + span { color: #A9D6E8; margin-left: 1.25rem; }
     h1 {
       font-family: var(--font-display);
       font-weight: 400;
-      font-size: 2rem;
-      margin: 0 0 0.6rem;
+      font-size: clamp(3.25rem, 7.5vw, 6rem);
+      line-height: 0.98;
+      letter-spacing: -0.025em;
+      margin: 0 0 0 -0.03em;
+      color: var(--hero-ink);
     }
     .start-intro {
-      max-width: 42rem;
-      font-size: 0.98rem;
-      line-height: 1.65;
-      color: var(--text-mid);
-      margin-bottom: var(--space-2);
+      max-width: 36rem;
+      font-family: var(--font-english);
+      font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+      line-height: 1.45;
+      color: var(--hero-ink);
+      margin: 1.5rem 0 0;
+      text-wrap: pretty;
     }
-    /* Door-card styles live in the shared DoorCards.astro component (#10). */
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+    .start-art {
+      position: absolute;
+      right: var(--space-5);
+      bottom: 0;
+      width: min(42%, 34rem);
+      height: 82%;
+      background: #A9D6E8;
+      opacity: 0.4;
+      -webkit-mask: var(--art) right bottom / contain no-repeat;
+      mask: var(--art) right bottom / contain no-repeat;
+      z-index: -1;
+    }
+    /* Door-card styles live in the shared DoorCards.astro component (#10);
+       this page only sets the column they sit in. */
+    .start-body { padding-bottom: var(--space-7); }
+    /* On this page the three doors are the whole body, so they run a size up
+       from the home page's. */
+    .start-body :global(.door-label) { font-size: var(--step-3); }
+    .start-body :global(.door-body) { font-size: 1.25rem; max-width: 26rem; }
+    .start-body :global(.door-go) { font-size: 1rem; }
+    @media (max-width: 760px) { .start-body :global(.door-label) { font-size: var(--step-2); } .start-body :global(.door-body) { font-size: 1.125rem; } }
+    @media (max-width: 900px) {
+      .start-hero-inner { padding-left: var(--space-4); padding-right: var(--space-4); }
+      .start-art { width: 56%; height: 48%; right: 0; opacity: 0.24; }
+    }
+    @media (max-width: 560px) { .start-art { display: none; } }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Start Here" />
 
-  <main class="start-body">
-    <h1>Start Here</h1>
-    <p class="start-intro">
-      Three ways into the Iliad and the Odyssey, depending on what you want
-      first &mdash; the story, the Greek, or the geography. All three are
-      free, with no account required.
-    </p>
-
-    <DoorCards hrefs={doorHrefs} />
+  <main>
+    <section class="start-hero">
+      <div class="start-hero-inner">
+        <p class="start-eyebrow" lang="grc" aria-hidden="true"><span>ΙΛΙΑΣ</span><span>ΟΔΥΣΣΕΙΑ</span></p>
+        <h1>Start Here</h1>
+        <p class="start-intro">
+          Three ways into the Iliad and the Odyssey, depending on what you want
+          first &mdash; the story, the Greek, or the geography. All three are
+          free, with no account required.
+        </p>
+        <span class="start-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-sm.webp')`}></span>
+      </div>
+    </section>
+    <div class="pg start-body">
+      <DoorCards hrefs={doorHrefs} />
+    </div>
   </main>
 </body>
 </html>

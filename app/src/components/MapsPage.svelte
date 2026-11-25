@@ -941,21 +941,27 @@
      the shared .draft-badge rule are unchanged. */
   .mp-root > .draft-badge { align-self: flex-start; }
 
-  .mp-source-note { margin: 0; font-size: 0.82rem; color: var(--text-mid); font-style: italic; max-width: 62ch; }
+  .mp-source-note { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--text-mid); font-style: italic; max-width: 46rem; text-wrap: pretty; }
 
-  .mp-legend { display: flex; flex-wrap: wrap; gap: 0.9rem; font-family: var(--font-ui); font-size: 0.78rem; color: var(--text-mid); }
-  .mp-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+  .mp-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font: 600 var(--step--1)/1.2 var(--font-ui); color: var(--text); }
+  .mp-legend-item { display: flex; align-items: center; gap: 0.5rem; }
   .mp-mark { width: 10px; height: 10px; flex: none; display: inline-block; }
   .mp-mark.certain { border-radius: 50%; background: var(--accent); }
   .mp-mark.traditional { border-radius: 50%; border: 1.4px solid var(--accent); background: transparent; }
   .mp-mark.speculative { border-radius: 50%; border: 1.4px dashed var(--text-mid); background: transparent; }
   .mp-mark.mythical { border: 1.4px solid var(--text-mid); transform: rotate(45deg); width: 8px; height: 8px; }
 
-  .mp-tabs, .mp-subtabs { display: flex; gap: 0.3rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  /* One scrolling line of tabs, never a wrap (page chrome; the plates are untouched). */
+  .mp-tabs, .mp-subtabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .mp-tabs::-webkit-scrollbar, .mp-subtabs::-webkit-scrollbar { display: none; }
+  .mp-tabs { margin-top: 0.5rem; }
   .mp-tab, .mp-subtab {
-    padding: 0.45rem 0.9rem;
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    white-space: nowrap;
     font-family: var(--font-ui);
-    font-size: 0.86rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     background: none;
     border: none;
@@ -971,20 +977,21 @@
   .mp-explorer { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 1rem; align-items: start; }
   @media (max-width: 860px) { .mp-explorer { grid-template-columns: 1fr; } }
   .mp-map-column { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
-  .mp-selection-note { margin: 0; font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-mid); }
+  .mp-selection-note { margin: 0; font-family: var(--font-ui); font-size: 0.875rem; color: var(--text-mid); }
   .mp-clear-selection { margin-left: 0.35rem; padding: 0; color: var(--accent); background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
   .mp-clear-selection:hover { text-decoration: underline; }
   .mp-clear-selection:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .mp-route-note { margin: 0; font-size: 0.8rem; color: var(--text-mid); max-width: 68ch; }
+  .mp-route-note { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--text-mid); max-width: 46rem; text-wrap: pretty; }
 
   .mp-story-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; }
 
   .mp-story-toggle { display: inline-flex; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem; width: fit-content; }
   .mp-story-btn {
-    padding: 0.3rem 0.85rem;
+    min-height: 2rem;
+    padding: 0 0.875rem;
     font-family: var(--font-ui);
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     background: none;
     color: var(--text-mid);
@@ -1000,9 +1007,10 @@
      the Map/Story toggle. */
   .mp-player { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-ui); }
   .mp-player-btn {
-    padding: 0.3rem 0.7rem;
+    min-height: 2rem;
+    padding: 0 0.75rem;
     font-family: var(--font-ui);
-    font-size: 0.78rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     background: none;
     color: var(--text);
@@ -1013,7 +1021,7 @@
   .mp-player-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
   .mp-player-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .mp-player-btn:disabled { opacity: 0.4; cursor: default; }
-  .mp-player-indicator { font-size: 0.78rem; color: var(--text-mid); font-variant-numeric: tabular-nums; }
+  .mp-player-indicator { font-size: 0.8125rem; color: var(--text-mid); font-variant-numeric: tabular-nums; }
 
   /* Mobile fallback for story-mode captions (LandmarkMap hides its
      always-visible caption cards below 480px — see that component's own
@@ -1036,8 +1044,8 @@
   .mp-story-mobile-list a:focus-visible { background: var(--greek-hover); }
   .mp-story-mobile-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .mp-story-item-body { flex: 1; min-width: 0; }
-  .mp-story-item-name { display: block; font-weight: 700; font-size: 0.85rem; }
-  .mp-story-item-note { display: block; font-size: 0.76rem; color: var(--text-mid); }
+  .mp-story-item-name { display: block; font-weight: 700; font-size: 0.9375rem; }
+  .mp-story-item-note { display: block; font-size: 0.8125rem; line-height: 1.4; color: var(--text-mid); }
 
   .mp-story-num {
     flex: none;
@@ -1054,8 +1062,8 @@
   }
 
   .mp-beyond-edge { border-top: 1px dashed var(--border); padding-top: 0.7rem; font-family: var(--font-ui); }
-  .mp-beyond-edge h2 { margin: 0 0 0.2rem; font-size: 0.86rem; font-family: var(--font-display); font-weight: 600; color: var(--text); }
-  .mp-beyond-edge-note { margin: 0 0 0.5rem; font-size: 0.78rem; color: var(--text-mid); font-style: italic; max-width: 60ch; }
+  .mp-beyond-edge h2 { margin: 0 0 0.25rem; font-size: var(--step-1); font-family: var(--font-display); font-weight: 400; line-height: 1.2; color: var(--text); }
+  .mp-beyond-edge-note { margin: 0 0 0.75rem; font-size: 0.9375rem; line-height: 1.5; color: var(--text-mid); font-style: italic; max-width: 46rem; }
   .mp-beyond-edge ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
   .mp-beyond-edge li { border: 1px solid var(--border); border-radius: 6px; }
   .mp-beyond-edge a {
@@ -1065,14 +1073,14 @@
     padding: 0.45rem 0.6rem;
     text-decoration: none;
     color: var(--text);
-    font-size: 0.82rem;
+    font-size: 0.9375rem;
   }
   .mp-beyond-edge a:hover,
   .mp-beyond-edge a:focus-visible { background: var(--greek-hover); }
   .mp-beyond-edge a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .mp-beyond-edge-item { color: var(--text-mid); }
 
-  .mp-journey-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-family: var(--font-ui); font-size: 0.84rem; color: var(--text); }
+  .mp-journey-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-family: var(--font-ui); font-size: 0.875rem; font-weight: 600; color: var(--text); }
   .mp-journey-legend-item { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
   .mp-journey-legend-item input { cursor: pointer; }
   .mp-journey-swatch { width: 32px; height: 6px; flex: none; }
@@ -1080,17 +1088,17 @@
 
   /* Verified traveler-timing notes (John, 2026-07-18) — text-parity
      companion to the map's own note markers; see the Journeys tab markup. */
-  .mp-journey-timing { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
-  .mp-journey-timing h2 { margin: 0 0 0.3rem; font-size: 0.86rem; font-family: var(--font-display); font-weight: 600; color: var(--text); }
+  .mp-journey-timing { font-family: var(--font-ui); font-size: 0.9375rem; line-height: 1.5; color: var(--text-mid); }
+  .mp-journey-timing h2 { margin: 0 0 0.5rem; font-size: var(--step-1); font-family: var(--font-display); font-weight: 400; line-height: 1.2; color: var(--text); }
   .mp-journey-timing ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
   .mp-journey-timing strong { color: var(--text); }
   .mp-timing-greek { font-family: var(--font-greek); margin: 0 0.3rem; }
-  .mp-timing-cite { color: var(--text-light); }
+  .mp-timing-cite { color: var(--text-mid); }
 
-  .mp-unlocated { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
+  .mp-unlocated { font-family: var(--font-ui); font-size: 0.9375rem; line-height: 1.5; color: var(--text-mid); }
   .mp-unlocated summary { cursor: pointer; font-weight: 600; color: var(--text); }
   .mp-unlocated ul { margin: 0.5rem 0 0; padding-left: 1.2rem; columns: 2; column-gap: 1.5rem; }
   @media (max-width: 640px) { .mp-unlocated ul { columns: 1; } }
   .mp-unlocated li { margin-bottom: 0.15rem; break-inside: avoid; }
-  .mp-tier-word { color: var(--text-light); }
+  .mp-tier-word { color: var(--text-mid); }
 </style>

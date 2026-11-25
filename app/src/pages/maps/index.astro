@@ -21,6 +21,7 @@ import MapsPage from '../../components/MapsPage.svelte';
 import { jsonLdSafe } from '../../lib/jsonld';
 import type { Place, Contingent, CharacterRef } from '@shared/lib/maps';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -83,44 +84,26 @@ const jsonLd = {
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
     body { overflow-x: hidden; max-width: 100%; }
-    .maps-body {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 2rem 1rem 4.5rem;
-      font-family: var(--font-english);
-      color: var(--text);
-    }
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      font-family: var(--font-display);
-      font-weight: 400;
-      font-size: 1.9rem;
-      margin-bottom: 0.6rem;
-    }
-    .maps-intro {
-      max-width: 62ch;
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--text-mid);
-      margin-bottom: 1.6rem;
-    }
-    @media (max-width: 480px) { h1 { font-size: 1.55rem; } }
+    /* Title block is the shared reference-page pattern
+       (styles/edition-pages.css); the atlas below it is MapsPage.svelte. */
+    .maps-body .pg-head { padding-bottom: var(--space-5); }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Maps" />
 
-  <main class="maps-body">
-    <h1>Maps</h1>
-    <p class="maps-intro">
+  <main class="pg maps-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow">Atlas</p>
+    <h1 class="pg-title">Maps</h1>
+    <p class="pg-intro maps-intro">
       Every place named in the Iliad and Odyssey that a real map can show:
       the Catalogue of Ships as an explorable atlas, the country around Troy,
       Odysseus&rsquo;s sea voyage, and the homes and homecomings of Greece
       &mdash; each pin marked with how certain its identification actually is.
     </p>
+    </header>
 
     <MapsPage
       client:only="svelte"

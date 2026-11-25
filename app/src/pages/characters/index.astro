@@ -32,6 +32,7 @@ import {
   type SpeechJoin,
 } from '@shared/lib/network';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -84,35 +85,154 @@ const connectedIds = characters
   .sort((a, b) => weightOf(b) - weightOf(a) || a.localeCompare(b));
 const isolateCount = characters.length - connectedIds.length;
 
-const WIDTH = 980;
-const HEIGHT = 760;
+// Which poem a figure speaks in (or is spoken to in), from the same joined
+// speech records the dialogue edges are built from. A display grouping only:
+// it colours the nodes and drives the roster filter, and is computed here,
+// never stored.
+type Poem = 'iliad' | 'odyssey' | 'both' | 'none';
+const partiesOf = (speeches: SpeechRecord[]) => {
+  const set = new Set<string>();
+  for (const sp of speeches) for (const id of [...sp.speaker, ...sp.addressee]) if (characterIds.has(id)) set.add(id);
+  return set;
+};
+const inIliad = partiesOf(iliadSpeeches);
+const inOdyssey = partiesOf(odysseySpeeches);
+const poemOf = (id: string): Poem =>
+  inIliad.has(id) ? (inOdyssey.has(id) ? 'both' : 'iliad') : inOdyssey.has(id) ? 'odyssey' : 'none';
+const POEM_LABEL: Record<Poem, string> = { iliad: 'Iliad', odyssey: 'Odyssey', both: 'Both poems', none: 'No speech' };
+const poemOrder: Poem[] = ['iliad', 'odyssey', 'both', 'none'];
+
+const WIDTH = 1000;
+const HEIGHT = 700;
 const layoutEdges = [
   ...kinshipEdges.map((e) => ({ source: e.source, target: e.target, weight: 1 })),
   ...speechEdgesRaw.map((e) => ({ source: e.a, target: e.b, weight: e.count })),
 ];
-const positions = layoutNetwork(connectedIds, layoutEdges, { width: WIDTH, height: HEIGHT });
-const positionById = new Map(positions.map((p) => [p.id, p]));
+const rawPositions = layoutNetwork(connectedIds, layoutEdges, { width: WIDTH, height: HEIGHT });
 const charById = new Map(characters.map((c) => [c.id, c]));
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-const radiusFor = (w: number) => clamp(4 + Math.sqrt(w) * 1.3, 4, 22);
-// Data-derived, not hand-picked: the smallest weight cutoff that keeps the
-// direct-label count legible. Reported in the caption exactly, not implied.
-const LABEL_MIN_WEIGHT = 10;
+const radiusFor = (w: number) => clamp(4.5 + Math.sqrt(w) * 1.35, 4.5, 22);
+
+// Presentation pass over the force layout (the positions carry no data, only
+// the links do). The simulation packs the best-connected figures into a knot
+// at the centre and pins the rest against the frame, which is what made the
+// diagram unreadable. Three steps, all deterministic:
+//   1. open the core: scale each node's distance from the centroid by a
+//      power < 1, so the middle spreads and the rim comes in;
+//   2. fit the result to the canvas, with room for a name under every node;
+//   3. push apart any two discs that still touch.
+const PAD_X = 64;
+const PAD_TOP = 26;
+const PAD_BOTTOM = 40;
+const positions = (() => {
+  const pts = rawPositions.map((p) => ({ id: p.id, x: p.x, y: p.y, r: radiusFor(weightOf(p.id)) }));
+  const mx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
+  const my = pts.reduce((a, p) => a + p.y, 0) / pts.length;
+  const maxR = Math.max(...pts.map((p) => Math.hypot(p.x - mx, p.y - my))) || 1;
+  for (const p of pts) {
+    const d = Math.hypot(p.x - mx, p.y - my);
+    if (d < 0.001) continue;
+    const k = (Math.pow(d / maxR, 0.6) * maxR) / d;
+    p.x = mx + (p.x - mx) * k;
+    p.y = my + (p.y - my) * k;
+  }
+  const fit = () => {
+    const minX = Math.min(...pts.map((p) => p.x));
+    const maxX = Math.max(...pts.map((p) => p.x));
+    const minY = Math.min(...pts.map((p) => p.y));
+    const maxY = Math.max(...pts.map((p) => p.y));
+    for (const p of pts) {
+      p.x = PAD_X + ((p.x - minX) / (maxX - minX || 1)) * (WIDTH - 2 * PAD_X);
+      p.y = PAD_TOP + ((p.y - minY) / (maxY - minY || 1)) * (HEIGHT - PAD_TOP - PAD_BOTTOM);
+    }
+  };
+  fit();
+  const GAP = 30;
+  for (let iter = 0; iter < 120; iter++) {
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const a = pts[i];
+        const b = pts[j];
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let d = Math.hypot(dx, dy);
+        if (d < 0.001) { dx = 1; dy = 0; d = 1; }
+        const min = a.r + b.r + GAP;
+        if (d < min) {
+          const push = (min - d) / 2;
+          a.x -= (dx / d) * push; a.y -= (dy / d) * push;
+          b.x += (dx / d) * push; b.y += (dy / d) * push;
+        }
+      }
+    }
+    for (const p of pts) {
+      p.x = clamp(p.x, PAD_X, WIDTH - PAD_X);
+      p.y = clamp(p.y, PAD_TOP, HEIGHT - PAD_BOTTOM);
+    }
+  }
+  return pts;
+})();
+const positionById = new Map(positions.map((p) => [p.id, p]));
+
+// Names: every node asks for one, best-connected first, and takes the first
+// of eight positions round its disc that touches no other name and no other
+// disc. A node with no free position goes unnamed (hover or the roster names
+// it), so no two labels ever collide. The caption reports the count.
+const LABEL_SIZE = 13;
+const CHAR_W = LABEL_SIZE * 0.58;
+type Anchor = 'middle' | 'start' | 'end';
+interface LabelSpot { x: number; y: number; anchor: Anchor; }
+interface Box { x0: number; y0: number; x1: number; y1: number; }
+const overlaps = (a: Box, b: Box) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+const labelBoxes: Box[] = [];
+const labelSpot = new Map<string, LabelSpot>();
+for (const id of connectedIds) {
+  const p = positionById.get(id)!;
+  const name = charById.get(id)!.name;
+  const w = name.length * CHAR_W + 4;
+  const h = LABEL_SIZE + 3;
+  const g = p.r + 4;
+  const diag = p.r * 0.72 + 3;
+  const candidates: { spot: LabelSpot; box: Box }[] = [
+    { spot: { x: p.x, y: p.y + g + LABEL_SIZE - 2, anchor: 'middle' }, box: { x0: p.x - w / 2, y0: p.y + g, x1: p.x + w / 2, y1: p.y + g + h } },
+    { spot: { x: p.x, y: p.y - g - 3, anchor: 'middle' }, box: { x0: p.x - w / 2, y0: p.y - g - h, x1: p.x + w / 2, y1: p.y - g } },
+    { spot: { x: p.x + g + 1, y: p.y + LABEL_SIZE * 0.35, anchor: 'start' }, box: { x0: p.x + g, y0: p.y - h / 2, x1: p.x + g + w, y1: p.y + h / 2 } },
+    { spot: { x: p.x - g - 1, y: p.y + LABEL_SIZE * 0.35, anchor: 'end' }, box: { x0: p.x - g - w, y0: p.y - h / 2, x1: p.x - g, y1: p.y + h / 2 } },
+    { spot: { x: p.x + diag, y: p.y + diag + LABEL_SIZE - 2, anchor: 'start' }, box: { x0: p.x + diag, y0: p.y + diag, x1: p.x + diag + w, y1: p.y + diag + h } },
+    { spot: { x: p.x - diag, y: p.y + diag + LABEL_SIZE - 2, anchor: 'end' }, box: { x0: p.x - diag - w, y0: p.y + diag, x1: p.x - diag, y1: p.y + diag + h } },
+    { spot: { x: p.x + diag, y: p.y - diag - 3, anchor: 'start' }, box: { x0: p.x + diag, y0: p.y - diag - h, x1: p.x + diag + w, y1: p.y - diag } },
+    { spot: { x: p.x - diag, y: p.y - diag - 3, anchor: 'end' }, box: { x0: p.x - diag - w, y0: p.y - diag - h, x1: p.x - diag, y1: p.y - diag } },
+  ];
+  for (const c of candidates) {
+    if (c.box.x0 < 2 || c.box.x1 > WIDTH - 2 || c.box.y0 < 2 || c.box.y1 > HEIGHT - 2) continue;
+    if (labelBoxes.some((b) => overlaps(b, c.box))) continue;
+    const hitsDisc = positions.some((o) => o.id !== id
+      && o.x + o.r > c.box.x0 && o.x - o.r < c.box.x1 && o.y + o.r > c.box.y0 && o.y - o.r < c.box.y1);
+    if (hitsDisc) continue;
+    labelBoxes.push(c.box);
+    labelSpot.set(id, c.spot);
+    break;
+  }
+}
 
 const nodes = connectedIds.map((id) => {
   const c = charById.get(id)!;
   const p = positionById.get(id)!;
-  const w = weightOf(id);
+  const spot = labelSpot.get(id);
   return {
     id,
     name: c.name,
     greek: c.greek,
     role: c.role,
+    poem: poemOf(id),
     x: p.x,
     y: p.y,
-    r: radiusFor(w),
-    showLabel: w >= LABEL_MIN_WEIGHT,
+    r: p.r,
+    showLabel: Boolean(spot),
+    labelX: spot?.x,
+    labelY: spot?.y,
+    labelAnchor: spot?.anchor,
   };
 });
 const labeledCount = nodes.filter((n) => n.showLabel).length;
@@ -202,106 +322,183 @@ const jsonLd = {
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <style is:global>
+  <style>
     body { overflow-x: hidden; max-width: 100%; }
-    .chars-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .chars-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
+    .chars-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); padding-bottom: var(--space-5); }
+    .chars-tools .pg-find { flex: 1 1 16rem; max-width: 22rem; }
+    .chars-key { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+    .chars-key-label { font: 600 var(--step--1)/1 var(--font-ui); color: var(--text-mid); }
 
-    .chars-network { margin-top: 2rem; padding: 1rem 1rem 0.6rem; border: 1px solid var(--border); border-top: 2px solid var(--rule-strong); }
-    .chars-caption { max-width: 62rem; margin: 0.7rem 0 0; color: var(--text-mid); font-family: var(--font-ui); font-size: .74rem; line-height: 1.55; }
-
-    .chars-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.4rem; margin-top: .85rem; padding-top: .7rem; border-top: 1px solid var(--border); font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); }
-    .chars-legend-item { display: flex; align-items: center; gap: .4rem; white-space: nowrap; }
-    .chars-legend-swatch { display: inline-block; width: 20px; height: 0; border-top: 2px solid var(--rule-strong); }
+    /* The diagram and its key side by side: the key is what makes the
+       picture readable, so it is not a footnote under it. */
+    .chars-network {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 19rem);
+      border-top: 2px solid var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .chars-figure { min-width: 0; align-self: center; padding: var(--space-4) var(--space-5) var(--space-4) 0; }
+    .chars-side { padding: var(--space-5) 0 var(--space-5) var(--space-5); border-left: 1px solid var(--border); }
+    .chars-side h3 { font: 600 var(--step--1)/1.2 var(--font-ui); color: var(--text-mid); margin-bottom: 0.75rem; }
+    .chars-legend { display: grid; gap: 0.625rem; font: 500 0.875rem/1.3 var(--font-ui); color: var(--text); }
+    .chars-legend + h3 { margin-top: var(--space-5); }
+    .chars-legend-item { display: flex; align-items: center; gap: 0.625rem; }
+    .chars-legend-swatch { flex: none; display: inline-block; width: 1.75rem; height: 0; border-top: 2px solid var(--rule-strong); }
     .chars-legend-swatch.nonhomeric { border-top-color: var(--accent); border-top-style: dashed; }
-    .chars-legend-swatch.speech { border-top-color: var(--text-mid); border-top-width: 2.5px; opacity: .6; }
-    .chars-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); opacity: .82; }
+    .chars-legend-swatch.speech { border-top-color: var(--text-mid); border-top-width: 3px; opacity: .55; }
+    .chars-legend-dot { flex: none; display: inline-block; width: 1.75rem; height: 0.875rem; background: radial-gradient(circle at 0.3rem 50%, var(--text-mid) 0.2rem, transparent 0.22rem), radial-gradient(circle at 1.3rem 50%, var(--text-mid) 0.42rem, transparent 0.44rem); }
+    .chars-caption { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); font: 400 0.875rem/1.55 var(--font-ui); color: var(--text-mid); }
 
-    .chars-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 2rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
-    .chars-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
-    .chars-jump a:hover { border-bottom-color: var(--accent); }
-    .chars-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .chars-roster-head { display: flex; align-items: baseline; gap: var(--space-4); margin-top: var(--space-7); padding-bottom: var(--space-4); }
+    /* Two columns that read down, not across, with each letter spanning both. */
+    .roster-list { columns: 2; column-gap: var(--space-7); }
+    .roster-list .pg-letter { column-span: all; margin-bottom: 0; }
+    .roster-item { display: block; padding: var(--space-4) 0 var(--space-5); break-inside: avoid; }
+    .roster-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.125rem 0.75rem; }
+    .roster-heading .pg-entry-greek { display: inline; margin-top: 0; }
+    .roster-role { margin-top: 0.375rem; font-size: 1.0625rem; line-height: 1.55; color: var(--text); text-wrap: pretty; }
+    .roster-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin-top: 0.75rem; }
+    .roster-meta .pg-cites { margin-top: 0; }
+    .roster-poem { display: inline-flex; align-items: center; gap: 0.5rem; font: 500 var(--step--1)/1 var(--font-ui); color: var(--text-mid); }
 
-    .chars-roster-heading { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin-top: .6rem; }
-    .roster-list { max-width: 65rem; margin: 0; padding: 0; list-style: none; }
-    .roster-letter { scroll-margin-top: 1rem; }
-    .roster-letter h2 { font-family: var(--font-ui); font-size: .78rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--text-mid); margin: 2rem 0 .2rem; padding-top: .6rem; border-top: 2px solid var(--rule-strong); }
-    .roster-letter:first-child h2 { margin-top: 0; padding-top: 0; border-top: none; }
-    .roster-item { padding: 1rem 0; border-bottom: 1px solid var(--border); scroll-margin-top: 1rem; }
-    .roster-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .55rem; }
-    .roster-name-link { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; line-height: 1.2; color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
-    .roster-name-link:hover { border-bottom-color: var(--accent); }
-    .roster-name-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .roster-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .92rem; }
-    .roster-role { max-width: 60rem; margin: .35rem 0 0; color: var(--text-mid); font-size: .88rem; line-height: 1.5; }
-    .roster-links { display: flex; flex-wrap: wrap; gap: .3rem .7rem; margin-top: .45rem; font-family: var(--font-ui); font-size: .7rem; }
-    .roster-links a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
-    .roster-links a:hover { border-bottom-color: var(--accent); }
-    .roster-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+    @media (max-width: 1000px) {
+      .chars-network { grid-template-columns: minmax(0, 1fr); }
+      .chars-figure { padding-right: 0; }
+      .chars-side { padding-left: 0; border-left: 0; border-top: 1px solid var(--border); }
+    }
+    @media (max-width: 760px) {
+      .chars-tools .pg-find { flex-basis: 100%; max-width: none; }
+      .chars-key { width: 100%; }
+      .chars-key .pg-chip { padding: 0 0.75rem; }
+      .roster-list { columns: 1; }
+      .chars-roster-head { margin-top: var(--space-6); }
+    }
   </style>
   <Pwa />
+  <!-- The filter field needs script; without it the page is the full list. -->
+  <noscript><style is:inline>.pg-js { display: none !important; }</style></noscript>
 </head>
 <body>
   <SiteHeader section="Characters" />
-  <main class="chars-body">
-    <h1>Characters {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
-    <p class="chars-intro">
-      Every named figure in this edition's character apparatus, with a computed network of who is kin to whom and
-      who speaks to whom across the Iliad and Odyssey. The roster below lists all {characters.length}; the diagram
-      above it draws only those with at least one link.
-    </p>
+  <main class="pg chars-body">
+    <header class="pg-head">
+      <p class="pg-eyebrow">People</p>
+      <h1 class="pg-title">Characters {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
+      <p class="pg-intro chars-intro">
+        Every named figure in this edition's character apparatus, with a computed network of who is kin to whom and
+        who speaks to whom across the Iliad and Odyssey. The roster below lists all {characters.length}; the diagram
+        above it draws only those with at least one link.
+      </p>
+    </header>
+
+    <div class="chars-tools">
+      <label class="pg-find pg-js">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
+        <input type="search" id="chars-find" placeholder="Find a character" autocomplete="off" spellcheck="false" aria-label="Find a character by name" />
+      </label>
+      <div class="chars-key" role="group" aria-labelledby="chars-key-label">
+        <span class="chars-key-label" id="chars-key-label">Speaks in</span>
+        <ul class="pg-chips">
+          {poemOrder.map((poem) => <li><button type="button" class="pg-chip" data-poem={poem} aria-pressed="false"><span class="poem-mark" data-poem={poem} aria-hidden="true"></span>{POEM_LABEL[poem]}</button></li>)}
+        </ul>
+      </div>
+      <span class="pg-count" id="chars-count" aria-live="polite"></span>
+    </div>
 
     <section class="chars-network" aria-labelledby="network-heading">
       <h2 id="network-heading" class="sr-only">Character relationship network</h2>
-      <CharacterNetwork width={WIDTH} height={HEIGHT} nodes={nodes} kinshipEdges={kinshipEdgeData} speechEdges={speechEdgeData} />
-      <p class="chars-caption">
-        All {connectedIds.length} of {characters.length} characters with at least one kinship or dialogue link are
-        shown ({isolateCount} with neither link in the joined data appear in the roster only). {labeledCount} of the
-        most-connected are labeled directly; hover a node, or Tab to a roster name below, to see the rest. Node size scales with
-        kinship + dialogue links. {kinshipEdges.length} kinship lines come from this edition's genealogy data ({nonHomericKinshipCount} dashed,
-        attested outside Homer). {speechEdgesRaw.length} dialogue lines aggregate {joinedSpeechCount} of {totalSpeechCount} DICES-derived
-        speeches with a single joined speaker and addressee (line weight capped at {MAX_SPEECH_WIDTH_COUNT} speeches
-        so the busiest pairs don't dwarf the rest); {excludedUnjoined} speeches with a collective or unmatched
-        speaker/addressee and {excludedSelf} self-addressed speeches carry no two-person edge and are excluded.
-      </p>
-      <div class="chars-legend">
-        <span class="chars-legend-item"><span class="chars-legend-swatch" aria-hidden="true"></span>kinship, attested in Homer</span>
-        <span class="chars-legend-item"><span class="chars-legend-swatch nonhomeric" aria-hidden="true"></span>kinship, later tradition (not Homer)</span>
-        <span class="chars-legend-item"><span class="chars-legend-swatch speech" aria-hidden="true"></span>dialogue (weight = speech count)</span>
-        <span class="chars-legend-item"><span class="chars-legend-dot" aria-hidden="true"></span>node size = kinship + dialogue links</span>
+      <div class="chars-figure">
+        <CharacterNetwork width={WIDTH} height={HEIGHT} labelSize={LABEL_SIZE} nodes={nodes} kinshipEdges={kinshipEdgeData} speechEdges={speechEdgeData} />
+      </div>
+      <div class="chars-side">
+        <h3>Nodes: the poem a figure speaks in</h3>
+        <div class="chars-legend">
+          {poemOrder.map((poem) => <span class="chars-legend-item"><span class="poem-mark" data-poem={poem} aria-hidden="true"></span>{POEM_LABEL[poem]}</span>)}
+          <span class="chars-legend-item"><span class="chars-legend-dot" aria-hidden="true"></span>node size = kinship + dialogue links</span>
+        </div>
+        <h3>Lines</h3>
+        <div class="chars-legend">
+          <span class="chars-legend-item"><span class="chars-legend-swatch" aria-hidden="true"></span>kinship, attested in Homer</span>
+          <span class="chars-legend-item"><span class="chars-legend-swatch nonhomeric" aria-hidden="true"></span>kinship, later tradition (not Homer)</span>
+          <span class="chars-legend-item"><span class="chars-legend-swatch speech" aria-hidden="true"></span>dialogue (weight = speech count)</span>
+        </div>
+        <p class="chars-caption">
+          All {connectedIds.length} of {characters.length} characters with at least one kinship or dialogue link are
+          shown ({isolateCount} with neither link in the joined data appear in the roster only). {labeledCount} of the
+          most-connected are labeled directly; hover a node, or Tab to a roster name below, to see the rest. Node size scales with
+          kinship + dialogue links. {kinshipEdges.length} kinship lines come from this edition's genealogy data ({nonHomericKinshipCount} dashed,
+          attested outside Homer). {speechEdgesRaw.length} dialogue lines aggregate {joinedSpeechCount} of {totalSpeechCount} DICES-derived
+          speeches with a single joined speaker and addressee (line weight capped at {MAX_SPEECH_WIDTH_COUNT} speeches
+          so the busiest pairs don't dwarf the rest); {excludedUnjoined} speeches with a collective or unmatched
+          speaker/addressee and {excludedSelf} self-addressed speeches carry no two-person edge and are excluded.
+        </p>
       </div>
     </section>
 
-    <h2 class="chars-roster-heading" id="roster">Roster</h2>
-    <nav class="chars-jump" aria-label="Jump to a letter">
-      {letters.map((letter) => <a href={`#letter-${letter}`}>{letter}</a>)}
+    <div class="chars-roster-head">
+      <h2 class="pg-h2 chars-roster-heading" id="roster">Roster</h2>
+    </div>
+    <nav class="pg-bar" aria-label="Jump to a letter">
+      <div class="pg-jump chars-jump">
+        {letters.map((letter) => <a href={`#letter-${letter}`} data-letter={letter}>{letter}</a>)}
+      </div>
     </nav>
-    <ol class="roster-list">
+    <ol class="pg-rows roster-list" id="roster-list">
       {rosterRows.map((row) => row.kind === 'letter' ? (
-        <li class="roster-letter"><h3 id={`letter-${row.letter}`}>{row.letter}</h3></li>
+        <li class="pg-letter roster-letter" data-letter={row.letter}><h3 id={`letter-${row.letter}`}>{row.letter}</h3></li>
       ) : (
-        <li class="roster-item" id={`roster-${row.character.id}`}>
+        <li class="pg-entry roster-item" id={`roster-${row.character.id}`} data-id={row.character.id} data-name={row.character.name} data-poem={poemOf(row.character.id)} data-letter={row.character.name.charAt(0).toUpperCase()}>
           <div class="roster-heading">
-            <a class="roster-name-link" href={`#roster-${row.character.id}`} data-char-id={row.character.id}>{row.character.name}</a>
-            <span class="roster-greek" lang="grc">{row.character.greek}</span>
+            <a class="pg-entry-name roster-name-link" href={`#roster-${row.character.id}`} data-char-id={row.character.id}>{row.character.name}</a>
+            <span class="pg-entry-greek roster-greek" lang="grc">{row.character.greek}</span>
           </div>
           <p class="roster-role">{row.character.role}</p>
-          {formulaLinks(row.character.id).length > 0 && (
-            <div class="roster-links">
-              {formulaLinks(row.character.id).map((l) => <a href={l.href}>{l.label}</a>)}
-            </div>
-          )}
+          <div class="roster-meta">
+            <span class="roster-poem"><span class="poem-mark" data-poem={poemOf(row.character.id)} aria-hidden="true"></span>{POEM_LABEL[poemOf(row.character.id)]}</span>
+            {formulaLinks(row.character.id).length > 0 && (
+              <div class="pg-cites roster-links">
+                {formulaLinks(row.character.id).map((l) => <a class="pg-cite" href={l.href}>{l.label}</a>)}
+              </div>
+            )}
+          </div>
         </li>
       ))}
     </ol>
-    <footer class="computed-note">
+    <p class="pg-empty" id="chars-empty" hidden>No character matches.</p>
+    <footer class="pg-note computed-note">
       Kinship links are computed from this edition's genealogy data; dialogue links are computed from DICES-derived
       speech spans (CC BY 4.0), joined to this apparatus by name.{isDraft && ' Character apparatus is a draft, pending review.'}
     </footer>
   </main>
+  <script>
+    import { wireIndexFilter } from '../../lib/index-filter';
+    wireIndexFilter({
+      list: 'roster-list', input: 'chars-find', count: 'chars-count', empty: 'chars-empty',
+      chips: '.chars-key [data-poem]', chipKey: 'poem',
+      // The same filter dims the diagram: the nodes that are not showing in
+      // the roster fall back, so a name or a poem can be picked out of it.
+      onChange(visible) {
+        const svg = document.querySelector('.cn-svg');
+        if (!svg) return;
+        svg.classList.toggle('is-filtered', visible !== null);
+        svg.querySelectorAll<SVGGElement>('.cn-node').forEach((n) => n.classList.toggle('is-match', visible !== null && visible.has(n.dataset.id ?? '')));
+        svg.querySelectorAll<SVGTextElement>('.cn-label').forEach((t) => t.classList.toggle('is-match', visible !== null && visible.has(t.dataset.for ?? '')));
+        svg.querySelectorAll<SVGLineElement>('.cn-edge').forEach((e) => e.classList.toggle('is-match', visible !== null && visible.has(e.dataset.a ?? '') && visible.has(e.dataset.b ?? '')));
+      },
+    });
+  </script>
+  <style is:global>
+    /* Poem marks: one disc per figure, in the poem's own colour; a figure who
+       speaks in both is split down the middle, so the pair never depends on
+       telling two reds apart. Shared by the legend, the chips, the roster and
+       the diagram's nodes (CharacterNetwork.astro draws the same four). */
+    .poem-mark { flex: none; display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 50%; box-sizing: border-box; }
+    .poem-mark[data-poem="iliad"] { background: var(--iliad); }
+    .poem-mark[data-poem="odyssey"] { background: var(--odyssey); }
+    .poem-mark[data-poem="both"] { background: linear-gradient(90deg, var(--iliad) 50%, var(--odyssey) 50%); }
+    .poem-mark[data-poem="none"] { border: 1.5px solid var(--text-mid); }
+    .pg-chip[aria-pressed="true"] .poem-mark[data-poem="none"] { border-color: var(--page-bg); }
+    .pg-chip[aria-pressed="true"] .poem-mark { box-shadow: 0 0 0 1.5px var(--page-bg); }
+  </style>
 </body>
 </html>

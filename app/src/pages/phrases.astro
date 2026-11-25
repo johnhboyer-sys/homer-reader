@@ -61,16 +61,18 @@ const jsonLd = {
 </html>
 
 <style>
+  /* Chrome only: the note above the phrase search, set on the same centred
+     column as the search body below (Phrases.svelte, not restyled here). */
   .phrases-distinction {
-    max-width: 46rem;
+    box-sizing: content-box;
+    max-width: 49.25rem;
     margin: 0 auto;
-    padding: 1rem 1.25rem 0;
+    padding: var(--space-5) var(--space-4) 0;
     color: var(--text-mid);
-    font-family: var(--font-ui);
-    font-size: 0.9rem;
+    font-family: var(--font-english);
+    font-size: 1.0625rem;
     line-height: 1.55;
+    text-wrap: pretty;
   }
-  .phrases-distinction a {
-    color: var(--accent);
-  }
+  .phrases-distinction a { color: var(--accent); text-underline-offset: 0.2em; }
 </style>

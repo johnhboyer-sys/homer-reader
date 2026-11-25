@@ -8,6 +8,7 @@ import Pwa from '../../../components/Pwa.astro';
 import FormulaLedger from '../../../components/FormulaLedger.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import '@shared/styles/global.css';
+import '../../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -49,22 +50,28 @@ const characterGreek = (id: string) => characters.get(id)?.greek;
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style is:global>
     body { overflow-x: hidden; max-width: 100%; }
-    .formula-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .formula-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .formula-intro a { color: var(--accent); }
-    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+    /* Title block, sticky find row and reference rows are the shared
+       reference-page pattern (styles/edition-pages.css); the ledger's own
+       rows are styled in FormulaLedger.astro. */
   </style>
   <Pwa />
+  <!-- The filter field needs script; without it the page is the full list. -->
+  <noscript><style is:inline>.pg-js { display: none !important; }</style></noscript>
 </head>
 <body>
   <SiteHeader section="Odyssey Formulas" />
-  <main class="formula-body">
-    <h1>Odyssey epithets &amp; formulas {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
-    <p class="formula-intro">Repeated phrases attached to named figures in the Odyssey. Each Greek formula carries an English gloss and citations that open the corresponding verse in the reader. See also <a href={`${base}/formulas/iliad/`}>Iliad formulas</a>.</p>
+  <main class="pg formula-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow"><span>Language</span><span class="sep" aria-hidden="true">/</span><a href={`${base}/formulas/`}>Formulas</a></p>
+    <h1 class="pg-title">Odyssey epithets &amp; formulas {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="pg-intro formula-intro">Repeated phrases attached to named figures in the Odyssey. Each Greek formula carries an English gloss and citations that open the corresponding verse in the reader. See also <a href={`${base}/formulas/iliad/`}>Iliad formulas</a>.</p>
+    </header>
     <FormulaLedger work="odyssey" label="Odyssey" entries={entries} glosses={glossesFile.glosses} characterName={characterName} characterGreek={characterGreek} base={base} />
-    <footer class="computed-note">Computed automatically from the corpus by n-gram analysis; counts are exact.{isDraft && ' English glosses are draft translations, pending review.'}</footer>
+    <footer class="pg-note computed-note">Computed automatically from the corpus by n-gram analysis; counts are exact.{isDraft && ' English glosses are draft translations, pending review.'}</footer>
   </main>
+  <script>
+    import { wireIndexFilter } from '../../../lib/index-filter';
+    wireIndexFilter({ list: 'formula-ledger', input: 'formula-find', count: 'formula-count', empty: 'formula-empty' });
+  </script>
 </body>
 </html>

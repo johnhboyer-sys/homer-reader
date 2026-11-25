@@ -9,6 +9,7 @@ import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import { greekFold } from '@shared/lib/search';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -66,55 +67,58 @@ const jsonLd = {
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
-    .lxi-body { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
-    .lxi-h1 { font-size: 1.8rem; font-weight: 600; margin: 0 0 0.4rem; }
-    .lxi-lede { color: var(--text-mid); line-height: 1.6; margin: 0 0 1.2rem; max-width: 60ch; }
-    .lxi-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; margin: 0 0 1.4rem; position: sticky; top: 0; z-index: 5; background: var(--col-bg); padding: 0.5rem 0; }
-    .lxi-filter input {
-      flex: 1 1 auto; min-width: 0; font-family: var(--font-ui); font-size: 1rem;
-      padding: 0.55rem 0.8rem; color: var(--text); background: var(--surface, var(--col-bg));
-      border: 1px solid var(--border); border-radius: 8px;
+    /* Title block and sticky filter row are the shared reference-page pattern
+       (styles/edition-pages.css). */
+    .lxi-filter { flex-wrap: wrap; }
+    .lxi-filter .pg-find { flex: 1 1 18rem; max-width: 30rem; }
+    .lxi-filter input::placeholder { font-size: 0.875rem; }
+    .lxi-sort { flex: none; display: inline-flex; padding: 0.1875rem; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--col-bg); }
+    .lxi-sort button { min-height: 2rem; padding: 0 0.875rem; border: 0; border-radius: var(--radius-pill); background: none; color: var(--text-mid); font: 600 var(--step--1)/1 var(--font-ui); cursor: pointer; white-space: nowrap; }
+    .lxi-sort button:hover { color: var(--accent); }
+    .lxi-sort button[aria-pressed="true"] { background: var(--text); color: var(--page-bg); }
+    .lxi-sort button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .lxi-empty { padding: var(--space-6) 0; font-size: 1.0625rem; color: var(--text-mid); }
+    .lxi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.5rem), 1fr)); gap: 0 var(--space-5); list-style: none; padding: 0; margin: var(--space-4) 0 0; }
+    .lxi-grid a { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; min-height: 2.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); }
+    .lxi-grid a:hover { border-bottom-color: var(--accent); }
+    .lxi-grid a:hover .lxi-gk { color: var(--accent); }
+    .lxi-gk { font-family: var(--font-greek); font-size: 1.3125rem; line-height: 1.3; }
+    .lxi-n { font: 500 var(--step--1)/1 var(--font-ui); font-variant-numeric: tabular-nums; color: var(--text-mid); }
+    @media (max-width: 760px) {
+      .lxi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
+      .lxi-filter .pg-find { flex-basis: 100%; max-width: none; }
     }
-    .lxi-filter input:focus { outline: none; border-color: var(--accent); }
-    /* The filter box keeps 14rem; below that the switch drops to its own line. */
-    .lxi-filter input { flex-basis: 14rem; }
-    .lxi-sort { flex: none; display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .lxi-sort button { min-height: 40px; padding: 0 0.8rem; border: 0; background: none; color: var(--text-mid); font-family: var(--font-ui); font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
-    .lxi-sort button + button { border-left: 1px solid var(--border); }
-    .lxi-sort button[aria-pressed="true"] { background: var(--text); color: var(--col-bg); }
-    .lxi-sort button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-    .lxi-count { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: 0.82rem; color: var(--text-mid); white-space: nowrap; }
-    .lxi-empty { color: var(--text-mid); font-size: 0.95rem; margin: 1rem 0; }
-    .lxi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: 0.4rem; list-style: none; padding: 0; margin: 0; }
-    .lxi-grid a { display: flex; justify-content: space-between; gap: 0.6rem; align-items: baseline; text-decoration: none; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.7rem; }
-    .lxi-grid a:hover { border-color: var(--accent); }
-    .lxi-gk { font-family: var(--font-greek); font-size: 1.05rem; }
-    .lxi-n { font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--text-mid); }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Greek Lexicon" />
-  <main class="lxi-body">
-    <h1 class="lxi-h1">Lexicon of Homer's Greek</h1>
-    <p class="lxi-lede">
+  <main class="pg lxi-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow">Language</p>
+    <h1 class="pg-title lxi-h1">Lexicon of Homer's Greek</h1>
+    <p class="pg-intro lxi-lede">
       {entries.length} key terms from Homer's vocabulary — each with its LSJ definition,
       how often it appears across the corpus, and every occurrence linked to the parallel
       Greek–English text. A concordance you can read.
     </p>
-    <div class="lxi-filter">
-      <input
-        type="search"
-        id="lxi-input"
-        placeholder="Filter — type Greek (οὐσ) or Beta Code (ous)…"
-        autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
-        aria-label="Filter the lexicon by Greek or Beta Code"
-      />
+    </header>
+    <div class="pg-bar lxi-filter">
+      <span class="pg-find">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input
+          type="search"
+          id="lxi-input"
+          placeholder="Filter — type Greek (οὐσ) or Beta Code (ous)…"
+          autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+          aria-label="Filter the lexicon by Greek or Beta Code"
+        />
+      </span>
       <span class="lxi-sort" role="group" aria-label="Sort the lexicon">
         <button type="button" data-sort="alpha" aria-pressed="true">A–Ω</button>
         <button type="button" data-sort="count" aria-pressed="false">By count</button>
       </span>
-      <span class="lxi-count" id="lxi-count" aria-live="polite"></span>
+      <span class="pg-count lxi-count" id="lxi-count" aria-live="polite"></span>
     </div>
     <ul class="lxi-grid" id="lxi-grid">
       {entries.map((e) => (

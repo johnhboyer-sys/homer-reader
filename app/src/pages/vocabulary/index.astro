@@ -5,6 +5,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -41,37 +42,35 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style is:global>
     body { overflow-x: hidden; max-width: 100%; }
-    .vocab-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .vocab-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .vocab-index { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem; margin-top: 2rem; max-width: 45rem; }
-    .vocab-index-card { display: block; padding: 1.4rem 1.5rem; border: 1px solid var(--border); border-top: 2px solid var(--rule-strong); text-decoration: none; color: inherit; }
-    .vocab-index-card:hover { border-color: var(--accent); }
-    .vocab-index-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .vocab-index-card h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin-bottom: .35rem; }
-    .vocab-index-card p { font-family: var(--font-ui); font-size: .78rem; color: var(--text-mid); }
-    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 560px) { .vocab-index { grid-template-columns: 1fr; } }
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+    /* Layout is the shared reference-page pattern (styles/edition-pages.css):
+       title block, then the two poems as a pair of doors. */
+    @media (min-width: 761px) { .idx-poems .pg-poem { min-height: 17rem; } }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Vocabulary" />
-  <main class="vocab-body">
-    <h1>Words to know before each book {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
-    <p class="vocab-intro">A compact vocabulary for each book of the Iliad and Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus.</p>
-    <div class="vocab-index">
-      <a class="vocab-index-card" href={`${base}/vocabulary/iliad/`}>
-        <h2>Iliad</h2>
-        <p>24 books &middot; {entryCount(iliad)} words</p>
+  <main class="pg vocab-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow">Language</p>
+    <h1 class="pg-title">Words to know before each book {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="pg-intro vocab-intro">A compact vocabulary for each book of the Iliad and Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus.</p>
+    </header>
+    <div class="pg-poems idx-poems">
+      <a class="pg-poem is-iliad vocab-index-card" href={`${base}/vocabulary/iliad/`}>
+        <span class="pg-poem-greek" lang="grc" aria-hidden="true">ΙΛΙΑΣ</span>
+        <h2 class="pg-poem-title">Iliad</h2>
+        <p class="pg-poem-meta">24 books &middot; {entryCount(iliad)} words</p>
+        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad-sm.webp')`}></span>
       </a>
-      <a class="vocab-index-card" href={`${base}/vocabulary/odyssey/`}>
-        <h2>Odyssey</h2>
-        <p>24 books &middot; {entryCount(odyssey)} words</p>
+      <a class="pg-poem is-odyssey vocab-index-card" href={`${base}/vocabulary/odyssey/`}>
+        <span class="pg-poem-greek" lang="grc" aria-hidden="true">ΟΔΥΣΣΕΙΑ</span>
+        <h2 class="pg-poem-title">Odyssey</h2>
+        <p class="pg-poem-meta">24 books &middot; {entryCount(odyssey)} words</p>
+        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-sm.webp')`}></span>
       </a>
     </div>
-    <footer class="computed-note">Vocabulary is computed automatically from lemma frequency. Common words and proper names are excluded; Morpheus glosses are draft apparatus.{isDraft && ' English glosses are pending review.'}</footer>
+    <footer class="pg-note computed-note">Vocabulary is computed automatically from lemma frequency. Common words and proper names are excluded; Morpheus glosses are draft apparatus.{isDraft && ' English glosses are pending review.'}</footer>
   </main>
 </body>
 </html>
