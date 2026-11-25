@@ -101,12 +101,22 @@ const splitFormulas = (entity: string, formulas: Formula[]) => {
 };
 ---
 <section class="work-ledger" aria-labelledby={`${work}-heading`}>
-  <div class="work-heading"><h2 id={`${work}-heading`}>{label}</h2><span>{entries.length} named figures</span></div>
+  <div class="pg-bar work-heading">
+    <h2 class="work-heading-title" id={`${work}-heading`}>{label}</h2><span class="pg-count is-static">{entries.length} named figures</span>
+    <label class="pg-find pg-js">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <span class="sr-only">Find a figure</span>
+      <input id="formula-find" type="search" placeholder="Find a figure" autocomplete="off" />
+    </label>
+    <span class="pg-count" id="formula-count" aria-live="polite"></span>
+  </div>
+  <div class="pg-rows" id="formula-ledger">
   {entries.map((entry) => {
     const { substantive, connective } = splitFormulas(entry.entity, entry.formulas);
     return (
-      <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
-        <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
+      <div class="pg-entry entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`} data-name={characterName(entry.entity)}>
+        <div class="entity-heading"><h3 class="pg-entry-name" id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="pg-entry-greek entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
+        <div class="pg-entry-body entity-formulas">
         {substantive.length > 0 && (
           <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
             <ol class="formula-list">
@@ -140,38 +150,49 @@ const splitFormulas = (entity: string, formulas: Formula[]) => {
             </div>
           </details>
         )}
+        </div>
       </div>
     );
   })}
+  </div>
+  <p class="pg-empty" id="formula-empty" hidden>No figure matches.</p>
 </section>
 <style is:global>
+  /* The ledger sits on the shared reference rows (styles/edition-pages.css):
+     the figure's name in the left column, its formulas in the right, set in
+     two columns where there is room. The sticky row above carries the poem,
+     its count of figures and a name filter. */
   .work-ledger { min-width: 0; }
-  .work-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
-  .work-heading h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
-  .work-heading span { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; color: var(--text-mid); white-space: nowrap; }
-  .entity-block { padding-top: 1.25rem; }
-  .entity-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .55rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
-  .entity-heading h3 { font-family: var(--font-ui); font-size: .86rem; font-weight: 600; }
-  .entity-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .9rem; }
-  .formula-scroll { overflow-x: auto; padding-bottom: .35rem; }
-  .connective-details { margin-top: .35rem; }
-  .connective-details > summary { cursor: pointer; font-family: var(--font-ui); font-size: .68rem; font-variant-caps: small-caps; letter-spacing: .06em; color: var(--text-mid); padding: .4rem 0; }
-  .connective-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .connective-details[open] > summary { padding-bottom: .2rem; }
-  .connective-details .formula-scroll { margin-top: .2rem; }
+  .work-heading-title { font-family: var(--font-display); font-weight: 400; font-size: var(--step-2); line-height: 1; letter-spacing: -0.01em; color: var(--text); }
+  .work-heading .pg-find { margin-left: auto; }
+  .entity-block { align-items: start; }
+  .entity-heading { position: sticky; top: calc(var(--bar-h) + 4.5rem); }
+  .pg-entry-body.entity-formulas { max-width: none; }
+  .formula-scroll { min-width: 0; }
   .formula-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .formula-list { list-style: none; margin: 0; min-width: 29rem; }
+  .formula-list { list-style: none; margin: 0; padding: 0; columns: 2 20rem; column-gap: var(--space-6); }
   /* #15 (2026-07-18): count sits ADJACENT to the Greek, not right-floated. The
      Greek track sizes to its content (wrapping when long), the count follows in
      an auto track, and a trailing 1fr track absorbs the rest of the row — so a
      short formula no longer leaves a mid-row void between text and count. */
-  .formula-list > li { display: grid; grid-template-columns: minmax(0, max-content) auto 1fr; column-gap: .55rem; padding: .45rem 0; border-bottom: 1px solid var(--border); }
-  .formula-list > li > span:first-child { font-family: var(--font-greek); font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
-  .formula-list > li > span:nth-child(2) { font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); white-space: nowrap; align-self: baseline; }
-  .formula-list > li > span:nth-child(3) { grid-column: 1 / -1; font-family: var(--font-english); font-size: .82rem; color: var(--text-mid); line-height: 1.4; margin-top: .1rem; }
-  .formula-list > li > span:nth-child(4) { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .15rem .5rem; margin-top: .18rem; font-family: var(--font-ui); font-size: .67rem; line-height: 1.45; }
-  .formula-list > li > span:nth-child(4) a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
-  .formula-list > li > span:nth-child(4) a:hover { border-bottom-color: var(--accent); }
-  .formula-list > li > span:nth-child(4) a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .formula-list > li > span:nth-child(4) > span { color: var(--text-mid); white-space: nowrap; }
+  .formula-list > li { break-inside: avoid; display: grid; grid-template-columns: minmax(0, max-content) auto 1fr; column-gap: 0.625rem; align-items: baseline; padding: 0 0 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+  .formula-list > li > span:first-child { font-family: var(--font-greek); font-size: 1.25rem; line-height: 1.35; color: var(--text); overflow-wrap: anywhere; }
+  .formula-list > li > span:nth-child(2) { font: 600 var(--step--1)/1 var(--font-ui); font-variant-numeric: tabular-nums; color: var(--text-mid); white-space: nowrap; }
+  .formula-list > li > span:nth-child(3) { grid-column: 1 / -1; margin-top: 0.125rem; font-family: var(--font-english); font-size: 1.0625rem; line-height: 1.4; color: var(--text-mid); text-wrap: pretty; }
+  .formula-list > li > span:nth-child(4) { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; margin-top: 0.375rem; font: 600 var(--step--1)/1.4 var(--font-ui); font-variant-numeric: tabular-nums; }
+  .formula-list > li > span:nth-child(4) a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .formula-list > li > span:nth-child(4) a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+  .formula-list > li > span:nth-child(4) > span { font-weight: 500; color: var(--text-mid); white-space: nowrap; }
+  .connective-details { margin-top: 0.25rem; }
+  .connective-details > summary { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; cursor: pointer; font: 600 var(--step--1)/1.2 var(--font-ui); color: var(--text-mid); list-style: none; }
+  .connective-details > summary::-webkit-details-marker { display: none; }
+  .connective-details > summary::before { content: "+"; display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; border: 1px solid var(--rule-strong); border-radius: 50%; font-weight: 500; line-height: 1; }
+  .connective-details[open] > summary::before { content: "\2212"; }
+  .connective-details > summary:hover { color: var(--accent); }
+  .connective-details .formula-scroll { margin-top: 0.75rem; }
+  @media (max-width: 760px) {
+    .entity-heading { position: static; }
+    .work-heading { flex-wrap: wrap; }
+    .work-heading .pg-find { flex: 1 1 100%; margin-left: 0; order: 3; }
+  }
 </style>

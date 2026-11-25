@@ -7,6 +7,7 @@ import RepetitionsIndex from '../../components/RepetitionsIndex.svelte';
 import { jsonLdSafe } from '../../lib/jsonld';
 import type { Repetition } from '@shared/lib/data';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const repetitions = JSON.parse(readFileSync('../build/dist/repetitions.json', 'utf-8')) as Repetition[];
@@ -46,21 +47,21 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
     body { overflow-x: hidden; max-width: 100%; }
-    .repetitions-body { max-width: 940px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .repetitions-intro { max-width: 47rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+    /* Title block and sticky filter row are the shared reference-page pattern
+       (styles/edition-pages.css); the rows are styled in RepetitionsIndex. */
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Repetitions" />
-  <main class="repetitions-body">
-    <h1>Repeated lines &amp; phrases</h1>
-    <p class="repetitions-intro">The three hundred most frequent repetitions in the two poems, with the full corpus ready when you search. The small Il+Od marker identifies phrases that occur in both epics.</p>
+  <main class="pg repetitions-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow">Language</p>
+    <h1 class="pg-title">Repeated lines &amp; phrases</h1>
+    <p class="pg-intro repetitions-intro">The three hundred most frequent repetitions in the two poems, with the full corpus ready when you search. The small Il+Od marker identifies phrases that occur in both epics.</p>
+    </header>
     <RepetitionsIndex client:load initialEntries={initialEntries} base={base} />
-    <footer class="computed-note">Computed automatically from the corpus by n-gram analysis; counts are exact.</footer>
+    <footer class="pg-note computed-note">Computed automatically from the corpus by n-gram analysis; counts are exact.</footer>
   </main>
 </body>
 </html>

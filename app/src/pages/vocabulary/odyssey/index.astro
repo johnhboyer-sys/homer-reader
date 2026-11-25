@@ -7,6 +7,7 @@ import { jsonLdSafe } from '../../../lib/jsonld';
 import { betaToGreek } from '@shared/lib/betacode';
 import { buildLemmaKeyMap, resolveLemmaSlug } from '../../../lib/vocabLemmaLink';
 import '@shared/styles/global.css';
+import '../../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -51,37 +52,40 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style is:global>
     body { overflow-x: hidden; max-width: 100%; }
-    .vocab-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
-    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
-    .vocab-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .vocab-intro a { color: var(--accent); }
-    .vocab-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 1.4rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
-    .vocab-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
-    .vocab-jump a:hover { border-bottom-color: var(--accent); }
-    .vocab-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .vocab-book { max-width: 65rem; scroll-margin-top: 1rem; }
-    .vocab-book h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin: 2rem 0 .5rem; padding-top: .65rem; border-top: 2px solid var(--rule-strong); }
-    .vocab-book:first-of-type h2 { margin-top: 1.8rem; }
-    .vocab-list { margin: 0; padding-left: 2rem; }
-    .vocab-entry { padding: .32rem 0; border-bottom: 1px solid var(--border); }
-    .vocab-lemma { font-family: var(--font-greek); font-size: 1.1rem; color: var(--text); }
-    a.vocab-lemma { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
-    a.vocab-lemma:hover { border-bottom-color: var(--accent); }
-    a.vocab-lemma:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .vocab-gloss { margin-left: .55rem; color: var(--text-mid); }
-    .vocab-count { margin-left: .55rem; color: var(--text-mid); font-family: var(--font-ui); font-size: .75rem; white-space: nowrap; }
-    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 480px) { h1 { font-size: 1.6rem; } .vocab-list { padding-left: 1.6rem; } }
+    /* Title block, sticky book row and section rules are the shared
+       reference-page pattern (styles/edition-pages.css). Each book sets its
+       number in the left column and its words in columns on the right. */
+    .vocab-book { display: grid; grid-template-columns: 11rem minmax(0, 1fr); column-gap: var(--space-6); padding: var(--space-5) 0 var(--space-6); border-top: 1px solid var(--border); scroll-margin-top: var(--pg-anchor); }
+    .vocab-book:first-of-type { border-top: 0; }
+    .vocab-book h2 { font-family: var(--font-display); font-weight: 400; font-size: var(--step-3); line-height: 1.1; letter-spacing: -0.015em; color: var(--text); }
+    .vocab-list { margin: 0; padding: 0; list-style: none; columns: 3 17rem; column-gap: var(--space-6); counter-reset: vocab; }
+    .vocab-entry { counter-increment: vocab; break-inside: avoid; display: grid; grid-template-columns: 1.75rem minmax(0, 1fr) auto; column-gap: 0.5rem; align-items: baseline; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+    .vocab-entry::before { content: counter(vocab); font: 500 var(--step--1)/1 var(--font-ui); font-variant-numeric: tabular-nums; color: var(--text-mid); }
+    .vocab-lemma { grid-column: 2; font-family: var(--font-greek); font-size: 1.3125rem; line-height: 1.3; color: var(--text); }
+    a.vocab-lemma { color: var(--accent); text-decoration: none; justify-self: start; }
+    a.vocab-lemma:hover { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+    .vocab-gloss { grid-column: 2 / -1; grid-row: 2; font-size: 1.0625rem; line-height: 1.4; color: var(--text-mid); text-wrap: pretty; }
+    .vocab-count { grid-column: 3; grid-row: 1; font: 500 var(--step--1)/1 var(--font-ui); font-variant-numeric: tabular-nums; color: var(--text-mid); white-space: nowrap; }
+    @media (max-width: 760px) {
+      .vocab-book { grid-template-columns: minmax(0, 1fr); padding: var(--space-5) 0; }
+      .vocab-book h2 { font-size: 1.75rem; margin-bottom: var(--space-3); }
+    }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Odyssey Vocabulary" />
-  <main class="vocab-body">
-    <h1>Odyssey vocabulary {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
-    <p class="vocab-intro">Words to know before each book of the Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus. See also <a href={`${base}/vocabulary/iliad/`}>Iliad vocabulary</a>.</p>
-    <nav class="vocab-jump" aria-label="Jump to a book">
-      {books.map((book) => <a href={`#book-${book}`}>{book}</a>)}
+  <main class="pg vocab-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow"><span>Language</span><span class="sep" aria-hidden="true">/</span><a href={`${base}/vocabulary/`}>Vocabulary</a></p>
+    <h1 class="pg-title">Odyssey vocabulary {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="pg-intro vocab-intro">Words to know before each book of the Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus. See also <a href={`${base}/vocabulary/iliad/`}>Iliad vocabulary</a>.</p>
+    </header>
+    <nav class="pg-bar" aria-label="Jump to a book">
+      <span class="pg-bar-label" aria-hidden="true">Book</span>
+      <div class="pg-jump vocab-jump">
+        {books.map((book) => <a href={`#book-${book}`}>{book}</a>)}
+      </div>
     </nav>
     {books.map((book) => (
       <section class="vocab-book" id={`book-${book}`}>
@@ -98,7 +102,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
         </ol>
       </section>
     ))}
-    <footer class="computed-note">Computed automatically from lemma frequency. Common words and proper names are excluded; Morpheus glosses are draft apparatus.{isDraft && ' English glosses are pending review.'}</footer>
+    <footer class="pg-note computed-note">Computed automatically from lemma frequency. Common words and proper names are excluded; Morpheus glosses are draft apparatus.{isDraft && ' English glosses are pending review.'}</footer>
   </main>
 </body>
 </html>

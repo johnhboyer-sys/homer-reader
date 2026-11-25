@@ -24,6 +24,12 @@ interface NodeDatum {
   y: number;
   r: number;
   showLabel: boolean;
+  /** Which poem the figure speaks in: sets the node's colour (see the page's legend). */
+  poem?: 'iliad' | 'odyssey' | 'both' | 'none';
+  /** Where the page's label pass put the name (collision-free); absent = below the disc. */
+  labelX?: number;
+  labelY?: number;
+  labelAnchor?: 'middle' | 'start' | 'end';
 }
 interface KinshipEdgeDatum {
   x1: number; y1: number; x2: number; y2: number;
@@ -42,10 +48,17 @@ interface Props {
   nodes: NodeDatum[];
   kinshipEdges: KinshipEdgeDatum[];
   speechEdges: SpeechEdgeDatum[];
+  /** Label size in viewBox units. */
+  labelSize?: number;
 }
-const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
+const { width, height, nodes, kinshipEdges, speechEdges, labelSize = 13 } = Astro.props;
+// A figure who speaks in both poems is drawn as a split disc: left half the
+// Iliad's colour, right half the Odyssey's.
+const half = (n: NodeDatum, side: 1 | -1) =>
+  `M${n.x},${n.y - n.r}A${n.r},${n.r} 0 0 ${side === 1 ? 1 : 0} ${n.x},${n.y + n.r}Z`;
 ---
 <figure class="cn-figure">
+  <div class="cn-scroll">
   <svg
     class="cn-svg"
     viewBox={`0 0 ${width} ${height}`}
@@ -53,6 +66,7 @@ const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
     role="img"
     aria-hidden="true"
     focusable="false"
+    style={`--cn-label:${labelSize}px`}
   >
     <g class="cn-edges">
       {speechEdges.map((e) => (
@@ -81,64 +95,91 @@ const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
           data-name={n.name}
           data-greek={n.greek ?? ''}
           data-role={n.role}
+          data-poem={n.poem ?? 'none'}
         >
-          <circle cx={n.x} cy={n.y} r={n.r} />
+          <circle class="cn-disc" cx={n.x} cy={n.y} r={n.r} />
+          {n.poem === 'both' && <path class="cn-half" d={half(n, 1)} />}
           <title>{n.greek ? `${n.name} — ${n.greek}` : n.name}</title>
-          {n.showLabel && (
-            <text class="cn-label" x={n.x} y={n.y + n.r + 10}>{n.name}</text>
-          )}
         </g>
       ))}
     </g>
+    {/* Names sit above every disc and line, so none is ever drawn over. */}
+    <g class="cn-labels">
+      {nodes.filter((n) => n.showLabel).map((n) => (
+        <text
+          class="cn-label"
+          data-for={n.id}
+          x={n.labelX ?? n.x}
+          y={n.labelY ?? n.y + n.r + 10}
+          text-anchor={n.labelAnchor ?? 'middle'}
+        >{n.name}</text>
+      ))}
+    </g>
   </svg>
+  </div>
   <div class="cn-flyout" id="cn-flyout" role="status" hidden></div>
 </figure>
 <style>
   .cn-figure { margin: 0; position: relative; }
-  .cn-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .cn-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cn-svg { display: block; width: 100%; height: auto; }
   .cn-edge { pointer-events: none; }
-  .cn-edge-speech { stroke: var(--text-mid); opacity: 0.4; }
-  .cn-edge-kin { stroke: var(--rule-strong); stroke-width: 1.4; opacity: 0.85; }
+  .cn-edge-speech { stroke: var(--text-mid); opacity: 0.2; stroke-linecap: round; }
+  .cn-edge-kin { stroke: var(--rule-strong); stroke-width: 1.5; opacity: 0.9; }
   .cn-edge-kin-nonhomeric { stroke: var(--accent); stroke-dasharray: 5 3.5; }
-  .cn-node circle { fill: var(--accent); opacity: 0.82; cursor: pointer; pointer-events: all; transition: opacity .12s ease; }
-  .cn-node:hover circle, .cn-node.is-active circle { opacity: 1; }
+  .cn-disc { cursor: pointer; pointer-events: all; stroke: var(--page-bg); stroke-width: 1.5; transition: opacity .12s ease; }
+  .cn-half { pointer-events: none; fill: var(--odyssey); transition: opacity .12s ease; }
+  .cn-node[data-poem="iliad"] .cn-disc, .cn-node[data-poem="both"] .cn-disc { fill: var(--iliad); }
+  .cn-node[data-poem="odyssey"] .cn-disc { fill: var(--odyssey); }
+  .cn-node[data-poem="none"] .cn-disc { fill: var(--page-bg); stroke: var(--text-mid); }
   .cn-label {
     font-family: var(--font-ui);
-    font-size: 8.5px;
-    fill: var(--text-mid);
-    text-anchor: middle;
+    font-size: var(--cn-label, 13px);
+    font-weight: 600;
+    fill: var(--text);
     pointer-events: none;
     paint-order: stroke;
     stroke: var(--page-bg);
-    stroke-width: 2.5px;
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
   }
-  .cn-node.is-active .cn-label { fill: var(--text); font-weight: 600; }
-  .cn-svg.is-highlighting .cn-node:not(.is-active) circle { opacity: 0.28; }
-  .cn-svg.is-highlighting .cn-edge:not(.is-active) { opacity: 0.08; }
-  .cn-svg.is-highlighting .cn-edge.is-active { opacity: 0.95; }
+  /* Hover / focus: one figure and the lines that touch it. */
+  .cn-svg.is-highlighting .cn-node:not(.is-active) :is(.cn-disc, .cn-half) { opacity: 0.22; }
+  .cn-svg.is-highlighting .cn-label:not(.is-active) { opacity: 0.25; }
+  .cn-svg.is-highlighting .cn-edge:not(.is-active) { opacity: 0.05; }
+  .cn-svg.is-highlighting .cn-edge-speech.is-active { opacity: 0.75; }
+  .cn-svg.is-highlighting .cn-edge-kin.is-active { opacity: 1; }
+  /* The page's roster filter: what is filtered out falls back. */
+  .cn-svg.is-filtered:not(.is-highlighting) .cn-node:not(.is-match) :is(.cn-disc, .cn-half) { opacity: 0.16; }
+  .cn-svg.is-filtered:not(.is-highlighting) .cn-label:not(.is-match) { opacity: 0.2; }
+  .cn-svg.is-filtered:not(.is-highlighting) .cn-edge:not(.is-match) { opacity: 0.05; }
+  .cn-svg.is-filtered:not(.is-highlighting) .cn-edge-speech.is-match { opacity: 0.5; }
 
   .cn-flyout {
     position: absolute;
     z-index: 5;
-    max-width: 15rem;
-    padding: 0.5rem 0.65rem;
+    max-width: 17rem;
+    padding: 0.625rem 0.75rem;
     background: var(--popup-bg);
     box-shadow: var(--popup-shadow);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-1);
     font-family: var(--font-ui);
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     line-height: 1.4;
     color: var(--text);
     pointer-events: none;
   }
-  .cn-flyout .cn-flyout-name { font-weight: 600; }
-  .cn-flyout .cn-flyout-greek { font-family: var(--font-greek); color: var(--text-mid); margin-left: 0.35em; }
-  .cn-flyout .cn-flyout-role { display: block; margin-top: 0.2rem; color: var(--text-mid); }
+  .cn-flyout :global(.cn-flyout-name) { font-weight: 600; font-size: 0.9375rem; }
+  .cn-flyout :global(.cn-flyout-greek) { font-family: var(--font-greek); font-size: 0.9375rem; color: var(--text-mid); margin-left: 0.4em; }
+  .cn-flyout :global(.cn-flyout-role) { display: block; margin-top: 0.25rem; color: var(--text-mid); }
 
-  @media (max-width: 620px) {
-    .cn-label { display: none; }
+  /* A phone cannot show a hundred figures in its own width: the diagram
+     keeps a legible scale and pans sideways inside its frame. */
+  @media (max-width: 760px) {
+    .cn-svg { width: 54rem; max-width: none; }
   }
+  @media (prefers-reduced-motion: reduce) { .cn-disc, .cn-half { transition: none; } }
 </style>
 <script>
   // Progressive enhancement only (see component docstring): the graph is
@@ -154,6 +195,12 @@ const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
     const nodeEls = Array.from(svg.querySelectorAll<SVGGElement>('.cn-node'));
     const edgeEls = Array.from(svg.querySelectorAll<SVGLineElement>('.cn-edge'));
     const nodeById = new Map(nodeEls.map((el) => [el.dataset.id!, el]));
+    const labelEls = Array.from(svg.querySelectorAll<SVGTextElement>('.cn-label'));
+    // On a phone the diagram pans inside its frame; open it on the middle.
+    const scroller = svg.closest<HTMLElement>('.cn-scroll');
+    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
+      scroller.scrollLeft = (scroller.scrollWidth - scroller.clientWidth) / 2;
+    }
 
     // id -> edges + neighbor node ids touching it, built once from the
     // data-a/data-b attributes every edge already carries.
@@ -175,6 +222,7 @@ const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
       svg?.classList.remove('is-highlighting');
       for (const el of nodeEls) el.classList.remove('is-active');
       for (const el of edgeEls) el.classList.remove('is-active');
+      for (const el of labelEls) el.classList.remove('is-active');
       if (flyout) { flyout.hidden = true; }
     }
     function highlight(id: string) {
@@ -189,6 +237,10 @@ const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
       }
       for (const el of edgeEls) {
         el.classList.toggle('is-active', el.dataset.a === id || el.dataset.b === id);
+      }
+      for (const el of labelEls) {
+        const who = el.dataset.for!;
+        el.classList.toggle('is-active', who === id || connected.has(who));
       }
     }
     function showFlyout(el: SVGGElement, clientX: number, clientY: number) {

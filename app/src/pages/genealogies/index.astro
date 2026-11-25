@@ -26,6 +26,7 @@ import {
   type CharacterRecord,
 } from '@shared/lib/genealogy';
 import '@shared/styles/global.css';
+import '../../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -45,8 +46,27 @@ const TREES = [
 
 const trees = TREES.map((t) => {
   const roots = buildGenealogyTree(raw.characters, t.id);
-  const layout = layoutGenealogyTree(roots);
-  return { ...t, roots, layout };
+  // Card size is chosen per tree: the roomiest of these that lets the whole
+  // tree sit in the page column (82rem less its gutters) without panning.
+  // Troy and the Olympians each put eleven or twelve cousins on one row, so
+  // they take a narrower card; a card's name wraps instead of being cut.
+  const SIZES = [
+    { nodeWidth: 152, nodeHeight: 62, hGap: 22, vGap: 42 },
+    { nodeWidth: 124, nodeHeight: 62, hGap: 12, vGap: 40 },
+    { nodeWidth: 106, nodeHeight: 62, hGap: 9, vGap: 40 },
+    { nodeWidth: 98, nodeHeight: 62, hGap: 7, vGap: 40 },
+    { nodeWidth: 94, nodeHeight: 62, hGap: 5, vGap: 40 },
+  ];
+  const COLUMN = 1240;
+  const layouts = SIZES.map((opts) => layoutGenealogyTree(roots, opts));
+  const layout = layouts.find((l) => l.width <= COLUMN) ?? layouts[layouts.length - 1];
+  return { ...t, roots, layout, compact: layout.nodeWidth < 120, half: layout.width <= 560, top: false };
+});
+// Two small trees in a row share one line of the page on a wide screen. `top`
+// marks the trees that open the list, so a pair's second tree drops its rule
+// when its partner has none.
+trees.forEach((t, i) => {
+  t.top = i === 0 || (i === 1 && t.half && trees[0].half);
 });
 
 const pageTitle = 'Genealogies — The Homer Reader';
@@ -100,82 +120,32 @@ function connectorPath(c: {
   <style>
     body { overflow-x: hidden; max-width: 100%; }
 
-    .gen-body {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 2rem 1rem 4.5rem;
-      font-family: var(--font-english);
-      color: var(--text);
-    }
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      font-family: var(--font-display);
-      font-weight: 400;
-      font-size: 1.9rem;
-      margin-bottom: 0.6rem;
-    }
-    .gen-intro {
-      max-width: 42rem;
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--text-mid);
-      margin-bottom: 1.5rem;
-    }
-
-    .gen-jump {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem 1.15rem;
-      margin-bottom: 1.4rem;
-      font-family: var(--font-ui);
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .gen-jump a {
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      padding-bottom: 1px;
-    }
-    .gen-jump a:hover { border-bottom-color: var(--accent); }
-    .gen-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
+    /* Page frame, title block, sticky jump row and section heads are the
+       shared reference-page pattern (styles/edition-pages.css). */
     .gen-legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem 1.35rem;
-      margin-bottom: 2.25rem;
-      padding: 0.6rem 0.85rem;
-      border: 1px solid var(--border);
-      font-family: var(--font-ui);
-      font-size: 0.66rem;
-      color: var(--text-mid);
+      gap: 0.625rem 1.75rem;
+      margin-top: var(--space-5);
+      font: 500 var(--step--1)/1.3 var(--font-ui);
+      color: var(--text);
     }
-    .legend-item { display: flex; align-items: center; gap: 0.4rem; }
-    .legend-swatch { display: inline-block; width: 18px; border-top: 1.5px solid var(--text-mid); }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; }
+    .legend-swatch { display: inline-block; width: 1.75rem; border-top: 1.5px solid var(--text-mid); }
     .legend-swatch.dashed { border-top-style: dashed; border-top-color: var(--accent); }
-    .legend-swatch.muted { border-top-style: dotted; opacity: 0.7; }
+    .legend-swatch.muted { border-top-style: dotted; }
     /* Decorative "+" glyph, not a line -- no border-top swatch. */
     .legend-swatch.tie { width: auto; border-top: none; font-weight: 700; color: var(--text-mid); }
     /* Describes the mobile chart's spouse-pairing convention only; that
        chart doesn't exist above the ~700px breakpoint (see .mtree below). */
     .legend-mobile-only { display: none; }
 
-    .gen-tree {
-      margin: 2.75rem 0;
-      padding-top: 0.6rem;
-      border-top: 1px solid var(--border);
-      scroll-margin-top: 1rem;
-    }
-    .gen-tree h2 {
-      font-family: var(--font-display);
-      font-weight: 400;
-      font-size: 1.35rem;
-      margin-bottom: 1.1rem;
-      color: var(--text);
+    .gen-tree .pg-h2 { margin-bottom: var(--space-5); }
+    @media (min-width: 1200px) {
+      .gen-trees { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--space-6); }
+      .gen-tree { grid-column: 1 / -1; }
+      .gen-tree.is-half { grid-column: auto; }
+      .gen-tree.is-top { margin-top: 0; border-top: 0; padding-top: var(--space-5); }
     }
 
     /* Chart-Room discipline: wide trees (Troy: 22 members) scroll inside
@@ -225,8 +195,9 @@ function connectorPath(c: {
       align-items: center;
       justify-content: center;
       gap: 0.12rem;
-      padding: 0.32rem 0.4rem;
-      border: 1px solid var(--border);
+      padding: 0.25rem 0.375rem;
+      border: 1px solid var(--rule-strong);
+      border-radius: var(--radius-1);
       background: var(--col-bg);
       box-sizing: border-box;
       text-align: center;
@@ -234,19 +205,22 @@ function connectorPath(c: {
       overflow: hidden;
     }
     .gen-placed .gen-name {
-      font-family: var(--font-ui);
-      font-weight: 600;
-      font-size: 0.72rem;
-      line-height: 1.2;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.0625rem;
+      line-height: 1.15;
+      letter-spacing: -0.005em;
       color: var(--text);
       max-width: 100%;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      text-wrap: balance;
     }
+    .gen-chart.is-compact .gen-placed { padding: 0.125rem 0.1875rem; }
+    .gen-chart.is-compact .gen-name { font-size: 0.9375rem; line-height: 1.08; }
+    .gen-chart.is-compact .gen-greek { font-size: 0.8125rem; }
     .gen-placed .gen-greek {
       font-family: var(--font-greek);
-      font-size: 0.74rem;
+      font-size: 0.875rem;
       line-height: 1.2;
       color: var(--text-mid);
       max-width: 100%;
@@ -375,10 +349,6 @@ function connectorPath(c: {
       border: 0;
     }
 
-    @media (max-width: 480px) {
-      h1 { font-size: 1.55rem; }
-    }
-
     @media (max-width: 700px) {
       .gen-scroll { display: none; }
       .mtree { display: block; max-width: 100%; }
@@ -390,12 +360,14 @@ function connectorPath(c: {
 <body>
   <SiteHeader section="Genealogies" />
 
-  <main class="gen-body">
-    <h1>
+  <main class="pg gen-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow">People</p>
+    <h1 class="pg-title">
       Genealogies
       {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}
     </h1>
-    <p class="gen-intro">
+    <p class="pg-intro gen-intro">
       The four family lines that structure the poems: the House of Atreus (Agamemnon and
       Menelaus), the House of Aeacus (Achilles), the House of Troy (Priam and the Dardanid
       kings), and the Olympian gods. Every member below comes from this edition&rsquo;s
@@ -403,23 +375,27 @@ function connectorPath(c: {
       themselves don&rsquo;t make &mdash; links added by later tradition.
     </p>
 
-    <nav class="gen-jump" aria-label="Jump to a tree">
-      {trees.map((t) => <a href={`#${t.id}`}>{t.label}</a>)}
-    </nav>
-
     <div class="gen-legend">
       <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>connector: attested in Homer</span>
       <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>connector: later tradition, not Homer</span>
       <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>chip: named, not a character in this edition</span>
       <span class="legend-item legend-mobile-only"><span class="legend-swatch tie" aria-hidden="true">+</span>linked card: spouse/partner (dotted = not a character in this edition)</span>
     </div>
+    </header>
 
+    <nav class="pg-bar" aria-label="Jump to a tree">
+      <div class="pg-jump gen-jump">
+        {trees.map((t) => <a href={`#${t.id}`}>{t.label}</a>)}
+      </div>
+    </nav>
+
+    <div class="gen-trees">
     {trees.map((t) => {
       const { layout } = t;
       const halfW = layout.nodeWidth / 2;
       return (
-        <section class="gen-tree" id={t.id} aria-labelledby={`${t.id}-h`}>
-          <h2 id={`${t.id}-h`}>{t.label}</h2>
+        <section class:list={['pg-section', 'gen-tree', { 'is-first': t.id === trees[0].id, 'is-half': t.half, 'is-top': t.top }]} id={t.id} aria-labelledby={`${t.id}-h`}>
+          <h2 class="pg-h2" id={`${t.id}-h`}>{t.label}</h2>
           <div
             class="gen-scroll"
             tabindex="0"
@@ -427,7 +403,7 @@ function connectorPath(c: {
             aria-label={`${t.label} family tree chart, scrollable`}
           >
             <figure
-              class="gen-chart"
+              class:list={['gen-chart', { 'is-compact': t.compact }]}
               data-tree={t.id}
               style={`width:${layout.width}px;height:${layout.height}px`}
               aria-hidden="true"
@@ -480,6 +456,7 @@ function connectorPath(c: {
         </section>
       );
     })}
+    </div>
   </main>
 </body>
 </html>

@@ -8,6 +8,7 @@ import Pwa from '../components/Pwa.astro';
 import { SUPPORT_URL } from '../lib/support';
 import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
+import '../styles/edition-pages.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const pageTitle = 'Support the Homer Reader';
@@ -57,53 +58,60 @@ const jsonLd = {
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
-    .sp-body { max-width: 600px; margin: 0 auto; padding: 3rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
-    .sp-eyebrow {
-      font-family: var(--font-ui); font-size: 0.8rem; font-weight: 600;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--text-light);
-      display: flex; align-items: baseline; gap: 0.55rem; margin: 0 0 0.5rem;
-    }
-    .sp-eyebrow .gk { font-family: var(--font-greek); font-size: 1.05rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--accent-light); }
-    .sp-body h1 { font-family: var(--font-english); font-weight: 600; font-size: 2rem; line-height: 1.15; margin: 0 0 1rem; }
-    .sp-lede { font-size: 1.12rem; line-height: 1.6; margin: 0 0 1.1rem; }
-    .sp-body p { font-size: 1rem; line-height: 1.7; color: var(--text-mid); margin: 0 0 1.1rem; }
-    .sp-cta { margin: 1.6rem 0 1.2rem; }
-    .sp-list { list-style: none; padding: 0; margin: 0 0 1.6rem; display: grid; gap: 0.55rem; }
-    .sp-list li { font-size: 0.97rem; line-height: 1.55; color: var(--text-mid); padding-left: 1.4rem; position: relative; }
-    .sp-list li::before { content: "χ"; font-family: var(--font-greek); color: var(--accent-light); position: absolute; left: 0; top: 0; }
-    .sp-note { font-size: 0.85rem; color: var(--text-light); }
-    .sp-note a { color: var(--accent); }
+    /* Title block is the shared reference-page pattern
+       (styles/edition-pages.css); below it the case on the left and the gift
+       card on the right. */
+    .sp-eyebrow { display: flex; align-items: baseline; gap: 0.625rem; }
+    .sp-eyebrow .gk { font-family: var(--font-greek); font-size: 1.125rem; font-weight: 400; color: var(--text-mid); }
+    .sp-lede { color: var(--text); max-width: 46rem; }
+    .sp-main { display: grid; grid-template-columns: minmax(0, 42rem) minmax(0, 24rem); gap: var(--space-7); align-items: start; padding-top: var(--space-5); border-top: 2px solid var(--text); }
+    .sp-case p { font-size: var(--step-1); line-height: 1.6; color: var(--text); text-wrap: pretty; }
+    .sp-list { list-style: none; padding: 0; margin: var(--space-5) 0 0; }
+    .sp-list li { position: relative; padding: var(--space-3) 0 var(--space-3) 2rem; border-top: 1px solid var(--border); font-size: 1.125rem; line-height: 1.5; color: var(--text); }
+    .sp-list li::before { content: "χ"; position: absolute; left: 0.125rem; top: 0.6rem; font-family: var(--font-greek); font-size: 1.25rem; color: var(--accent); }
+    .sp-gift { padding: var(--space-5); }
+    .sp-cta .btn-donate { display: flex; align-items: center; justify-content: center; min-height: 3rem; padding: 0 1.5rem; border-radius: var(--radius-pill); font-size: 1rem; letter-spacing: 0; }
+    .sp-note { margin-top: var(--space-4); font: 400 0.9375rem/1.55 var(--font-ui); color: var(--text-mid); }
+    @media (max-width: 900px) { .sp-main { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); } }
   </style>
   <Pwa />
 </head>
 <body>
   <SiteHeader section="Support" />
 
-  <main class="sp-body">
-    <p class="sp-eyebrow">Support <span class="gk">χάρις</span></p>
-    <h1>Support the Homer Reader</h1>
-    <p class="sp-lede">
+  <main class="pg sp-body">
+    <header class="pg-head">
+    <p class="pg-eyebrow sp-eyebrow">Support <span class="gk">χάρις</span></p>
+    <h1 class="pg-title">Support the Homer Reader</h1>
+    <p class="pg-intro sp-lede">
       The Homer Reader is an ad-free parallel Greek–English edition of
       the Iliad and the Odyssey — with click-to-parse morphology, dictionary
       entries, and exact vulgate line citation. It is free to read and always will be.
     </p>
-    <p>
-      It is built and maintained by one person, and runs on no advertising and no
-      paywall. A contribution helps defray development costs and keeps the reader
-      free and open for students, teachers, and readers everywhere.
-    </p>
-    <ul class="sp-list">
-      <li>Hosting and the tools that keep the site fast and ad-free.</li>
-      <li>Aligning more public-domain translations to the Greek, line by line.</li>
-      <li>Adding works, glossaries, and reading aids across the corpus.</li>
-    </ul>
-    <div class="sp-cta">
-      <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
+    </header>
+    <div class="sp-main">
+      <div class="sp-case">
+        <p>
+          It is built and maintained by one person, and runs on no advertising and no
+          paywall. A contribution helps defray development costs and keeps the reader
+          free and open for students, teachers, and readers everywhere.
+        </p>
+        <ul class="sp-list">
+          <li>Hosting and the tools that keep the site fast and ad-free.</li>
+          <li>Aligning more public-domain translations to the Greek, line by line.</li>
+          <li>Adding works, glossaries, and reading aids across the corpus.</li>
+        </ul>
+      </div>
+      <aside class="pg-card sp-gift">
+        <div class="sp-cta">
+          <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
+        </div>
+        <p class="sp-note">
+          Gifts are processed securely by Stripe — you choose the amount. Thank you
+          for keeping the reader free. <span class="gk" style="font-family:var(--font-greek);color:var(--text);">χάρις</span>.
+        </p>
+      </aside>
     </div>
-    <p class="sp-note">
-      Gifts are processed securely by Stripe — you choose the amount. Thank you
-      for keeping the reader free. <span class="gk" style="font-family:var(--font-greek);color:var(--accent-light);">χάρις</span>.
-    </p>
   </main>
 </body>
 </html>
