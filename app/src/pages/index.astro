@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { getWork, workPath, workLanding } from '@shared/lib/works';
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Pwa from '../components/Pwa.astro';
 import DoorCards from '../components/DoorCards.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
@@ -139,79 +139,43 @@ const supportHref = `${base}/support`;
   <CommandPalette client:load />
   <h1 class="sr-only">The Homer Reader — The Iliad &amp; Odyssey in Greek &amp; English</h1>
 
-  <header class="masthead">
-    <div class="wrap masthead-inner">
-      <div class="wordmark">
-        The Homer Reader
-        <small>The Iliad &amp; Odyssey &middot; Greek and English</small>
-      </div>
-      <nav class="primary-nav" aria-label="Primary">
-        <a href={iliadLandingHref}>Iliad</a>
-        <a href={odysseyLandingHref}>Odyssey</a>
-        <a href={mapsHref}>Maps</a>
-        <a href={timelineHref}>Timeline</a>
-        <a href={charactersHref}>Characters</a>
-        <a href={placesHref}>Places</a>
-        <a href={genealogiesHref}>Genealogies</a>
-        <a href={vocabularyHref}>Vocabulary</a>
-        <a href={formulasHref}>Formulas</a>
-        <a href={repetitionsHref}>Repetitions</a>
-        <a href={searchHref}>Search</a>
-        <a href={aboutHref}>About</a>
-        <ThemeToggle />
-      </nav>
-    </div>
-  </header>
+  <SiteHeader />
 
   <section class="hero" aria-label="The two epics">
-    <svg class="hero-horizon" viewBox="0 0 1400 900" preserveAspectRatio="none" aria-hidden="true">
-      <g class="horizon-drift-1"><path class="h1" d="M-20 760 C 220 700, 360 730, 520 660 S 780 560, 940 520 S 1180 420, 1420 300" /></g>
-      <g class="horizon-drift-2"><path class="h2" d="M-20 800 C 240 750, 380 790, 540 710 S 800 610, 960 575 S 1200 470, 1420 350" /></g>
-      <g class="horizon-drift-3"><g class="horizon-bob-3"><path class="h3" d="M-20 700 C 200 660, 340 660, 500 600 S 760 490, 920 450 S 1160 350, 1420 240" /></g></g>
-    </svg>
-
-    <div class="hero-grid">
-      <a class="epic-panel epic-iliad" href={iliadBook1Href} aria-label="Read the Iliad, beginning at Book 1">
-        <!-- watchfires on the plain, low in the Iliad panel (Il. 8.553-565) -->
-        <span class="fire fire-1" aria-hidden="true"></span>
-        <span class="fire fire-2" aria-hidden="true"></span>
-        <span class="fire fire-3" aria-hidden="true"></span>
-        <span class="fire fire-4" aria-hidden="true"></span>
-        <span class="fire fire-5" aria-hidden="true"></span>
-        <span class="fire fire-6" aria-hidden="true"></span>
-        <span class="fire fire-7" aria-hidden="true"></span>
-        <span class="epic-art epic-art-iliad" aria-hidden="true" style={`--art:url('${base}/art/flaxman/iliad-book-19.png')`}></span>
-        <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
-        <h2 class="epic-title">The Iliad</h2>
+    <a class="epic epic-iliad" href={iliadBook1Href} aria-label="Read the Iliad, beginning at Book 1">
+      <div class="epic-text">
         <span class="epic-greek-sub" lang="grc">ΙΛΙΑΣ</span>
-        <p class="epic-epigraph">
-          <span class="gk">{iliadGreekLine1}</span>
+        <h2 class="epic-title">The Iliad</h2>
+        <span class="epic-epigraph">
+          <span class="gk" lang="grc">{iliadGreekLine1}</span>
           <span class="gloss">Sing, goddess, the wrath of Peleus&rsquo; son Achilles</span>
-        </p>
-        <p class="epic-argument">The wrath of Achilles, and what it costs the Greeks outside the walls of Troy.</p>
-        <span class="epic-cta">Read Book 1 &rarr;</span>
-      </a>
+        </span>
+        <span class="epic-argument">The wrath of Achilles, and what it costs the Greeks outside the walls of Troy.</span>
+        <span class="epic-foot">
+          <span class="epic-cta">Read Book 1 <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
+        </span>
+      </div>
+      <!-- Flaxman's frieze sits under the text, in its own band: never behind a word. -->
+      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad.webp')`}></span>
+    </a>
 
-      <a class="epic-panel epic-odyssey" href={odysseyBook1Href} aria-label="Read the Odyssey, beginning at Book 1">
-        <!-- stars over the sea, high in the Odyssey panel -->
-        <span class="star star-1" aria-hidden="true"></span>
-        <span class="star star-2" aria-hidden="true"></span>
-        <span class="star star-3" aria-hidden="true"></span>
-        <span class="star star-4" aria-hidden="true"></span>
-        <span class="star star-5 dusk-hide" aria-hidden="true"></span>
-        <span class="star star-6 dusk-hide" aria-hidden="true"></span>
-        <span class="epic-art epic-art-odyssey" aria-hidden="true" style={`--art:url('${base}/art/flaxman/odyssey-book-12.png')`}></span>
-        <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
-        <h2 class="epic-title">The Odyssey</h2>
+    <a class="epic epic-odyssey" href={odysseyBook1Href} aria-label="Read the Odyssey, beginning at Book 1">
+      <div class="epic-text">
         <span class="epic-greek-sub" lang="grc">ΟΔΥΣΣΕΙΑ</span>
-        <p class="epic-epigraph">
-          <span class="gk">{odysseyGreekLine1}</span>
+        <h2 class="epic-title">The Odyssey</h2>
+        <span class="epic-epigraph">
+          <span class="gk" lang="grc">{odysseyGreekLine1}</span>
           <span class="gloss">Tell me, Muse, of the man of many turns, who wandered far</span>
-        </p>
-        <p class="epic-argument">The long way home &mdash; ten years, one man, and every disguise it took to survive it.</p>
-        <span class="epic-cta">Read Book 1 &rarr;</span>
-      </a>
-    </div>
+        </span>
+        <span class="epic-argument">The long way home &mdash; ten years, one man, and every disguise it took to survive it.</span>
+        <span class="epic-foot">
+          <span class="epic-cta">Read Book 1 <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
+        </span>
+      </div>
+      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey.webp')`}></span>
+    </a>
   </section>
 
   <main class="wrap">
@@ -300,551 +264,245 @@ const supportHref = `${base}/support`;
   <style>
     /* ================= layout shell ================= */
     .wrap {
-      max-width: 76rem;
+      max-width: 82rem;
       margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-    /* The giant edge-anchored hero letters use small negative margins to hug
-       the true edge (see .epic-iliad/.epic-odyssey .epic-title below); this
-       keeps that from ever opening a horizontal scrollbar. */
-    body { overflow-x: hidden; max-width: 100%; }
-
-    /* ================= masthead (trimmed: hero carries the weight) ================= */
-    header.masthead {
-      border-bottom: 1px solid var(--rule-strong);
-      background: var(--page-bg);
-      position: relative;
-      z-index: 5;
-    }
-    .masthead-inner {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.6rem 1.5rem;
-      padding: 1rem clamp(1.25rem, 4vw, 2.5rem) 0.9rem;
-    }
-    .wordmark {
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      letter-spacing: 0.02em;
-      font-weight: 400;
-      color: var(--text);
-    }
-    .wordmark small {
-      display: block;
-      font-family: var(--font-ui);
-      font-size: 0.6rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 0.15rem;
-    }
-    nav.primary-nav {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1.35rem;
-    }
-    nav.primary-nav a {
-      text-decoration: none;
-      font-size: 0.72rem;
-      color: var(--text-mid);
-      border-bottom: 1px solid transparent;
-      padding-bottom: 2px;
-    }
-    nav.primary-nav a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-    @media (max-width: 480px) {
-      .wordmark { font-size: 1.15rem; }
+      padding: 0 var(--space-5);
     }
 
-    /* ================= HERO — the one wine-dark, both-theme exception =================
-       The hero owns its own fixed palette in both themes (not the ordinary var()
-       swap): --hero-ink/-ink-soft/-accent/-accent-bright/-rule/-rule-strong/-focus
-       freeze at the WINE-DARK DARK-THEME hex (docs/DESIGN.md's LOCKED table), the
-       same pattern the original hero design used against the Aegean palette, just
-       re-based on the current locked palette so the hero and the re-skinned rest
-       of the page read as one system rather than two different accent hues.
-       Only the ground gradient and the ambient point-fields move with theme
-       (DUSK = light default, DEEP NIGHT = dark) — on-hero text contrast never
-       changes between themes. */
+    /* ================= HERO =================
+       Two panels, one per poem, dark in both themes: the Iliad lit from below
+       by the watchfires on the plain (Il. 8.553-65), the Odyssey by a night
+       sky over open water. The colour does that work on its own, as two
+       soft gradients; nothing is drawn behind the words. Each panel is its
+       text, then Flaxman's frieze in a band of its own underneath.
+       --hero-* are local to the hero and do not change with the theme. */
     .hero {
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-      --hero-ink: #EDE6E8;
-      --hero-ink-soft: #B7A9B4;
-      --hero-accent: #D59186;
-      --hero-accent-bright: #E4B3AA;
-      --hero-rule: #3A2C38;
-      --hero-rule-strong: #C17067;
-      --hero-focus: #E4B3AA;
-      color: var(--hero-ink);
-      /* DUSK — default posture. --hero-bg-mid is a pre-mixed OPAQUE hex (navy warmed
-         toward a dusty violet), not an alpha color — an alpha stop here would
-         interpolate its alpha channel too and let the page's own (light) body
-         background bleed through the hero at that seam, reading as a harsh bright
-         streak. Opaque avoids that entirely. */
-      --hero-bg-1: #141B30;
-      --hero-bg-2: #1B2743;
-      --hero-bg-3: #262F52;
-      --hero-bg-mid: #333248;
-      --hero-point-mult: 0.55;
-      --hero-fire-scale: 0.72;
-      background: linear-gradient(158deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 42%, var(--hero-bg-mid) 50%, var(--hero-bg-2) 58%, var(--hero-bg-3) 100%);
-    }
-    .hero .dusk-hide { display: none; }
-    :root[data-theme="dark"] .hero {
-      --hero-bg-1: #0B1526;
-      --hero-bg-2: #101E33;
-      --hero-bg-3: #172846;
-      --hero-bg-mid: var(--hero-bg-2);
-      --hero-point-mult: 1;
-      --hero-fire-scale: 1;
-    }
-    :root[data-theme="dark"] .hero .dusk-hide { display: inline; }
-    :root[data-theme="light"] .hero {
-      --hero-bg-1: #141B30;
-      --hero-bg-2: #1B2743;
-      --hero-bg-3: #262F52;
-      --hero-bg-mid: #333248;
-      --hero-point-mult: 0.55;
-      --hero-fire-scale: 0.72;
-    }
-    :root[data-theme="light"] .hero .dusk-hide { display: none; }
-
-    .hero::before {
-      /* diffuse ember wash, low-left, under Iliad — siege/pyre, barely there (static;
-         the discrete .fire points below carry the flicker so this doesn't compete) */
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 62% 52% at 12% 100%, rgba(218,132,50,0.40), transparent 74%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero::after {
-      /* moonlight-on-water glint — sea/Odyssey side only, drifting very slowly */
-      content: "";
-      position: absolute;
-      /* Left edge sits AT the 50% panel divider, and the mask fades the
-         overlay's left flank so its boundary can never render as a hard
-         vertical seam over the Iliad panel (John, 2026-07-18 — visible after
-         the 50/50 rebalance moved the divider left of the old 40% clip). */
-      inset: -8% -12% -8% 50%;
-      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%);
-      mask-image: linear-gradient(to right, transparent 0, #000 18%);
-      background: linear-gradient(
-        158deg,
-        transparent 40%,
-        rgba(237,230,214,0.04) 47%,
-        rgba(224,184,118,0.055) 50%,
-        rgba(237,230,214,0.04) 53%,
-        transparent 60%
-      );
-      pointer-events: none;
-      z-index: 1;
-      will-change: transform;
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .hero::after { animation: moonlight-drift 130s ease-in-out infinite alternate; }
-    }
-    @keyframes moonlight-drift {
-      from { transform: translateX(-0.8vw); }
-      to   { transform: translateX(0.8vw); }
-    }
-
-    /* ---- watchfires: Iliad side, low on the plain, warm, slightly irregular
-       flicker (Il. 8.553-565 — the Trojan watchfires, "as many as the stars" —
-       same vocabulary as the stars below, warm and grounded instead of cool
-       and high) ---- */
-    .fire {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      transform: scale(var(--hero-fire-scale, 1));
-      box-shadow: 0 0 14px 4px rgba(224,140,54,0.55), 0 0 4px 1px rgba(255,190,110,0.8);
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .fire { animation: flicker var(--dur, 22s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
-    }
-    @keyframes flicker {
-      0%, 100% { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
-      22%      { opacity: calc((var(--base, 0.55) + 0.12) * var(--hero-point-mult, 1)); }
-      46%      { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
-      68%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
-      85%      { opacity: calc((var(--base, 0.55) + 0.15) * var(--hero-point-mult, 1)); }
-    }
-    .fire-1 { left: 6%;  bottom: 7%; width: 5.5px; height: 5.5px; background: var(--hero-accent-bright); --dur: 19s; --delay: -3.2s;  }
-    .fire-2 { left: 16%; bottom: 4%; width: 4.5px; height: 4.5px; background: rgba(210,140,80,0.95);     --dur: 26s; --delay: -9.5s;  }
-    .fire-3 { left: 27%; bottom: 10%; width: 5px; height: 5px;   background: var(--hero-accent);        --dur: 17s; --delay: -1.4s;  }
-    .fire-4 { left: 39%; bottom: 5%; width: 4px; height: 4px; background: var(--hero-accent-bright);    --dur: 31s; --delay: -14s;   }
-    .fire-5 { left: 52%; bottom: 9%; width: 4.8px; height: 4.8px; background: rgba(210,140,80,0.95);    --dur: 22s; --delay: -6.8s;  }
-    .fire-6 { left: 66%; bottom: 6%; width: 4.2px; height: 4.2px; background: var(--hero-accent);       --dur: 28s; --delay: -11.2s; }
-    .fire-7 { left: 78%; bottom: 11%; width: 3.8px; height: 3.8px; background: var(--hero-accent-bright); --dur: 34s; --delay: -18s; }
-
-    /* ---- stars: Odyssey side, high above the seam, cool bone-silver, sparse ---- */
-    .star {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      box-shadow: 0 0 10px 2.5px rgba(220,235,255,0.45), 0 0 3px 1px rgba(255,255,255,0.7);
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .star { animation: twinkle var(--dur, 18s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: calc(var(--base, 0.45) * var(--hero-point-mult, 1)); }
-      50%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
-    }
-    .star-1 { left: 18%; top: 8%; width: 3.8px; height: 3.8px; background: var(--hero-ink);      --dur: 17s; --delay: -4.4s;  }
-    .star-2 { left: 36%; top: 14%;  width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 24s; --delay: -10s;   }
-    .star-3 { left: 55%; top: 6%; width: 4.2px; height: 4.2px; background: var(--hero-ink);      --dur: 14s; --delay: -2s;    }
-    .star-4 { left: 72%; top: 16%; width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 21s; --delay: -8.6s;  }
-    .star-5 { left: 88%; top: 9%; width: 2.4px; height: 2.4px; background: var(--hero-ink);      --dur: 19s; --delay: -6.1s;  }
-    .star-6 { left: 46%; top: 24%;  width: 2px; height: 2px; background: var(--hero-ink-soft); --dur: 27s; --delay: -13s;   }
-
-    .hero-horizon {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
-    }
-    .hero-horizon path {
-      fill: none;
-      stroke-width: 1.4;
-    }
-    .hero-horizon path.h1 { stroke: var(--hero-rule-strong); opacity: 0.55; }
-    .hero-horizon path.h2 { stroke: var(--hero-rule); opacity: 0.4; }
-    .hero-horizon path.h3 { stroke: var(--hero-accent); opacity: 0.32; }
-    @media (max-width: 899.98px) {
-      /* The horizon curves are composed for the side-by-side dusk panorama;
-         preserveAspectRatio="none" stretches them over the tall stacked-panel
-         hero into steep streaks that read as rendering artifacts (John,
-         2026-07-18) — hide them where the panels stack. */
-      .hero-horizon { display: none; }
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .hero-horizon path {
-        stroke-dasharray: 2000;
-        stroke-dashoffset: 2000;
-        animation: draw-in 1.6s ease-out forwards;
-      }
-      .hero-horizon path.h2 { animation-delay: 0.12s; }
-      .hero-horizon path.h3 { animation-delay: 0.24s; }
-      /* ambient drift — each stroke its own period/direction so they breathe against
-         each other; every loop is 0%/100%-symmetric so there is never a visible reset */
-      .horizon-drift-1 { animation: drift-h1 130s ease-in-out infinite; will-change: transform; }
-      .horizon-drift-2 { animation: drift-h2 95s ease-in-out infinite; will-change: transform; }
-      .horizon-drift-3 { animation: drift-h3 150s ease-in-out infinite; will-change: transform; }
-      .horizon-bob-3   { animation: bob-h3 50s ease-in-out infinite; }
-    }
-    @keyframes draw-in {
-      to { stroke-dashoffset: 0; }
-    }
-    @keyframes drift-h1 {
-      0%, 100% { transform: translateX(0); }
-      50%      { transform: translateX(4px); }
-    }
-    @keyframes drift-h2 {
-      0%, 100% { transform: translateX(0); }
-      50%      { transform: translateX(-5px); }
-    }
-    @keyframes drift-h3 {
-      0%, 100% { transform: translateX(0); }
-      50%      { transform: translateX(7px); }
-    }
-    @keyframes bob-h3 {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(1.5px); }
-    }
-
-    .hero-grid {
-      position: relative;
-      z-index: 2;
+      --hero-ink: #F6F0E4;
+      --hero-ink-soft: #D5CABB;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: min(84vh, 46rem);
+      background: #14101A;
     }
-    @media (max-width: 899.98px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        min-height: 0;
-      }
-    }
-
-    .epic-panel {
+    .epic {
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 0.55rem;
-      padding: clamp(2.25rem, 6vw, 4.5rem) clamp(1.25rem, 4.5vw, 3.75rem);
+      min-width: 0;
+      color: var(--hero-ink);
       text-decoration: none;
-      color: inherit;
       overflow: hidden;
+      isolation: isolate;
     }
-    .epic-panel:hover .epic-cta { color: var(--hero-accent-bright); border-top-color: var(--hero-accent-bright); }
-    .epic-panel:hover .epic-title { color: #F5EFE2; }
-    .epic-panel:focus-visible {
-      outline: 2.5px solid var(--hero-focus);
-      outline-offset: -3px;
-    }
-
     .epic-iliad {
-      align-items: flex-start;
-      text-align: left;
-      border-right: 1px solid rgba(36,53,76,0.55);
+      --hero-accent: #F0B28A;
       background:
-        radial-gradient(ellipse 80% 55% at 22% 100%, rgba(214,120,44,0.38), transparent 70%),
-        linear-gradient(170deg, rgba(120,60,26,0.10) 0%, rgba(160,80,32,0.22) 78%, rgba(190,100,40,0.28) 100%);
-    }
-    @media (max-width: 899.98px) {
-      .epic-iliad { border-right: none; border-bottom: 1px solid rgba(36,53,76,0.55); padding-bottom: 2.5rem; }
+        radial-gradient(120% 70% at 30% 118%, rgba(214, 106, 46, 0.62) 0%, rgba(160, 62, 30, 0.28) 38%, rgba(160, 62, 30, 0) 68%),
+        linear-gradient(180deg, #1B1218 0%, #261419 52%, #32171A 100%);
     }
     .epic-odyssey {
-      align-items: flex-end;
-      text-align: right;
-      padding-top: clamp(3.5rem, 9vw, 6.5rem);
+      --hero-accent: #A9D6E8;
       background:
-        radial-gradient(ellipse 85% 60% at 84% 0%, rgba(140,190,240,0.22), transparent 72%),
-        linear-gradient(350deg, rgba(30,60,110,0.10) 0%, rgba(70,120,190,0.16) 80%, rgba(120,170,230,0.18) 100%);
+        radial-gradient(110% 75% at 78% -18%, rgba(74, 142, 176, 0.55) 0%, rgba(40, 96, 130, 0.25) 40%, rgba(40, 96, 130, 0) 70%),
+        linear-gradient(180deg, #0F2434 0%, #0E2030 55%, #0B1826 100%);
+      border-left: 1px solid rgba(246, 240, 228, 0.14);
     }
-    @media (max-width: 899.98px) {
-      .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 2.5rem; }
+    .epic-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: clamp(2rem, 3.6vw, 3.25rem) var(--space-5) 0 var(--hero-pad);
     }
-
-    .epic-kicker {
-      font-family: var(--font-ui);
-      font-size: 0.66rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
+    /* The Iliad's text starts on the header's left edge. */
+    .epic { --hero-pad: clamp(1.5rem, 4.5vw, 4.5rem); }
+    .epic-iliad { --hero-pad: max(var(--space-5), calc((100vw - 82rem) / 2 + var(--space-5))); }
+    .epic-greek-sub {
+      font-family: var(--font-greek);
+      font-size: 0.9375rem;
+      letter-spacing: 0.34em;
       color: var(--hero-accent);
     }
     .epic-title {
+      margin: 0.5rem 0 0 -0.04em;
       font-family: var(--font-display);
       font-weight: 400;
-      line-height: 0.85;
-      letter-spacing: 0.01em;
+      font-size: clamp(3.25rem, 6vw, 5.75rem);
+      line-height: 0.98;
+      letter-spacing: -0.022em;
       color: var(--hero-ink);
-      margin: 0.15rem 0 0;
     }
-    /* Title hierarchy flipped (John, 2026-07-18 evening): "ENGLISH BIG,
-       Greek underneath, smaller" — the English title is the display
-       headline now; the Greek becomes the sub-line. Shared size for both
-       panels; "The Odyssey", the wider title, fits its half-column at every
-       2-col viewport. */
-    .epic-title { font-size: clamp(2.3rem, 5.2vw, 5.6rem); }
-    .epic-iliad .epic-title { margin-left: -0.05rem; }
-    .epic-odyssey .epic-title { margin-right: -0.04rem; }
-    /* Flaxman line motifs behind each panel's content (John's round-2
-       verdict: bigger, neutral bone ink for value contrast, distinct plates
-       per surface; Iliad raised so the composition isn't clipped). Masks
-       tint via background color, so no per-theme asset variants. */
-    .epic-art {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: var(--hero-ink);
-      opacity: 0.30;
-      -webkit-mask: var(--art) center 62% / 88% auto no-repeat;
-      mask: var(--art) center 62% / 88% auto no-repeat;
-      z-index: 0;
-    }
-    .epic-art-iliad {
-      -webkit-mask-position: center 16%;
-      mask-position: center 16%;
-    }
-    .epic-panel > :not(.epic-art):not(.fire):not(.star) { position: relative; z-index: 1; }
-    @media (max-width: 899.98px) { .epic-art { display: none; } }
-    .epic-greek-sub {
-      display: block;
-      font-family: var(--font-greek);
-      font-size: clamp(1.05rem, 2vw, 1.9rem);
-      letter-spacing: 0.14em;
-      color: var(--hero-accent-bright);
-      margin-top: 0.4rem;
-    }
-    .epic-epigraph {
-      margin: 0.9rem 0 0;
-      width: 100%;
-      max-width: 30rem;
-    }
+    .epic-epigraph { display: block; margin-top: clamp(1.25rem, 2.2vw, 2rem); }
     .epic-epigraph .gk {
       display: block;
       font-family: var(--font-greek);
-      font-size: 1.05rem;
+      font-size: clamp(1.25rem, 1.6vw, 1.625rem);
+      line-height: 1.3;
       color: var(--hero-ink);
+      text-wrap: balance;
     }
+    @media (min-width: 1200px) { .epic-epigraph .gk { white-space: nowrap; } }
     .epic-epigraph .gloss {
       display: block;
+      margin-top: 0.4rem;
       font-family: var(--font-english);
       font-style: italic;
-      font-size: 0.82rem;
+      font-size: 1.0625rem;
+      line-height: 1.4;
       color: var(--hero-ink-soft);
-      margin-top: 0.2rem;
     }
     .epic-argument {
-      margin: 0.75rem 0 0;
-      width: 100%;
+      display: block;
+      margin-top: 1.25rem;
       max-width: 30rem;
       font-family: var(--font-english);
-      font-size: 0.95rem;
+      font-size: 1.125rem;
       line-height: 1.5;
       color: var(--hero-ink-soft);
     }
+    .epic-foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1.25rem;
+      margin-top: 1.75rem;
+    }
     .epic-cta {
-      display: inline-block;
-      margin-top: 1.1rem;
-      padding-top: 0.55rem;
-      border-top: 1px solid var(--hero-rule-strong);
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--hero-accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.625rem;
+      height: 2.875rem;
+      padding: 0 1.375rem;
+      border-radius: var(--radius-pill);
+      background: var(--hero-ink);
+      color: #1F1A17;
+      font: 600 0.9375rem/1 var(--font-ui);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .epic-cta svg { transition: transform 0.15s ease; }
+    .epic:hover .epic-cta { background: #fff; }
+    .epic:hover .epic-cta svg { transform: translateX(3px); }
+    .epic-kicker {
+      font: 500 0.8125rem/1.3 var(--font-ui);
+      color: var(--hero-ink-soft);
+    }
+    .epic:focus-visible { outline: 3px solid var(--hero-accent); outline-offset: -3px; }
+    .epic-art {
+      display: block;
+      flex: 1 0 auto;
+      height: clamp(7.5rem, 12vw, 10.5rem);
+      margin: clamp(1.25rem, 2vw, 1.75rem) var(--space-5) 0 var(--hero-pad);
+      background: var(--hero-accent);
+      opacity: 0.5;
+      -webkit-mask: var(--art) left bottom / contain no-repeat;
+      mask: var(--art) left bottom / contain no-repeat;
+    }
+    .epic-odyssey .epic-art { -webkit-mask-position: left bottom; mask-position: left bottom; }
+    @media (prefers-reduced-motion: reduce) {
+      .epic-cta, .epic-cta svg { transition: none; }
+    }
+    @media (max-width: 760px) {
+      /* Both poems in the first screen of a phone: the argument and the
+         frieze give way, the opening line stays. */
+      .hero { grid-template-columns: 1fr; }
+      .epic-odyssey { border-left: 0; border-top: 1px solid rgba(246, 240, 228, 0.14); }
+      .epic-text { padding: 1.5rem var(--space-4) 1.5rem; }
+      .epic-greek-sub { font-size: 0.75rem; }
+      .epic-title { font-size: 2.75rem; margin-top: 0.25rem; }
+      .epic-epigraph { margin-top: 0.75rem; }
+      .epic-epigraph .gk { font-size: 1.1875rem; }
+      .epic-epigraph .gloss { font-size: 0.9375rem; }
+      .epic-argument, .epic-art { display: none; }
+      .epic-foot { margin-top: 1rem; }
+      .epic-cta { height: 2.75rem; }
     }
 
-    /* ================= THREE DOORS ================= */
+    /* ================= WHAT THE EDITION ADDS ================= */
     .section-eyebrow {
-      font-family: var(--font-ui);
-      font-size: 0.64rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-mid);
-      margin: 0 0 1rem;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: var(--step-3);
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin: 0 0 var(--space-5);
     }
-    /* Door-card styles moved into the shared DoorCards.astro component (#10). */
-
-    /* ================= APPARATUS BAND ================= */
-    .apparatus-section {
-      border-top: 1px solid var(--border);
-      padding: 3rem 0 3.25rem;
-    }
+    .apparatus-section { padding: var(--space-6) 0 var(--space-7); border-top: 1px solid var(--border); }
     .apparatus-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 1.75rem;
+      gap: var(--space-6);
     }
-    @media (max-width: 900px) {
-      .apparatus-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 520px) {
-      .apparatus-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 900px) { .apparatus-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .apparatus-grid { grid-template-columns: 1fr; gap: var(--space-5); } }
     .app-item h3 {
-      margin: 0 0 0.55rem;
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-mid);
+      font: 600 0.9375rem/1.3 var(--font-ui);
+      color: var(--text);
+      margin: 0 0 0.375rem;
     }
     .app-item p {
-      margin: 0;
       font-family: var(--font-english);
-      font-size: 0.86rem;
+      font-size: 1.0625rem;
       line-height: 1.5;
-      color: var(--text);
+      color: var(--text-mid);
+      margin: 0;
     }
-
-    .mini-scene-chip {
-      margin-top: 0.75rem;
-      padding: 0.6rem 0.7rem 0.65rem;
+    .mini-scene-chip, .mini-day-marker, .mini-tier-legend, .mini-lex-tabs {
+      margin-top: var(--space-4);
+      padding: 0.75rem 0.875rem;
       background: var(--col-bg);
       border: 1px solid var(--border);
-      border-left: 2px solid var(--accent);
+      border-radius: var(--radius-2);
     }
     .mini-scene-chip .ref {
-      font-family: var(--font-ui);
-      font-size: 0.62rem;
-      letter-spacing: 0.05em;
-      color: var(--accent);
       display: block;
+      font: 600 0.75rem/1.3 var(--font-ui);
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
       margin-bottom: 0.25rem;
     }
-    .mini-scene-chip p {
-      font-size: 0.78rem;
-      font-style: italic;
-      color: var(--text-mid);
-      line-height: 1.45;
-    }
-
-    .mini-day-marker {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: 0.75rem;
-    }
+    .mini-scene-chip p { font-size: 0.9375rem; line-height: 1.4; color: var(--text); }
+    .mini-scene-chip .draft-badge { margin-top: 0.5rem; }
+    .mini-day-marker { display: flex; align-items: center; gap: 0.625rem; }
     .mini-day-marker .pin {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent-light);
-      flex: none;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
     }
-    .mini-day-marker span.label {
-      font-family: var(--font-ui);
-      font-size: 0.66rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
+    .mini-day-marker span.label { font: 600 0.8125rem/1 var(--font-ui); color: var(--text); font-variant-numeric: tabular-nums; }
     .mini-tier-legend {
-      margin-top: 0.8rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem 0.9rem;
-      font-family: var(--font-ui);
-      font-size: 0.6rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 0.75rem;
+      font: 500 0.8125rem/1 var(--font-ui);
       color: var(--text-mid);
     }
-    .mini-tier-legend .item { display: flex; align-items: center; gap: 0.32rem; }
-    .mini-tier-legend .mark { width: 8px; height: 8px; flex: none; }
+    .mini-tier-legend .item { display: flex; align-items: center; gap: 0.5rem; }
+    .mini-tier-legend .mark { width: 9px; height: 9px; flex: none; }
     .mini-tier-legend .mark.certain { border-radius: 50%; background: var(--text); }
-    .mini-tier-legend .mark.traditional { border-radius: 50%; border: 1.3px solid var(--text); background: transparent; }
-    .mini-tier-legend .mark.speculative { border-radius: 50%; border: 1.3px dashed var(--text-mid); background: transparent; }
-    .mini-tier-legend .mark.mythical { border: 1.3px solid var(--text-mid); transform: rotate(45deg); width: 6.5px; height: 6.5px; }
-
-    .mini-lex-tabs {
-      margin-top: 0.75rem;
-      display: flex;
-      gap: 0.8rem;
-      font-family: var(--font-ui);
-      font-size: 0.64rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .mini-lex-tabs span { color: var(--text-mid); border-bottom: 1px solid var(--border); padding-bottom: 2px; }
+    .mini-tier-legend .mark.traditional { border-radius: 50%; border: 1.5px solid var(--text); background: transparent; }
+    .mini-tier-legend .mark.speculative { border-radius: 50%; border: 1.5px dashed var(--text-mid); background: transparent; }
+    .mini-tier-legend .mark.mythical { border: 1.5px solid var(--text-mid); transform: rotate(45deg); width: 7px; height: 7px; }
+    .mini-lex-tabs { display: flex; gap: 1.25rem; font: 600 0.8125rem/1 var(--font-ui); }
+    .mini-lex-tabs span { color: var(--text-mid); padding-bottom: 0.375rem; border-bottom: 2px solid transparent; }
     .mini-lex-tabs span.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ================= FOOTER ================= */
     .home-foot {
-      margin-top: 0.9rem;
-      text-align: center;
-      font-family: var(--font-ui);
-      font-size: 0.78rem;
-      color: var(--text-mid);
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem 0.7rem;
-      padding-bottom: 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.25rem 0.75rem;
+      padding: 0 0 var(--space-7);
+      font: 500 0.875rem/1.4 var(--font-ui);
+      color: var(--text-light);
     }
-    .home-foot a { color: var(--text-mid); text-decoration: none; }
-    .home-foot a:hover { color: var(--accent); }
+    .home-foot a { color: var(--text-mid); text-decoration: none; padding: 0.5rem 0.25rem; }
+    .home-foot a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; }
     .home-foot button {
-      background: none; border: none; padding: 0; cursor: pointer;
-      font: inherit; font-size: 0.78rem; color: var(--text-mid);
+      background: none; border: none; padding: 0.5rem 0.25rem; cursor: pointer;
+      font: inherit; color: var(--text-mid);
     }
-    .home-foot button:hover { color: var(--accent); }
-
+    .home-foot button:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; }
     /* Feedback modal (unchanged mechanism, kept from the prior homepage — no
        other page hosts a bug/feature-report entry point). */
     #feedback-modal {

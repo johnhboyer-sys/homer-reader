@@ -9,7 +9,7 @@
 // owns 100% of its own words: this component only supplies chrome, canonical/
 // OG/FAQPage meta, and layout; content is the default slot.
 import ThemeInit from './ThemeInit.astro';
-import ThemeToggle from './ThemeToggle.astro';
+import SiteHeader from './SiteHeader.astro';
 import Pwa from './Pwa.astro';
 import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
@@ -167,19 +167,7 @@ const faqLd = faqs.length > 0 ? {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">&rsaquo;</span>
-      <span class="header-static">{h1}</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">The Poems</a>
-      <a href={`${base}/start/`} class="search-link">Start Here</a>
-      <a href={`${base}/about`} class="search-link">About</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader />
 
   <main class="seo-body">
     <p class="seo-eyebrow">{eyebrow}</p>

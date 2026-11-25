@@ -1,18 +1,18 @@
 ---
-// The single shell header/wordmark shared by every non-reader surface — the
-// homepage masthead, SEO landers, apparatus/index pages and utility pages
-// (Design punch-list #4, 2026-07-18). Before this, ~16 pages hand-rolled their
-// own <header class="simple-header"> with three drifted wordmarks ("Homer",
-// "Home", plain-div "The Homer Reader") and inconsistent nav sets. This is the
-// one source of truth: the full "The Homer Reader" wordmark + eyebrow (the same
-// unit the reader toolbar carries, so the reader reads as an extension of the
-// shell, not a different site) and one canonical nav set. The page's own h1
-// supplies its label; the header instead makes every primary section visible
-// and marks the section containing the current path.
+// The one site header. Every page that is not the reader itself carries this
+// bar (home, the two poem indexes, the apparatus and utility pages); the
+// reader's own bar (ReaderShell.astro) is the same height, wordmark and
+// control grammar with the reading tools in the middle.
+//
+// Navigation is grouped, not a flat row: the two poems are direct links, the
+// rest sit in three short menus (Atlas, People, Language), then Search and the
+// theme switch. From 900px down the groups fold into one menu sheet with
+// 44px rows. The menus are plain CSS (:hover / :focus-within, and a <details>
+// for the phone sheet), so the header ships no script of its own.
 import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
-  /** Kept while callers migrate; page labels now belong to their own h1s. */
+  /** Kept while callers migrate; page labels belong to their own h1s. */
   section?: string;
 }
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -20,149 +20,298 @@ const pathname = base && Astro.url.pathname.startsWith(`${base}/`)
   ? Astro.url.pathname.slice(base.length)
   : Astro.url.pathname;
 
-const sections = [
-  { label: 'Iliad', href: `${base}/iliad`, prefix: '/iliad' },
-  { label: 'Odyssey', href: `${base}/odyssey`, prefix: '/odyssey' },
-  { label: 'Maps', href: `${base}/maps/`, prefix: '/maps' },
-  { label: 'Timeline', href: `${base}/timeline/`, prefix: '/timeline' },
-  { label: 'Characters', href: `${base}/characters/`, prefix: '/characters' },
-  { label: 'Places', href: `${base}/places/`, prefix: '/places' },
-  { label: 'Genealogies', href: `${base}/genealogies/`, prefix: '/genealogies' },
-  { label: 'Vocabulary', href: `${base}/vocabulary/`, prefix: '/vocabulary' },
-  { label: 'Formulas', href: `${base}/formulas/`, prefix: '/formulas' },
-  { label: 'Repetitions', href: `${base}/repetitions/`, prefix: '/repetitions' },
-  { label: 'Search', href: `${base}/search`, prefix: '/search' },
-  { label: 'Advanced', href: `${base}/advanced`, prefix: '/advanced' },
-  { label: 'Phrases', href: `${base}/phrases/`, prefix: '/phrases' },
-  { label: 'About', href: `${base}/about`, prefix: '/about' },
-];
+interface Item { label: string; href: string; prefix: string; }
+const item = (label: string, path: string, prefix = path.replace(/\/$/, '')): Item =>
+  ({ label, href: `${base}${path}`, prefix });
 
-const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
+const poems: Item[] = [item('Iliad', '/iliad'), item('Odyssey', '/odyssey')];
+const groups: { label: string; items: Item[] }[] = [
+  { label: 'Atlas', items: [item('Maps', '/maps/'), item('Places', '/places/'), item('Timeline', '/timeline/')] },
+  { label: 'People', items: [item('Characters', '/characters/'), item('Genealogies', '/genealogies/')] },
+  {
+    label: 'Language',
+    items: [
+      item('Vocabulary', '/vocabulary/'),
+      item('Formulas', '/formulas/'),
+      item('Repetitions', '/repetitions/'),
+      item('Phrases', '/phrases/'),
+      item('Lexicon', '/lemma/'),
+      item('Advanced search', '/advanced'),
+    ],
+  },
+];
+const about = item('About', '/about');
+const search = item('Search', '/search');
+
+const isCurrent = (i: Item) => pathname === i.prefix || pathname.startsWith(`${i.prefix}/`);
+const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
 ---
-<header class="simple-header site-header">
-  <div class="header-title">
-    <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — home">
-      <span class="wordmark-name">The Homer Reader</span>
-      <span class="wordmark-eyebrow">The Iliad &amp; Odyssey · Greek and English</span>
-    </a>
-  </div>
-  <nav class="header-actions site-nav" aria-label="Site">
-    <div class="site-nav-links">
-      {sections.map((section) => (
-        <a
-          href={section.href}
-          class:list={['search-link', 'site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
-          aria-current={isCurrent(section.prefix) ? 'page' : undefined}
-        >
-          {section.label}
-        </a>
+<header class="sh">
+  <div class="sh-inner">
+    <a class="sh-wordmark" href={`${base}/`} aria-label="The Homer Reader — home">The Homer Reader</a>
+
+    <nav class="sh-nav" aria-label="Site">
+      {poems.map((p) => (
+        <a class:list={['sh-link', { 'is-current': isCurrent(p) }]} href={p.href} aria-current={isCurrent(p) ? 'page' : undefined}>{p.label}</a>
       ))}
+      <span class="sh-rule" aria-hidden="true"></span>
+      {groups.map((g) => (
+        <div class="sh-group">
+          <button type="button" class:list={['sh-link', 'sh-group-btn', { 'is-current': groupCurrent(g) }]} aria-haspopup="true">
+            {g.label}
+            <svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1l3.5 3.5L8 1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="sh-menu">
+            {g.items.map((i) => (
+              <a class:list={['sh-menu-link', { 'is-current': isCurrent(i) }]} href={i.href} aria-current={isCurrent(i) ? 'page' : undefined}>{i.label}</a>
+            ))}
+          </div>
+        </div>
+      ))}
+      <a class:list={['sh-link', { 'is-current': isCurrent(about) }]} href={about.href} aria-current={isCurrent(about) ? 'page' : undefined}>{about.label}</a>
+    </nav>
+
+    <div class="sh-tools">
+      <a class:list={['sh-search', { 'is-current': isCurrent(search) }]} href={search.href} aria-current={isCurrent(search) ? 'page' : undefined}>
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
+        <span>Search</span>
+      </a>
+      <ThemeToggle />
+      <details class="sh-mobile">
+        <summary aria-label="Menu">
+          <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 1h16M1 7h16M1 13h16"/></svg>
+          <span>Menu</span>
+        </summary>
+        <nav class="sh-sheet" aria-label="Site menu">
+          <div class="sh-sheet-group">
+            <p class="sh-sheet-label">Read</p>
+            {poems.map((p) => (
+              <a class:list={['sh-sheet-link', { 'is-current': isCurrent(p) }]} href={p.href} aria-current={isCurrent(p) ? 'page' : undefined}>{p.label}</a>
+            ))}
+          </div>
+          {groups.map((g) => (
+            <div class="sh-sheet-group">
+              <p class="sh-sheet-label">{g.label}</p>
+              {g.items.map((i) => (
+                <a class:list={['sh-sheet-link', { 'is-current': isCurrent(i) }]} href={i.href} aria-current={isCurrent(i) ? 'page' : undefined}>{i.label}</a>
+              ))}
+            </div>
+          ))}
+          <div class="sh-sheet-group">
+            <p class="sh-sheet-label">The edition</p>
+            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(search) }]} href={search.href}>Search</a>
+            <a class:list={['sh-sheet-link', { 'is-current': isCurrent(about) }]} href={about.href}>About</a>
+          </div>
+        </nav>
+      </details>
     </div>
-    <details class="site-nav-mobile">
-      <summary>Sections</summary>
-      <div class="site-nav-menu">
-        {sections.map((section) => (
-          <a
-            href={section.href}
-            class:list={['site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
-            aria-current={isCurrent(section.prefix) ? 'page' : undefined}
-          >
-            {section.label}
-          </a>
-        ))}
-      </div>
-    </details>
-    <ThemeToggle />
-  </nav>
+  </div>
 </header>
 
 <style>
-  .site-header .site-nav {
-    gap: 0.45rem;
+  .sh {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: color-mix(in srgb, var(--col-bg) 92%, transparent);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-ui);
   }
-
-  .site-header .site-nav-links {
+  .sh-inner {
     display: flex;
     align-items: center;
-    gap: 0.12rem;
+    gap: var(--space-5);
+    height: var(--bar-h);
+    max-width: 82rem;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
   }
-
-  .site-header .site-nav-link {
-    border-bottom: 1px solid transparent;
-    border-radius: 0;
-    font-size: 0.72rem;
-    letter-spacing: 0.01em;
-    line-height: 1.25;
-    padding: 0.2rem 0.25rem !important;
+  .sh-wordmark {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-decoration: none;
     white-space: nowrap;
+    padding: 0.5rem 0;
   }
+  .sh-wordmark:hover { color: var(--accent); }
 
-  .site-header .site-nav-link.is-current {
-    border-bottom-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
+  .sh-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    margin-left: auto;
   }
-
-  .site-header .site-nav-mobile {
-    display: none;
-    position: relative;
-  }
-
-  .site-header .site-nav-mobile summary {
+  .sh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: var(--radius-1);
+    background: none;
+    font: 500 0.875rem/1 var(--font-ui);
     color: var(--text-mid);
+    text-decoration: none;
     cursor: pointer;
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    list-style: none;
-    padding: 0.2rem 0.25rem;
     white-space: nowrap;
   }
+  .sh-link:hover,
+  .sh-group:hover > .sh-link,
+  .sh-group:focus-within > .sh-link { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .sh-link.is-current { color: var(--accent); }
+  .sh-rule { width: 1px; height: 1.125rem; background: var(--border); margin: 0 0.5rem; }
 
-  .site-header .site-nav-mobile summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .site-header .site-nav-mobile summary::after {
-    content: ' ▾';
-  }
-
-  .site-header .site-nav-mobile summary:focus-visible,
-  .site-header .site-nav-link:focus-visible {
-    outline: 2px solid var(--accent-light);
-    outline-offset: 2px;
-  }
-
-  .site-header .site-nav-menu {
-    background: var(--col-bg);
-    border: 1px solid var(--border);
-    box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--text) 16%, transparent);
-    display: grid;
-    gap: 0.1rem;
-    min-width: 11rem;
-    padding: 0.35rem;
+  .sh-group { position: relative; }
+  .sh-group-btn svg { opacity: 0.7; }
+  .sh-menu {
     position: absolute;
-    right: 0;
-    top: calc(100% + 0.4rem);
-    z-index: 1;
+    top: 100%;
+    left: 0;
+    min-width: 12.5rem;
+    padding: 0.375rem;
+    background: var(--popup-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2);
+    box-shadow: var(--shadow-2);
+    display: grid;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
   }
+  /* A bridge across the gap between the button and its menu, so the pointer
+     can travel down without the menu closing under it. */
+  .sh-menu::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 0.75rem; }
+  .sh-group:hover > .sh-menu,
+  .sh-group:focus-within > .sh-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(6px);
+    transition-delay: 0s;
+  }
+  .sh-menu-link {
+    display: block;
+    padding: 0.5625rem 0.75rem;
+    border-radius: var(--radius-1);
+    font: 500 0.875rem/1.2 var(--font-ui);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .sh-menu-link:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent); }
+  .sh-menu-link.is-current { color: var(--accent); }
 
-  .site-header .site-nav-menu .site-nav-link {
+  .sh-tools { display: flex; align-items: center; gap: 0.5rem; }
+  .sh-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.875rem 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--col-bg);
+    font: 500 0.875rem/1 var(--font-ui);
     color: var(--text-mid);
-    padding: 0.35rem 0.45rem !important;
+    text-decoration: none;
   }
+  .sh-search:hover, .sh-search.is-current { border-color: var(--accent); color: var(--accent); }
 
-  .site-header .site-nav-menu .site-nav-link:hover {
-    background: var(--border);
-    color: var(--accent);
+  .sh :global(.theme-toggle) {
+    width: 2.25rem;
+    height: 2.25rem;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: none;
+    color: var(--text-mid);
   }
+  .sh :global(.theme-toggle:hover) { color: var(--accent); background: color-mix(in srgb, var(--text) 6%, transparent); border-color: transparent; }
 
-  @media (max-width: 1050px) {
-    .site-header .site-nav-links {
-      display: none;
-    }
+  .sh-link:focus-visible,
+  .sh-menu-link:focus-visible,
+  .sh-search:focus-visible,
+  .sh-wordmark:focus-visible,
+  .sh-sheet-link:focus-visible,
+  .sh-mobile summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-    .site-header .site-nav-mobile {
-      display: block;
-    }
+  /* Phone / narrow: one Menu button, one sheet. */
+  .sh-mobile { display: none; }
+  .sh-mobile summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--col-bg);
+    font: 600 0.875rem/1 var(--font-ui);
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+  }
+  .sh-mobile summary::-webkit-details-marker { display: none; }
+  .sh-mobile[open] summary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .sh-sheet {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100dvh - var(--bar-h));
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-5);
+    padding: var(--space-5) var(--space-5) var(--space-6);
+    background: var(--popup-bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-2);
+  }
+  .sh-sheet-label {
+    font: 600 0.6875rem/1 var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin: 0 0 0.25rem;
+    padding: 0 0.5rem;
+  }
+  .sh-sheet-link {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.5rem;
+    border-radius: var(--radius-1);
+    font: 500 1.0625rem/1.2 var(--font-ui);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .sh-sheet-link:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  .sh-sheet-link.is-current { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sh-nav { display: none; }
+    .sh-tools { margin-left: auto; }
+    .sh-mobile { display: block; }
+    .sh-inner { padding: 0 var(--space-4); gap: var(--space-3); }
+    .sh-search { width: 2.75rem; height: 2.75rem; padding: 0; justify-content: center; }
+    .sh-search span { display: none; }
+    .sh :global(.theme-toggle) { width: 2.75rem; height: 2.75rem; }
+  }
+  @media (max-width: 430px) {
+    .sh-wordmark { font-size: 1.25rem; }
+    .sh-inner { gap: var(--space-2); }
+    .sh-tools { gap: 0.125rem; }
+    .sh-mobile summary span { display: none; }
+    .sh-mobile summary { width: 2.75rem; padding: 0; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sh-menu { transition: none; }
   }
 </style>

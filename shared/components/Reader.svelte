@@ -328,10 +328,10 @@
   const LH_KEY = `reader-lh-${work}`;
   const COLW_KEY = `reader-colw-${work}`;
   // Base CSS values from global.css; scale as multipliers (1.0 = default).
-  const FS_GREEK_BASE = 1.05;
-  const FS_ENG_BASE   = 1.08;
-  const LH_GREEK_BASE = 1.7;
-  const LH_ENG_BASE   = 1.72;
+  const FS_GREEK_BASE = 1.25;
+  const FS_ENG_BASE   = 1.1875;
+  const LH_GREEK_BASE = 1.62;
+  const LH_ENG_BASE   = 1.62;
   let fsScale = 1.0;
   let lhScale = 1.0;
   // Column-width scale: multiplies the layout's width caps (reader measure,
@@ -1744,9 +1744,17 @@
   // Detection line just below the sticky chrome (header + controls strip): the
   // reading position is the last anchor at or above it. Same idiom as
   // updateChapterContext.
-  function sceneBoundary(): number {
+  // The bottom edge of the sticky chrome. The citation strip is no longer
+  // pinned under the header, so once it has scrolled away the header's own
+  // bottom edge is the boundary; while it is still on screen it is the lower
+  // of the two, as before.
+  function chromeBottom(): number {
     const ctrl = document.querySelector('.reader-controls')?.getBoundingClientRect().bottom ?? 0;
-    return ctrl + 12;
+    const head = document.querySelector('.page-header')?.getBoundingClientRect().bottom ?? 0;
+    return Math.max(ctrl, head);
+  }
+  function sceneBoundary(): number {
+    return chromeBottom() + 12;
   }
   // Recompute the current scene from the reading position: the lowest on-screen
   // Greek line still above the detection line gives the vulgate line we're
@@ -2679,10 +2687,9 @@
     } else {
       const saved = (() => { try { return localStorage.getItem('reader-view'); } catch { return null; } })();
       if (saved === 'greek' || saved === 'english' || saved === 'both') view = saved;
-      // No saved choice: a phone defaults to English only (the bilingual columns
-      // are cramped on a narrow screen); desktop stays bilingual. The toggle —
-      // and any saved choice — overrides this on either.
-      else if (window.matchMedia('(max-width: 680px)').matches) view = 'english';
+      // No saved choice: bilingual everywhere. A phone gets the stacked
+      // alignment groups (Greek lines, then their English), so the Greek is
+      // on the first screen; the toggle and any saved choice override this.
     }
     const validTrans = new Set([...translations.map(t => t.id), ...(canCompare ? ['compare'] : [])]);
     const savedTrans = (() => { try { return localStorage.getItem(TRANS_KEY); } catch { return null; } })();
@@ -2894,8 +2901,7 @@
   // The line currently at the top of the reading area — the fallback anchor to
   // keep fixed when the sidebar closes after the clicked word has scrolled away.
   function topAnchor(): HTMLElement | null {
-    const ctrlBottom = document.querySelector('.reader-controls')?.getBoundingClientRect().bottom ?? 0;
-    const inset = ctrlBottom + 8;
+    const inset = chromeBottom() + 8;
     const greekVisible = view === 'greek' || view === 'both';
     const els = document.querySelectorAll<HTMLElement>(
       greekVisible ? '.greek-line[id]' : '.segment[id], .turn-flow .seg-row');

@@ -61,19 +61,19 @@
    change, so these are system-only stacks (font-display swap is moot with
    no network request, but harmless to note: no blocking font fetch remains). */
 :root {
-  --font-greek:   Palatino, "Palatino Linotype", "Times New Roman", Georgia, serif;
-  --font-english: "Iowan Old Style", Charter, Georgia, serif;
-  --font-ui:      Optima, Seravek, "Gill Sans", "Gill Sans MT", sans-serif;
+  --font-greek:   "Gentium Book Plus", "Gentium Plus", Palatino, "Palatino Linotype", "Times New Roman", serif;
+  --font-english: "Gentium Book Plus", "Iowan Old Style", Charter, Georgia, serif;
+  --font-ui:      Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   /* Display face: cartouche titles, masthead wordmark, section headings that
      want a bit more presence than the UI face. Not used pre-Aegean, so no
      prior value to record above. */
-  --font-display: "Big Caslon", "Hoefler Text", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-display: "Newsreader Display", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 
-  --col-bg:       #DBD8DC;  /* Wine-dark --ground-panel: cool bone, raised surfaces */
-  --page-bg:      #E7E7E9;  /* Wine-dark --ground: cool bone, page background */
-  --text:         #241827;  /* Wine-dark --ink */
-  --text-mid:     #5B4C58;  /* Wine-dark --ink-soft */
-  --text-light:   #5B4C58;  /* collapsed onto --ink-soft: the palette defines only two
+  --col-bg:       #FCF9F3;  /* Wine-dark --ground-panel: cool bone, raised surfaces */
+  --page-bg:      #F5F0E6;  /* Wine-dark --ground: cool bone, page background */
+  --text:         #1F1A17;  /* Wine-dark --ink */
+  --text-mid:     #564B43;  /* Wine-dark --ink-soft */
+  --text-light:   #62574E;  /* collapsed onto --ink-soft: the palette defines only two
                                 ink shades (see docs/DESIGN.md); both pass AA (13.77:1 on
                                 --page-bg, 6.49:1 on --page-bg), so no third invented
                                 shade — deliberate collapse, not an oversight. */
@@ -93,15 +93,15 @@
      of the sheet's own absolute elevation span (see plate.ts's
      hypsometricStep), so a name can legitimately land on any of them. */
   --plate-schematic-ink: #574854;
-  --accent:       #6E1F3A;  /* Wine-dark --route-red / garnet: the single wayfinding/
+  --accent:       #7A1F35;  /* Wine-dark --route-red / garnet: the single wayfinding/
                                 structural accent (nav hover, work-switcher, chapter-nav
                                 active, etc.) */
-  --accent-light: #944438;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint.
+  --accent-light: #9A3A4B;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint.
                                 Hue shifted from rose (#8C3A57) toward terracotta/garnet
                                 (John, 2026-07-21: "too much pink" — tempered the palette,
                                 same wine identity) — see docs/DESIGN.md and the dark-theme
                                 block below for the matching shift. */
-  --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
+  --border:       #DFD6C5;  /* Wine-dark --rule: soft decorative hairline */
   /* Land/sea fills (2026-07-28, contrast fix): land↔sea used to differ by
      only 1.086:1 here and, worse, INVERT in dark theme (land lighter here,
      darker there) — a reader who learns "pale is land" learned the opposite
@@ -131,8 +131,8 @@
   --scene-map-coast:      #565060; /* coast boundary; darkened so it clears 3:1 over
                                      the blue sea (3.99:1) as well as the land (6.68:1) */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
-  --popup-bg:     #DBD8DC;  /* same raised surface as --col-bg */
-  --popup-shadow: 0 4px 24px rgba(0,0,0,.18);
+  --popup-bg:     #FCF9F3;  /* same raised surface as --col-bg */
+  --popup-shadow: 0 1px 2px rgba(60,40,20,.08), 0 12px 32px rgba(60,40,20,.16);
   --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 20%, transparent);
   --greek-active:       color-mix(in srgb, var(--accent) 24%, var(--page-bg));
@@ -159,7 +159,7 @@
   /* A strong hairline / gutter-number colour, one step darker than --border —
      Wine-dark's --rule-strong role (verse-line gutter numbers, masthead rule,
      cartouche double-hairline). */
-  --rule-strong:  #5C2A40;
+  --rule-strong:  #7A5648;
   /* Honesty-flag colour for draft/unreviewed apparatus (CLAUDE.md "Apparatus
      honesty"). Slate-blue, per docs/DESIGN.md's LOCKED Wine-dark table —
      deliberately NOT a wine/garnet tint, so the draft flag reads as a
@@ -295,8 +295,8 @@
 
   /* Semantic colours used in a few hardcoded spots; aliased here so the dark
      theme can remap them. */
-  --on-accent:    #f5f9f8;   /* text/icon sitting on an --accent fill */
-  --input-bg:     #ffffff;   /* text inputs, modals */
+  --on-accent:    #FCF9F3;   /* text/icon sitting on an --accent fill */
+  --input-bg:     #FFFDF9;   /* text inputs, modals */
   --hit-bg:       #ffe29b;   /* search-hit token highlight */
   --target-bg:    #fff3d6;   /* jumped-to line tint */
   --mark-bg:      #ffe29b;   /* <mark> in English/search results */
@@ -306,12 +306,12 @@
   /* Greek (Palatino) and English (Iowan Old Style) balanced so neither column
      dominates: equal-ish optical size, and Greek verse leading compressed
      toward the English so the two columns sit at roughly the same height. */
-  --lh-greek:     1.7;
-  --lh-english:   1.72;
-  --fs-greek:     1.05rem;
-  --fs-english:   1.08rem;  /* nudged up to balance the two typefaces' x-heights */
-  --fs-ref:       0.78rem;
-  --fs-linenum:   0.72rem;
+  --lh-greek:     1.62;
+  --lh-english:   1.62;
+  --fs-greek:     1.25rem;
+  --fs-english:   1.1875rem;  /* nudged up to balance the two typefaces' x-heights */
+  --fs-ref:       0.75rem;
+  --fs-linenum:   0.6875rem;
 
   /* ── Spacing scale (Design punch-list #8, 2026-07-18) ──────────────────
      A single modular step-scale so gaps/padding across the shell draw from
@@ -327,7 +327,33 @@
   /* One canonical off-canvas side-panel width, replacing the four drifted
      values (368/352/320/319px ≈ 23/22/20rem) the TOC, scene rail, settings and
      word/lexicon rails had each grown independently (#8). */
-  --panel-w: 22rem;
+  --panel-w: 23rem;
+
+  /* ── Edition skin (redesign round 1) ─────────────────────────────────
+     Tokens the older skins did not need. Each is a role, so a later skin can
+     swap the value and nothing else. */
+  --surface-sunk: #EDE6D8;   /* wells: inputs at rest, segmented-control tracks */
+  --ink-inverse:  #F5F0E6;   /* text on the dark hero panels (both themes) */
+  --iliad:        #9A4A1F;   /* the Iliad's own colour: ember / bronze */
+  --odyssey:      #1D5A70;   /* the Odyssey's own colour: the sea at dusk */
+  --work-accent:  var(--accent); /* set per work on <body data-work> */
+  --radius-1: 6px;
+  --radius-2: 10px;
+  --radius-3: 16px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgba(60,40,20,.07);
+  --shadow-2: 0 1px 2px rgba(60,40,20,.08), 0 10px 28px rgba(60,40,20,.14);
+  --bar-h: 3.5rem;           /* the one header height, site and reader */
+  --measure: 34rem;          /* a comfortable prose line */
+  /* Type scale: a 1.2 minor third off the 1rem UI size. */
+  --step--2: 0.6875rem;
+  --step--1: 0.8125rem;
+  --step-0:  1rem;
+  --step-1:  1.1875rem;
+  --step-2:  1.5rem;
+  --step-3:  2rem;
+  --step-4:  2.75rem;
+  --step-5:  3.75rem;
 }
 
 /* ── Night mode ───────────────────────────────────────────────────────
@@ -335,23 +361,23 @@
    prior teal-black. Activated by data-theme="dark" on <html>, set by
    ThemeInit before paint. */
 :root[data-theme="dark"] {
-  --col-bg:       #211828;  /* Wine-dark --ground-panel dark */
-  --page-bg:      #181120;  /* Wine-dark --ground dark */
-  --text:         #EDE6E8;  /* Wine-dark --ink dark (bone) */
-  --text-mid:     #B7A9B4;  /* Wine-dark --ink-soft dark */
-  --text-light:   #B7A9B4;  /* same collapse as light mode, see note above */
+  --col-bg:       #1C1923;  /* Wine-dark --ground-panel dark */
+  --page-bg:      #131118;  /* Wine-dark --ground dark */
+  --text:         #ECE6DA;  /* Wine-dark --ink dark (bone) */
+  --text-mid:     #B9AFA2;  /* Wine-dark --ink-soft dark */
+  --text-light:   #A39A8E;  /* same collapse as light mode, see note above */
   /* See the :root block's comment. Dark needed a real lift off --text-mid
      (not a hairline nudge, unlike light) — the washed ramp's top step sits
      at a MID luminance in dark theme (the ramp lightens with height, see
      the hypsometric ramp block below), so a light ink loses most of its
      separation from it exactly where light theme's ink loses least. */
   --plate-schematic-ink: #DBD5DA;
-  --accent:       #D59186;  /* Wine-dark --route-red dark: shifted off rose toward garnet/
+  --accent:       #E3937F;  /* Wine-dark --route-red dark: shifted off rose toward garnet/
                                 terracotta (John, 2026-07-21: "too much pink" — tempered,
                                 not re-paletted; contrast re-verified, see scratchpad
                                 contrast-check run). Was #D98BA3. */
-  --accent-light: #E4B3AA;  /* Wine-dark --gold-deco dark. Was #E8A6BA. */
-  --border:       #3A2C38;  /* Wine-dark --rule dark */
+  --accent-light: #F0B7A6;  /* Wine-dark --gold-deco dark. Was #E8A6BA. */
+  --border:       #2F2A37;  /* Wine-dark --rule dark */
   --scene-map-sea:        #0A1C2A; /* deep Aegean water, deepened so warm land reads
                                        lighter than sea in BOTH themes */
   --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
@@ -391,8 +417,8 @@
   --plate-relief-12:      #86734B;
   --plate-contour:        #C2B189; /* band hairline, dark: lighter than every ramp step,
                                      see the :root block's comment */
-  --popup-bg:     #211828;
-  --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
+  --popup-bg:     #211D2A;
+  --popup-shadow: 0 1px 2px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 24%, transparent);
   --greek-active:       color-mix(in srgb, var(--accent) 26%, var(--page-bg));
@@ -400,16 +426,22 @@
   /* Wine-dark's --rule-strong dark: a lightened, same-hue rule (contrast-
      verified in docs/DESIGN.md's four-palette explorer) for gutter numbers,
      masthead rule, cartouche double-hairline. */
-  --rule-strong:  #C17067;  /* was #C77E97 — tempered off rose alongside --accent above */
+  --rule-strong:  #C08C7C;  /* was #C77E97 — tempered off rose alongside --accent above */
   --draft:        #8FB0C9;  /* slate-blue, see the light-theme --draft comment above */
 
-  --on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */
-  --input-bg:     #1d2426;
+  --on-accent:    #1A1216;   /* dark text reads on the lighter dark-mode accent */
+  --input-bg:     #231F2C;
   --hit-bg:       rgba(255, 196, 110, 0.28);   /* translucent so light text stays readable */
   --target-bg:    rgba(255, 196, 110, 0.14);
   --mark-bg:      rgba(255, 196, 110, 0.30);
   --error:        #f08a82;
   color-scheme:   dark;
+
+  --surface-sunk: #0E0C12;
+  --iliad:        #E0A070;
+  --odyssey:      #7FC0D8;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.5);
 }
 
 :root[data-theme="light"] {
@@ -475,7 +507,7 @@
      swap, so the row still reads as a deliberate band rather than the page
      continuing under the header — a plain-grey copy of --page-bg tried
      first read as barely separated. */
-  --nav-panel-bg: color-mix(in srgb, var(--accent) 16%, var(--page-bg));
+  --nav-panel-bg: var(--col-bg);
 }
 
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */
@@ -3470,9 +3502,9 @@ body.toc-open .toc-backdrop { opacity: 1; }
   transition: transform 0.2s ease;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.14);
+  box-shadow: none;
 }
-body.toc-open .toc-sidebar { transform: translateX(0); }
+body.toc-open .toc-sidebar { transform: translateX(0); box-shadow: var(--shadow-2); }
 
 .toc-head {
   flex: 0 0 auto;
@@ -4938,3 +4970,594 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 }
 .trans-licence a { color: inherit; text-decoration: underline; }
 .settings-trans .trans-licence { display: block; margin: 0.35rem 0 0; }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   Edition skin (redesign round 1). Everything above still supplies layout
+   and behaviour; this layer restyles the reader chrome on the new tokens.
+   Reader-header rules sit under `.page-header.rh` so they out-rank the
+   older breakpoint rules without editing them. Screen only: print keeps the
+   sheet above as it was.
+   ═════════════════════════════════════════════════════════════════════════ */
+@media screen {
+
+body[data-work="iliad"] { --work-accent: var(--iliad); }
+body[data-work="odyssey"] { --work-accent: var(--odyssey); }
+::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+/* Links that no rule has claimed take the wine accent, not browser blue. */
+:where(a:not([class])) { color: var(--accent); text-underline-offset: 0.15em; }
+
+/* ── Reader header: one bar ─────────────────────────────────────────────── */
+.page-header.rh {
+  --header-pad-x: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.75rem;
+  padding: 0 var(--header-pad-x);
+  background: var(--col-bg);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+}
+.page-header.rh .header-bar {
+  min-height: var(--bar-h);
+  flex-wrap: nowrap;
+  gap: 0 0.75rem;
+}
+.page-header.rh .header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-right: auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: visible;
+}
+.page-header.rh .header-title .home-link {
+  display: inline-flex;
+  flex-direction: row;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.page-header.rh .home-wordmark .wordmark-name { font: inherit; letter-spacing: inherit; color: inherit; }
+.page-header.rh .header-title .home-link:hover,
+.page-header.rh .home-wordmark:hover .wordmark-name { color: var(--accent); }
+.page-header.rh .header-title .title-sep {
+  display: block;
+  width: 1px;
+  height: 1.25rem;
+  background: var(--border);
+  font-size: 0;
+}
+.page-header.rh .work-switcher {
+  height: 2.25rem;
+  padding: 0 1.6rem 0 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
+  background-color: transparent;
+  background-position: right 0.55rem center;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text);
+}
+.page-header.rh .work-switcher:hover { background-color: var(--surface-sunk); color: var(--text); border-color: transparent; }
+
+/* Quiet icon buttons: one look for every tool in the bar. */
+.page-header.rh :is(.toc-toggle, .scenes-toggle, .nav-chart-room, .header-search, .settings-toggle, .help-trigger, .theme-toggle, .header-support, .nav-posture-action) {
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 2.25rem;
+  width: auto;
+  height: 2.25rem;
+  min-height: 0;
+  padding: 0 0.55rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
+  background: transparent;
+  color: var(--text-mid);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.page-header.rh :is(.toc-toggle, .scenes-toggle, .nav-chart-room, .header-search, .settings-toggle, .help-trigger, .theme-toggle, .header-support, .nav-posture-action):hover {
+  background: var(--surface-sunk);
+  border-color: transparent;
+  color: var(--text);
+}
+.page-header.rh :is(.toc-toggle, .scenes-toggle, .nav-chart-room, .settings-toggle)[aria-expanded="true"] {
+  background: var(--surface-sunk);
+  border-color: transparent;
+  color: var(--accent);
+}
+.page-header.rh :is(.toc-toggle, .scenes-toggle, .nav-chart-room, .header-search, .settings-toggle, .help-trigger, .theme-toggle, .header-support, .nav-posture-action, .work-switcher, .nav-trans-select):focus-visible,
+.page-header.rh .view-toggle button:focus-visible,
+.page-header.rh .nav-posture-seg button:focus-visible,
+.page-header.rh .nav-stepper-arrow:focus-visible,
+.page-header.rh .home-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.page-header.rh :is(.toc-toggle-icon, .scenes-toggle-icon, .nav-chart-room-icon, .settings-icon, .hsup-heart) { display: inline-flex; font-size: inherit; line-height: 1; }
+.page-header.rh .hsup-heart { color: var(--accent); }
+.page-header.rh .help-trigger { font-size: 0.9375rem; font-weight: 600; }
+.page-header.rh .bar-actions { gap: 0.125rem; flex: 0 0 auto; }
+.page-header.rh .bar-divider { width: 1px; height: 1.25rem; margin: 0 0.4rem; background: var(--border); }
+.page-header.rh .hs-kbd {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  background: transparent;
+  color: var(--text-light);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+}
+/* "Go to" is the one labelled tool: a search field in outline. */
+.page-header.rh .command-palette-trigger {
+  border-color: var(--border);
+  background: var(--input-bg);
+  padding: 0 0.5rem 0 0.6rem;
+  margin-right: 0.25rem;
+}
+.page-header.rh .command-palette-trigger:hover { border-color: var(--rule-strong); background: var(--input-bg); }
+/* Everything else in the tool cluster is icon-only; each keeps its
+   aria-label and title. */
+.page-header.rh .header-lexicon .hs-text,
+.page-header.rh .settings-text,
+.page-header.rh .hsup-text { display: none; }
+/* The Jump form repeats what "Go to" does. */
+.page-header.rh .nav-jump-wrap { display: none; }
+
+/* Second row (tablet and small laptop); folded into the bar on wide screens. */
+.page-header.rh .nav-panel {
+  margin: 0 calc(-1 * var(--header-pad-x));
+  width: calc(100% + 2 * var(--header-pad-x));
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+.page-header.rh .nav-panel-inner { flex-wrap: nowrap; min-height: 2.75rem; row-gap: 0; }
+.page-header.rh .nav-group-left,
+.page-header.rh .nav-group-right { gap: 0.375rem; }
+.page-header.rh .nav-group-right { gap: 0.75rem; }
+
+.page-header.rh .nav-stepper { gap: 0.125rem; font-size: var(--step--1); color: var(--text); margin-left: 0.25rem; }
+.page-header.rh .nav-stepper-label { font-weight: 600; padding: 0 0.25rem; }
+.page-header.rh .nav-stepper-arrow {
+  min-width: 1.75rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-1);
+  color: var(--text-mid);
+}
+.page-header.rh .nav-stepper-arrow:hover { background: var(--surface-sunk); color: var(--text); }
+
+/* Translation picker: a real select, wide enough for its short name. */
+.page-header.rh .nav-trans-select {
+  height: 2.125rem;
+  max-width: none;
+  padding: 0 1.7rem 0 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-1);
+  background-color: var(--input-bg);
+  background-position: right 0.55rem center;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+}
+.page-header.rh .nav-trans-select:hover { border-color: var(--rule-strong); }
+
+/* Language: a sunk track with one raised chip. */
+.page-header.rh .view-toggle {
+  align-items: center;
+  padding: 2px;
+  gap: 0;
+  border-radius: var(--radius-1);
+  background: var(--surface-sunk);
+}
+.page-header.rh .view-toggle button {
+  height: 1.875rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-mid);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+}
+.page-header.rh .view-toggle button:hover { color: var(--text); background: transparent; }
+.page-header.rh .view-toggle button.active {
+  background: var(--col-bg);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+/* Mode: plain tabs with a wine underline, so it cannot be read as a second
+   language switch. */
+.page-header.rh .nav-posture-seg { align-items: center; gap: 0.125rem; }
+.page-header.rh .nav-posture-seg button {
+  height: 2.25rem;
+  padding: 0 0.45rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-mid);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  box-shadow: inset 0 -2px 0 transparent;
+}
+.page-header.rh .nav-posture-seg button:hover { color: var(--text); background: transparent; }
+.page-header.rh .nav-posture-seg button.active {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.page-header.rh .nav-toc-label,
+.page-header.rh .nav-scenes-label,
+.page-header.rh .nav-chart-room-label { display: none; }
+
+@media (min-width: 1360px) and (min-height: 501px) {
+  .page-header.rh { flex-wrap: nowrap; gap: 0 1rem; min-height: var(--bar-h); }
+  .page-header.rh .header-bar,
+  .page-header.rh .nav-panel,
+  .page-header.rh .nav-panel-inner { display: contents; }
+  .page-header.rh .header-title { order: 1; margin-right: 0; flex: 0 0 auto; }
+  .page-header.rh .nav-group-left { order: 2; }
+  .page-header.rh .nav-group-right { order: 3; margin: 0 auto; }
+  .page-header.rh .bar-actions { order: 4; }
+}
+@media (min-width: 1560px) {
+  .page-header.rh .nav-toc-label,
+  .page-header.rh .nav-scenes-label,
+  .page-header.rh .nav-chart-room-label { display: inline; }
+}
+@media (max-width: 1359px) {
+  .page-header.rh .header-title .home-link { font-size: 1.25rem; }
+}
+@media (max-width: 690px) {
+  .page-header.rh { --header-pad-x: 0.875rem; }
+  .page-header.rh .header-bar { min-height: 3.25rem; gap: 0 0.5rem; }
+  .page-header.rh .header-mobile-toggles,
+  .page-header.rh .command-palette-trigger,
+  .page-header.rh .settings-toggle,
+  .page-header.rh .bar-divider { display: none; }
+  .page-header.rh .header-title { gap: 0.4rem; flex: 1 1 auto; }
+  .page-header.rh .header-title .home-link { font-size: 1.125rem; }
+  .page-header.rh .work-switcher { flex: 0 0 auto; max-width: none; overflow: visible; padding: 0 1.4rem 0 0.35rem; background-position: right 0.4rem center; min-height: 2.75rem; }
+  .page-header.rh .bar-actions { gap: 0; }
+  .page-header.rh :is(.header-search, .theme-toggle, .header-support) { min-width: 2.5rem; padding: 0; height: 2.75rem; min-height: 2.75rem; }
+}
+@media (max-width: 480px) {
+  .page-header.rh .wordmark-the { display: none; }
+}
+@media (max-width: 380px) {
+  .page-header.rh .header-support { display: none; }
+}
+
+/* ── Book head: one block, then the poem ────────────────────────────────── */
+.book-head {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem 0;
+}
+.bh-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "titles tip art" "argument argument art" "foot foot foot";
+  column-gap: 1.5rem;
+  align-items: start;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.bh-titles {
+  grid-area: titles;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.125rem 0.875rem;
+}
+.bh-greek {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+.bh-en {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--work-accent);
+}
+.bh-argument {
+  grid-area: argument;
+  max-width: 62rem;
+  margin: 0.25rem 0 0;
+  font-family: var(--font-english);
+  font-size: 1.0625rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--text-mid);
+}
+.bh-art {
+  grid-area: art;
+  align-self: center;
+  width: 10rem;
+  height: 4.25rem;
+  background: var(--text-mid);
+  -webkit-mask: var(--art) right center / contain no-repeat;
+  mask: var(--art) right center / contain no-repeat;
+  opacity: 0.85;
+}
+.bh-foot {
+  grid-area: foot;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.375rem 1.5rem;
+  margin-top: 0.375rem;
+}
+.bh-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.45rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+.bh-meta .sep { color: var(--rule-strong); }
+.reader-tip {
+  grid-area: tip;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem 0.75rem;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--text);
+}
+.reader-tip .tip-text::before {
+  content: '';
+  display: inline-block;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 0.05em;
+}
+.reader-tip .tip-actions { display: inline-flex; align-items: center; gap: 0.375rem; }
+.reader-tip button {
+  height: 1.75rem;
+  padding: 0 0.6rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+}
+.reader-tip .tip-more { border: 1px solid transparent; background: transparent; color: var(--accent); }
+.reader-tip .tip-more:hover { background: var(--surface-sunk); }
+.reader-tip .tip-got { border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); }
+.reader-tip .tip-got:hover { background: var(--accent-light); border-color: var(--accent-light); }
+.reader-tip button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:root[data-tip-seen] .reader-tip { display: none; }
+:root[data-rposture="reading"] .book-head .reader-tip { display: none; }
+
+/* ── Reader body ────────────────────────────────────────────────────────── */
+.reader-page .reader-body {
+  max-width: calc(1160px * var(--colw-scale, 1));
+  padding-top: 0.5rem;
+}
+@media (max-width: 1099px) {
+  .bh-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "titles art" "argument art" "foot foot" "tip tip"; }
+  .reader-tip { justify-content: flex-start; margin-top: 0.375rem; }
+}
+/* The edition line is a caption, not a second sticky toolbar. */
+.reader-page .reader-controls {
+  position: static;
+  float: left;
+  margin: 0 1.5rem 0.25rem 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  min-height: 1.5rem;
+}
+.reader-page .reader-controls::before { display: none; }
+.reader-page .reader-body.trans-compare .reader-controls,
+.reader-page .reader-body.reading-mode .reader-controls { float: none; margin-right: 0; }
+.reader-page .rc-cite { font-size: var(--step--1); color: var(--text-mid); }
+.reader-page .verse-bracket-legend {
+  margin: 0 0 0.25rem;
+  min-height: 1.5rem;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  line-height: 1.5rem;
+  color: var(--text-mid);
+  text-align: right;
+}
+.reader-page .segment { clear: left; border-top: 0; padding-top: 0; }
+.reader-page .reader-body.verse-line .seg-ref {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.reader-page .reader-body.verse-line .line-num,
+.reader-page .reader-body.verse-line .bk-num { font-weight: 500; }
+.reader-page .popup { border-radius: var(--radius-2); background: var(--popup-bg); box-shadow: var(--popup-shadow); }
+
+/* With the Chart Room rail open the page widens, so the two columns keep
+   their measure beside it. */
+.reader-page .reader-body:has(.scene-context-rail) { max-width: calc(1440px * var(--colw-scale, 1)); }
+body:has(.scene-context-rail) .book-head { max-width: 1440px; }
+/* The word panel slides the poem left; the book head goes with it. */
+@media (min-width: 681px) and (max-width: 1800px) {
+  body:has(.reader-body.word-open) .book-head { margin-right: calc(min(var(--panel-w), 86vw) + 1rem); }
+}
+@media (min-width: 681px) and (max-width: 1100px) {
+  body:has(.reader-body.trans-compare.word-open) .book-head { margin-right: auto; }
+}
+/* Two columns on a tablet: a size down, so a hexameter still holds its line. */
+@media (min-width: 681px) and (max-width: 980px) {
+  .reader-page .reader-body .seg-row {
+    --fs-greek: calc(1.0625rem * var(--fs-scale, 1));
+    --fs-english: calc(1.0625rem * var(--fs-scale, 1));
+  }
+  .reader-page .seg-row { --seg-gap: 1.25rem; }
+}
+/* Closed drawers cast no shadow onto the page edge. */
+.scene-rail:not(.open),
+.settings-sidebar:not(.open),
+.audio-dock:not(.open) { box-shadow: none; }
+/* A closed settings sheet is out of the tab order and out of sight (on a
+   phone it parks below the screen edge). */
+.settings-sidebar { transition: transform 0.2s ease, visibility 0s; }
+.settings-sidebar:not(.open) { visibility: hidden; transition: transform 0.2s ease, visibility 0s 0.2s; }
+.audio-dock:not(.open) { visibility: hidden; transition: transform 0.15s ease, visibility 0s 0.15s; }
+@media (prefers-reduced-motion: reduce) {
+  .settings-sidebar, .settings-sidebar:not(.open), .audio-dock:not(.open) { transition: none; }
+}
+
+/* ── Phone: dock at the thumb, poem on the first screen ─────────────────── */
+.reader-dock { display: none; }
+@media (max-width: 690px) {
+  .reader-dock {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 39;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--border);
+    background: var(--col-bg);
+  }
+  .dock-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    height: 3.5rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-mid);
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .dock-btn svg { display: block; }
+  .dock-btn[aria-expanded="true"] { color: var(--accent); }
+  .dock-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+
+  .book-head { padding: 0.875rem 0.875rem 0; }
+  .bh-inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "titles" "argument" "foot" "tip"; }
+  .bh-art { display: none; }
+  .bh-greek { font-size: var(--step-2); }
+  .bh-argument { font-size: 1rem; }
+  .reader-tip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.5rem 0.25rem 0.75rem;
+    border-radius: var(--radius-2);
+    background: var(--surface-sunk);
+  }
+  .bh-meta { font-size: 0.75rem; }
+  .reader-tip .tip-actions { display: contents; }
+  .reader-tip .tip-text { grid-column: 1; grid-row: 1; line-height: 1.4; }
+  .reader-tip .tip-more { grid-column: 1; grid-row: 2; justify-self: start; height: 1.75rem; padding: 0; margin-left: 0.9375rem; }
+  .reader-tip .tip-got { grid-column: 2; grid-row: 1 / span 2; height: 2.5rem; padding: 0 0.9rem; margin-bottom: 0.25rem; }
+  /* Greek verse on a phone: sized so a hexameter mostly holds one line. */
+  .reader-page .reader-body .seg-row {
+    --fs-greek: calc(1.0625rem * var(--fs-scale, 1));
+    --fs-english: calc(1.0625rem * var(--fs-scale, 1));
+  }
+
+  .reader-page .reader-body { padding: 0.5rem 0.875rem 9rem; }
+  .reader-page .reader-controls { float: right; margin: 0 0 0.375rem 0.75rem; }
+  .reader-page .reader-body.trans-compare .reader-controls,
+  .reader-page .reader-body.reading-mode .reader-controls { float: none; margin-left: 0; }
+  .reader-page .verse-bracket-legend { text-align: left; line-height: 1.4; min-height: 0; margin-bottom: 0.5rem; }
+  .reader-page .segment { clear: both; }
+  .reader-page .site-footer { padding-bottom: 8rem; }
+
+  /* Before the island wakes, the server markup is two columns; show the
+     Greek at full width until the stacked groups replace it. */
+  .reader-page .reader-body.view-both:not(.trans-compare) .seg-row:not(.stacked-both):not(.verse-groups) { grid-template-columns: 1fr; }
+  .reader-page .reader-body.view-both:not(.trans-compare) .seg-row:not(.stacked-both):not(.verse-groups) > .english-col { display: none; }
+  .reader-page .reader-body.view-both:not(.trans-compare) .seg-row:not(.stacked-both):not(.verse-groups) > .greek-col {
+    font-size: var(--fs-greek);
+    line-height: var(--lh-greek);
+  }
+  .reader-page .reader-body.view-both:not(.trans-compare) .seg-row:not(.stacked-both):not(.verse-groups) .line-num { min-width: 1.8rem; font-size: var(--fs-linenum); }
+  .reader-page .reader-body.view-both:not(.trans-compare) .seg-row:not(.stacked-both):not(.verse-groups) .greek-line { gap: 0.35rem; }
+
+  /* The audio player, when one is open, also sits on the dock. */
+  .reader-page .audio-dock.open { bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
+  /* The scene strip sits on the dock as one slim line, never over the tip. */
+  body.reader-page .scene-context-sheet {
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--surface-sunk);
+  }
+  body.reader-page .scene-context-sheet.open {
+    border-radius: var(--radius-3) var(--radius-3) 0 0;
+    background: var(--col-bg);
+    box-shadow: var(--shadow-2);
+  }
+  body.reader-page .scene-context-sheet-toggle {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.875rem;
+  }
+  body.reader-page .scene-context-sheet-grab { display: none; }
+  body.reader-page .scene-context-sheet-copy { display: flex; align-items: baseline; gap: 0.6rem; min-width: 0; }
+  body.reader-page .scene-context-sheet-title { font-family: var(--font-ui); font-size: var(--step--1); font-weight: 600; min-width: 0; }
+  body.reader-page .scene-context-sheet-day { margin: 0; flex: 0 0 auto; font-size: var(--step--2); white-space: nowrap; }
+}
+
+/* ── Shared small things ────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  font-size: var(--step--1);
+  letter-spacing: 0;
+}
+.site-footer .footer-sep { color: var(--rule-strong); }
+
+} /* end @media screen (Edition skin) */
+
+@media print {
+  .reader-dock, .reader-tip, .bh-art { display: none !important; }
+}

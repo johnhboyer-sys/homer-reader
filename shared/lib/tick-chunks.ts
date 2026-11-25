@@ -168,7 +168,11 @@ export function alignGroups<L extends { n: number; cont?: boolean }>(
       ?? resolveForwardIndex(tickNs[i], lineIndex, sortedLineNs);
   };
   return flowGroups.map((parts, i) => {
-    const startIdx = resolveTick(i) ?? 0;
+    // The first group always opens on the block's first line. A speech
+    // snap can move the first tick forward (Od. 9: tick 1 snaps to the
+    // speech at line 2), and taking that as the start dropped line 1 from
+    // the phone's stacked view.
+    const startIdx = i === 0 ? 0 : (resolveTick(i) ?? 0);
     const endIdx = resolveTick(i + 1) ?? lines.length;
     return { lines: lines.slice(startIdx, endIdx), flowParts: parts };
   });
