@@ -115,7 +115,21 @@ and read-the-iliad-online (0.0012).
 
 ## Codex review of rounds 3–5
 
-Pending (Codex's window reopened at 00:46). Findings will be added here and fixed before any PR.
+Run 00:48 on 26 November (GPT-6.1-Sol, medium effort, static read, about 144K tokens). Four
+medium findings, no high ones; all four confirmed and fixed in `148e7fe19`, each with a test
+that failed before its fix:
+
+1. Round 4 moved the work picker and Help to idle hydration, so an early click was lost. Both
+   load with the page again; so does Jump to, which had the same problem (found by the fix lane).
+2. ⌘K kept the row number, not the item, when late lexicon counts re-ranked the results, so
+   Enter could open Hecuba after the reader chose Hector. It now keeps the item.
+3. Go to from the phone Menu sheet lost its focus return. Focus now moves to the Menu button
+   before the sheet closes, and Escape returns there.
+4. The new end-of-book links printed as a plain 24-item list. They are hidden in print.
+
+After the fixes: app tests 102/102, shared 2,613 passed / 0 failed / 5 skipped, build 4,687
+pages. The fixes are Claude's work and have not had a cross-family check; that waits for the
+next Codex window.
 
 ## Branches
 
