@@ -366,6 +366,9 @@ const breadcrumbLd = Astro.site
     /* Some plates carry a white ground; blending drops it into the page in
        both themes. */
     .bl-art { mix-blend-mode: multiply; }
+    /* Not yet in view (its src waits in data-src): an empty box, not an
+       empty image's frame. */
+    .bl-art[data-src] { visibility: hidden; }
     :global(html[data-theme="dark"]) .bl-art { filter: invert(1); opacity: 0.7; mix-blend-mode: screen; }
     .credits { max-width: 52rem; font-size: 1.0625rem; line-height: 1.65; color: var(--text-mid); }
     .credits strong { color: var(--text); }
@@ -520,12 +523,27 @@ const breadcrumbLd = Astro.site
                 {verseLine && bookApparatus[b.book - 1]?.argument && (
                   <span class="bl-argument">{bookApparatus[b.book - 1].argument}</span>
                 )}
-                {plate && <img class="bl-art" src={plateSrc(plate)} alt="" title={plate.caption} loading="lazy" decoding="async" />}
+                {plate && <img class="bl-art" data-src={plateSrc(plate)} alt="" title={plate.caption} decoding="async" />}
               </a>
             </li>
             );
           })}
         </ul>
+        {/* The drawings sit below the first screen, in boxes the CSS sizes, and
+            loading="lazy" still fetched all 24 at once (Chrome's margin is
+            larger than the page above them). Each one now loads as its row
+            comes within 300px of the window. */}
+        <script is:inline>
+          (function () {
+            var imgs = document.querySelectorAll('img.bl-art[data-src]');
+            var show = function (img) { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); };
+            if (!('IntersectionObserver' in window)) { imgs.forEach(show); return; }
+            var io = new IntersectionObserver(function (entries) {
+              entries.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); show(e.target); } });
+            }, { rootMargin: '300px 0px' });
+            imgs.forEach(function (img) { io.observe(img); });
+          })();
+        </script>
       </>
     )}
 

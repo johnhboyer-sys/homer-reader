@@ -1,13 +1,13 @@
 // The site-wide Go-to: one palette on every page, loaded on first use.
 //
-// The reader mounts the palette itself (ReaderShell.astro). Every other page
-// has it through the site header: the header's Go-to control and Cmd/Ctrl+K
-// open it. The palette is the reader's own component
+// Every page has it through its header: the site header's Go-to control (or
+// the reader bar's Go to button) and Cmd/Ctrl+K open it; the reader passes its
+// book and scenes as well. The palette is the reader's own component
 // (shared/components/CommandPalette.svelte), so there is one citation parser
 // and one set of results. It is not in the page's first load: this module
 // fetches it when the reader reaches for the control (pointer over it, focus
 // on it) or presses the shortcut, so a reference page still ships no script
-// to speak of.
+// to speak of, and the reader's first load leaves it out too.
 //
 // Without script the control is a plain link to /search, which is where the
 // palette's own last row leads.
@@ -16,21 +16,31 @@ export interface GotoHandle {
   open: () => void;
 }
 
+import type { Scene } from '@shared/lib/data';
+
+/** What the reader adds to the palette: its book, and the scenes it finds. */
+export interface GotoBook {
+  bookNum: number;
+  scenes: Scene[];
+}
+
 export interface GotoOptions {
   /** The controls that open the palette. */
   triggers: Iterable<HTMLElement>;
   /** The poem a bare citation ("6.237") reads in first: set on a poem's index. */
   work?: string | null;
+  /** The book open in the reader, if any. */
+  book?: GotoBook | null;
   /** Mounts the palette. Injected so the wiring is testable without Svelte. */
   load?: (work: string | null) => Promise<GotoHandle>;
 }
 
-const defaultLoad = async (work: string | null): Promise<GotoHandle> => {
+const defaultLoad = async (work: string | null, book: GotoBook | null = null): Promise<GotoHandle> => {
   const [{ mount }, { default: CommandPalette }] = await Promise.all([
     import('svelte'),
     import('@shared/components/CommandPalette.svelte'),
   ]);
-  const palette = mount(CommandPalette, { target: document.body, props: { work } }) as unknown as {
+  const palette = mount(CommandPalette, { target: document.body, props: { work, ...book } }) as unknown as {
     openPalette: () => void;
   };
   return { open: () => palette.openPalette() };
@@ -38,7 +48,7 @@ const defaultLoad = async (work: string | null): Promise<GotoHandle> => {
 
 const isShortcut = (e: KeyboardEvent) => (e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 'k';
 
-export function initGoto({ triggers, work = null, load = defaultLoad }: GotoOptions): () => void {
+export function initGoto({ triggers, work = null, book = null, load = (w) => defaultLoad(w, book) }: GotoOptions): () => void {
   let handle: Promise<GotoHandle> | null = null;
   let mounted = false;
   const off: (() => void)[] = [];

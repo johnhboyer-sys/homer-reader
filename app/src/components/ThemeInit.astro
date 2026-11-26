@@ -5,10 +5,16 @@
 //
 // Also the one place every page's <head> shares, so the self-hosted type lives
 // here too: the @font-face rules (built off BASE_URL, never a hardcoded path)
-// and a preload for the four files every page paints with. All faces are SIL
-// OFL 1.1, subset from the upstream files (licences beside them in
-// public/fonts): Gentium Book Plus carries the Greek and the English reading
+// and a preload for the files a page's first screen paints with. A page with
+// no Greek in it passes greek={false}, so the Greek face is not fetched for
+// nothing (it still loads, by unicode-range, if a Greek word ever renders).
+// A page whose first screen sets italic passes italic, so the italic face is
+// in hand before the first paint rather than swapped in (a reflow, CLS).
+// All faces are SIL OFL 1.1, subset from the upstream files (licences beside
+// them in public/fonts): Gentium Book Plus carries the Greek and the English reading
 // text, Newsreader (72pt optical cut) the display lines, Inter the controls.
+interface Props { greek?: boolean; italic?: boolean }
+const { greek = true, italic = false } = Astro.props as Props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const f = (name: string) => `${base}/fonts/${name}.woff2`;
 const LATIN = 'U+0020-007E,U+00A0-017F,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0300-0304,U+0306,U+0308,U+2002-200A,U+2010-2015,U+2018-201A,U+201C-201E,U+2020-2022,U+2026,U+2030,U+2032-2033,U+2039-203A,U+2044,U+20AC,U+2122,U+2212';
@@ -25,7 +31,13 @@ const fontCss = [
   face('Newsreader Display', 'newsreader-display', '300 700', 'normal'),
   face('Inter', 'inter-ui', '400 700', 'normal'),
 ].join('');
-const preload = ['gentium-book-plus-400-latin', 'gentium-book-plus-400-greek', 'newsreader-display', 'inter-ui'];
+const preload = [
+  'gentium-book-plus-400-latin',
+  ...(greek ? ['gentium-book-plus-400-greek'] : []),
+  ...(italic ? ['gentium-book-plus-400i-latin'] : []),
+  'newsreader-display',
+  'inter-ui',
+];
 ---
 {preload.map((name) => (
   <link rel="preload" as="font" type="font/woff2" href={f(name)} crossorigin />

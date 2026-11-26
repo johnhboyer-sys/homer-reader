@@ -55,7 +55,7 @@ const faqLd = faqs.length > 0 ? {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <ThemeInit />
+  <ThemeInit greek={false} italic />
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
@@ -121,6 +121,11 @@ const faqLd = faqs.length > 0 ? {
       mask: var(--art) right bottom / contain no-repeat;
       z-index: -1;
     }
+    /* 480px art (the drawing stands at most ~400 CSS px wide here); the
+       720px cut for a high-density screen. */
+    @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx) {
+      .seo-hero-art { -webkit-mask-image: var(--art-2x); mask-image: var(--art-2x); }
+    }
     .seo-body { padding-top: var(--space-6); }
     .seo-prose :global(p:first-child) { grid-column: 1 / -1; max-width: 50rem; margin-bottom: var(--space-6); font-size: clamp(1.25rem, 1.7vw, 1.4375rem); line-height: 1.5; color: var(--text); }
     .seo-prose :global(em) { font-style: italic; }
@@ -160,7 +165,7 @@ const faqLd = faqs.length > 0 ? {
       <div class="seo-hero-inner">
         <p class="seo-eyebrow">{eyebrow}</p>
         <h1>{h1}</h1>
-        <span class="seo-hero-art" aria-hidden="true" style={`--art:url('${base}/art/hero/${poem}-sm.webp')`}></span>
+        <span class="seo-hero-art" aria-hidden="true" style={`--art:url('${base}/art/hero/${poem}-480.webp');--art-2x:url('${base}/art/hero/${poem}-sm.webp')`}></span>
       </div>
     </section>
     <div class="pg seo-body">

@@ -1264,3 +1264,15 @@ ring, empty inside the wall and with no ground under it.
   Reader-mode first paint (`data-rposture`). Additive. Also the `--hero-*`
   tokens in both theme blocks (the night heroes' colours, moved out of the
   page styles so a variable swap reverts them).
+
+## 2026-11-25 — Redesign round 4: page weight
+
+- `shared/lib/greek-fold.ts` (new) — `GREEK_BETA` and `greekFold`, moved out
+  of `search.ts` so the reader and the palette fold a word without loading
+  the search engine. `shared/lib/search.ts` re-exports both, so its
+  importers are unchanged; `palette.ts` and `repetitions.ts` import the new
+  module. No plato-reader counterpart.
+- `shared/components/Reader.svelte` — `plate.ts` is imported on demand with
+  the schematic plate JSON (`ensureSchematicPlate`), not statically, so the
+  reader's first load leaves out the plate renderer; `greekFold` comes from
+  `greek-fold.ts`. Behaviour unchanged.

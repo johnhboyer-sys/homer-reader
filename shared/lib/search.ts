@@ -11,6 +11,7 @@
 // Phrase search: after intersection, verify token adjacency in segment data.
 // Cross-language: AND (intersection) or OR (union) the two result sets.
 import { betaQueryToGreek } from './betacode';
+import { GREEK_BETA, greekFold } from './greek-fold';
 import { fetchLemmaPickerShard } from './data';
 import { narrowByAccent, type LemmaAccents } from './lemma-accents';
 import { formatCite } from './citation';
@@ -193,28 +194,7 @@ export async function pool<T, R>(
 
 // -- Unicode Greek → Beta Code fold form ----------------------------------
 
-export const GREEK_BETA: Record<string, string> = {
-  α:'a',β:'b',γ:'g',δ:'d',ε:'e',ζ:'z',η:'h',θ:'q',ι:'i',κ:'k',
-  λ:'l',μ:'m',ν:'n',ξ:'c',ο:'o',π:'p',ρ:'r',σ:'s',ς:'s',τ:'t',
-  υ:'u',φ:'f',χ:'x',ψ:'y',ω:'w',ϝ:'v',
-};
-
-export function greekFold(input: string): string {
-  const out: string[] = [];
-  for (const ch of input.normalize('NFD')) {
-    const lower = ch.toLowerCase();
-    const b = GREEK_BETA[lower];
-    if (b) out.push(b);                          // Unicode Greek → fold letter
-    else if (lower >= 'a' && lower <= 'z') out.push(lower); // Beta Code Latin input
-    // Elision: the index keys δ' as d'. The page prints the mark as U+2019
-    // (δ’), so a word copied from the text must fold to the same key as one
-    // typed with a straight apostrophe. stage6 keys U+1FBD (᾽) the same way.
-    else if (ch === "'" || ch === '\u2019' || ch === '\u02bc' || ch === '\u1fbd') out.push("'");
-    // skip combining marks, punctuation, Beta Code diacritics ) ( / \ = | +,
-    // asterisk (handled by caller), and sigma-variant digits
-  }
-  return out.join('');
-}
+export { GREEK_BETA, greekFold };
 
 // Fold a pattern without losing its metacharacters. Folding one character at
 // a time keeps * and ? out of greekFold(), where they are deliberately ignored

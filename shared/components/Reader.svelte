@@ -4,7 +4,10 @@
   import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
   import { joinScenesToPlaces, SCHEMATIC_PLATE_ID, type PlacesFile, type JourneysFile } from '../lib/scene-place';
   import { renderSceneMap, type Coastline } from '../lib/scenemap';
-  import { parsePlate, renderPlate, computeCamera, type Plate, type PlateLayer, type PlatePlace, type Camera, type LabelBox } from '../lib/plate';
+  // The plate renderer (plate.ts, ~27 KB br) draws only the Chart Room's
+  // schematic postcard, so it is imported with the plate JSON, on demand
+  // (ensureSchematicPlate), never in the reader's first load.
+  import type { Plate, PlateLayer, PlatePlace, Camera, LabelBox } from '../lib/plate';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, bareTokenText, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
@@ -14,7 +17,7 @@
   import { decoratePiece, dropMarkSentinels, sentinelsToHtml, showsGroupNumber } from '../lib/kosmos';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
-  import { greekFold } from '../lib/search';
+  import { greekFold } from '../lib/greek-fold';
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
   import { touchRecent } from '../lib/resume';
@@ -849,13 +852,17 @@
   // at build time (this component ships on every built page).
   let schematicPlateLoadState: 'idle' | 'loading' | 'ready' | 'unavailable' = 'idle';
   let schematicPlate: Plate | null = null;
+  // Set with schematicPlate (never after it), so every reactive use below that
+  // is gated on schematicPlate can call the renderer.
+  let plateLib: typeof import('../lib/plate') | null = null;
   async function ensureSchematicPlate(): Promise<void> {
     if (schematicPlateLoadState !== 'idle') return;
     schematicPlateLoadState = 'loading';
     try {
-      const raw = await fetchPlate(SCHEMATIC_PLATE_ID);
+      const [raw, lib] = await Promise.all([fetchPlate(SCHEMATIC_PLATE_ID), import('../lib/plate')]);
       if (!raw) { schematicPlateLoadState = 'unavailable'; return; }
-      schematicPlate = parsePlate(raw);
+      plateLib = lib;
+      schematicPlate = lib.parsePlate(raw);
       schematicPlateLoadState = 'ready';
     } catch {
       schematicPlateLoadState = 'unavailable';
@@ -893,8 +900,8 @@
     (p) => (p.plateAnchors?.[SCHEMATIC_PLATE_ID] !== undefined && p.positionBasis === 'conjectural')
       || p.id === 'scamandrian-plain',
   ) as PlatePlace[];
-  $: schematicPlateRender = schematicPlate
-    ? renderPlate(schematicPlate, schematicPlatePlaces, { idPrefix: `chart-plate-schematic-${work}-${bookNum}`, cameraGroup: true })
+  $: schematicPlateRender = schematicPlate && plateLib
+    ? plateLib.renderPlate(schematicPlate, schematicPlatePlaces, { idPrefix: `chart-plate-schematic-${work}-${bookNum}`, cameraGroup: true })
     : null;
   $: schematicPlateHtml = schematicPlateRender?.svg ?? '';
   // scamandrian-plain forces the unzoomed full sheet — empty focusIds makes
@@ -920,8 +927,8 @@
   // passed here rather than changed in plate.ts's own default.
   // `labelBoxes` (plate.ts, 2026-09-02) sizes the camera on the focus
   // place's LABEL too, not just its pin.
-  $: schematicPlateCamera = schematicPlate && schematicPlateRender
-    ? computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, {
+  $: schematicPlateCamera = schematicPlate && schematicPlateRender && plateLib
+    ? plateLib.computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, {
         places: schematicPlatePlaces,
         labelBoxes: schematicPlateRender.labelBoxes,
         maxScale: 4,
@@ -980,8 +987,8 @@
     };
   }
 
-  $: schematicLocatorRender = schematicPlate
-    ? renderPlate(
+  $: schematicLocatorRender = schematicPlate && plateLib
+    ? plateLib.renderPlate(
         { ...schematicPlate, layers: schematicPlate.layers.filter(isLocatorLayer) },
         [],
         { idPrefix: `chart-locator-schematic-${work}-${bookNum}` },

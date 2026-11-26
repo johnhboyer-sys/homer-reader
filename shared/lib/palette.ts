@@ -6,7 +6,7 @@
 // Everything else falls through to corpus search.
 
 import { GREEK_BOOK_LETTERS, WORKS, type Work } from './works';
-import { greekFold } from './search';
+import { greekFold } from './greek-fold';
 import type { LemmaRef } from './data';
 import { parseVerseCitation, type VerseCitation } from './citation';
 

@@ -1,4 +1,4 @@
-import { greekFold } from './search';
+import { greekFold } from './greek-fold';
 import type { Repetition } from './data';
 
 // Search the surface form without making readers reproduce accents, breathing
