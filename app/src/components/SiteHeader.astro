@@ -110,7 +110,7 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
 </header>
 
 <script>
-  import { initSiteMenus } from '../lib/site-menu';
+  import { initSiteMenus, closeSheetOnGoto } from '../lib/site-menu';
   import { initGoto } from '../lib/goto';
   import { initScrollHints, SCROLLERS } from '../lib/scroll-hint';
   document.querySelectorAll<HTMLElement>('header.sh').forEach((h) => {
@@ -123,7 +123,7 @@ const groupCurrent = (g: { items: Item[] }) => g.items.some(isCurrent);
     // The header's own controls, and any Go-to control in the page (404).
     const triggers = Array.from(document.querySelectorAll<HTMLElement>('[data-goto]'));
     // Opening the palette from inside the phone sheet closes the sheet under it.
-    triggers.forEach((t) => t.addEventListener('click', () => { if (sheet?.open) sheet.open = false; }));
+    closeSheetOnGoto(sheet, triggers);
     initGoto({ triggers, work: h.dataset.gotoWork || null });
   });
   initScrollHints(document.querySelectorAll<HTMLElement>(SCROLLERS));

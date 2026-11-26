@@ -391,7 +391,7 @@ const intro =
           <span class="wordmark-name"><span class="wordmark-the">The </span>Homer Reader</span>
         </a>
         <span class="title-sep" aria-hidden="true"></span>
-        <WorkSwitcher work={workId} client:idle />
+        <WorkSwitcher work={workId} client:load />
       </div>
       <!-- #14 (2026-07-18): the bar reads as two groups, not a flat row of equal
            buttons — reading tools (Go to · Lexicon), then a hairline, then the
@@ -413,7 +413,7 @@ const intro =
           <span class="settings-icon settings-aa" aria-hidden="true">Aa</span>
           <span class="settings-text">Settings</span>
         </button>
-        <HelpButton client:idle />
+        <HelpButton client:load />
         <ThemeToggle />
         <a class="header-support" href={SUPPORT_URL} target="_blank" rel="noopener" title="Support the site" aria-label="Support the site">
           <span class="hsup-heart" aria-hidden="true"><svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 13S1.5 9.2 1.5 4.9A3.4 3.4 0 0 1 8 3.4a3.4 3.4 0 0 1 6.5 1.5C14.5 9.2 8 13 8 13z"/></svg></span>
@@ -479,7 +479,7 @@ const intro =
           // the same day, coordinator's measured-table fix) without
           // touching the component itself.
           <span class="nav-jump-wrap">
-            <BekkerJump work={workId} inputId="bekker-input-nav" toggleLabel="Jump to…" client:idle />
+            <BekkerJump work={workId} inputId="bekker-input-nav" toggleLabel="Jump to…" client:load />
           </span>
         )}
         {!bookless && (
@@ -681,7 +681,7 @@ const intro =
       <button type="button" class="toc-close" aria-label="Close contents">×</button>
     </div>
     <div class="toc-actions toc-actions-top">
-      {!busse && <BekkerJump work={workId} inputId="bekker-input-toc" client:idle />}
+      {!busse && <BekkerJump work={workId} inputId="bekker-input-toc" client:load />}
       <a class="toc-action" href={`${base}/search`}>
         <span class="toc-action-name">Search</span>
         <span class="toc-action-hint">Greek &amp; English</span>

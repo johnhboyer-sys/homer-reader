@@ -6201,7 +6201,7 @@ a.be-link:hover .be-book { color: var(--accent); }
 } /* end @media screen (Edition skin) */
 
 @media print {
-  .reader-dock, .reader-tip, .bh-art { display: none !important; }
+  .reader-dock, .reader-tip, .bh-art, .book-end { display: none !important; }
   /* The book head on paper (its screen rules above are screen-only): the
      Greek title and English label on one line, the argument, the where /
      who / day line, and a hairline before the poem. Ink colours match the

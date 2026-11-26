@@ -218,9 +218,12 @@
       }
     }
 
+    // A late answer (names, line counts) must not move the reader off the item
+    // they are on, even when it re-ranks the rows (Hector above Hecuba).
+    const prev = keepSelection ? items[selected] : undefined;
+    const kept = prev ? out.findIndex((it) => it.href === prev.href && it.label === prev.label) : -1;
     items = out;
-    // A late answer (names, line counts) must not move the row the reader is on.
-    selected = keepSelection ? Math.min(selected, Math.max(out.length - 1, 0)) : 0;
+    selected = kept >= 0 ? kept : keepSelection ? Math.min(selected, Math.max(out.length - 1, 0)) : 0;
   }
 
   function onWindowKey(e: KeyboardEvent) {

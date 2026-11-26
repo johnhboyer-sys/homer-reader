@@ -77,3 +77,21 @@ export function initSiteMenus(header: HTMLElement): () => void {
     header.classList.remove('sh-js');
   };
 }
+
+/** Opening the palette from inside the phone sheet closes the sheet under it.
+ * A Go-to inside the sheet hands focus to the sheet's Menu summary first: the
+ * palette saves the focused element to return to on close, and the link it
+ * was opened from is hidden once the sheet shuts. */
+export function closeSheetOnGoto(sheet: HTMLDetailsElement | null, triggers: Iterable<HTMLElement>): () => void {
+  const off: (() => void)[] = [];
+  for (const t of triggers) {
+    const fn = () => {
+      if (!sheet?.open) return;
+      if (sheet.contains(t)) sheet.querySelector<HTMLElement>('summary')?.focus();
+      sheet.open = false;
+    };
+    t.addEventListener('click', fn);
+    off.push(() => t.removeEventListener('click', fn));
+  }
+  return () => off.forEach((f) => f());
+}
