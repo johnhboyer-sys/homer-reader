@@ -1276,3 +1276,9 @@ ring, empty inside the wall and with no ground under it.
   the schematic plate JSON (`ensureSchematicPlate`), not statically, so the
   reader's first load leaves out the plate renderer; `greekFold` comes from
   `greek-fold.ts`. Behaviour unchanged.
+- `shared/lib/data.ts` — `fetchFootnotes` imports `./glossary` on demand,
+  and only for the NE (`work === 'EN'`), so the glossary's 32 KB Markdown no
+  longer rides in every reader's `data.js`. Same output.
+- `shared/components/CommandPalette.svelte` — `<svelte:options
+  css="injected" />`: the palette is mounted on first use, so its styles come
+  with its chunk instead of a stylesheet linked from every page.

@@ -386,8 +386,8 @@ a.pg-cite:hover { border-color: var(--accent); background: var(--pg-wash); }
   mask: var(--art) right bottom / contain no-repeat;
   z-index: -1;
 }
-/* 480px art by default (at most 320 CSS px wide here); the 720px cut where
-   the page names one (--art-2x) for a high-density screen. */
+/* The index cards' art at its display size (285 CSS px wide on a desktop):
+   320px by default, the 480px cut (--art-2x) on a high-density screen. */
 @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx) {
   .pg-poem-art[style*="--art-2x"] { -webkit-mask-image: var(--art-2x); mask-image: var(--art-2x); }
 }

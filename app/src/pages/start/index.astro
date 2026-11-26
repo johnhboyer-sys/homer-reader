@@ -49,7 +49,7 @@ const jsonLd = {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <ThemeInit />
+  <ThemeInit greek="caps" />
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
@@ -121,6 +121,11 @@ const jsonLd = {
       mask: var(--art) right bottom / contain no-repeat;
       z-index: -1;
     }
+    /* The drawing at its display size (at most 544 CSS px wide): 560px, the
+       720px cut on a high-density screen. */
+    @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx) {
+      .start-art { -webkit-mask-image: var(--art-2x); mask-image: var(--art-2x); }
+    }
     /* Door-card styles live in the shared DoorCards.astro component (#10);
        this page only sets the column they sit in. */
     .start-body { padding-bottom: var(--space-7); }
@@ -151,7 +156,7 @@ const jsonLd = {
           first &mdash; the story, the Greek, or the geography. All three are
           free, with no account required.
         </p>
-        <span class="start-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-sm.webp')`}></span>
+        <span class="start-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-560.webp');--art-2x:url('${base}/art/hero/odyssey-sm.webp')`}></span>
       </div>
     </section>
     <div class="pg start-body">

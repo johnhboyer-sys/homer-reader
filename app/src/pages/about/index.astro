@@ -55,10 +55,9 @@ const jsonLd = {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <ThemeInit greek={false} />
   <!-- The prose opens with italic titles; fetching the italic face with the
        others keeps its paragraphs from re-wrapping after first paint. -->
-  <link rel="preload" as="font" type="font/woff2" href={`${base}/fonts/gentium-book-plus-400i-latin.woff2`} crossorigin />
+  <ThemeInit greek={false} italic />
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}

@@ -157,7 +157,7 @@ const supportHref = `${base}/support`;
         </span>
       </div>
       <!-- Flaxman's drawing stands beside the argument, in a cell of its own: never behind a word. -->
-      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad-480.webp');--art-2x:url('${base}/art/hero/iliad-sm.webp')`}></span>
+      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad-360.webp');--art-2x:url('${base}/art/hero/iliad-sm.webp')`}></span>
     </a>
 
     <a class="epic epic-odyssey" href={odysseyBook1Href} aria-label="Read the Odyssey, beginning at Book 1">
@@ -176,7 +176,7 @@ const supportHref = `${base}/support`;
           <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
         </span>
       </div>
-      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-480.webp');--art-2x:url('${base}/art/hero/odyssey-sm.webp')`}></span>
+      <span class="epic-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-360.webp');--art-2x:url('${base}/art/hero/odyssey-sm.webp')`}></span>
     </a>
   </section>
 
@@ -420,8 +420,9 @@ const supportHref = `${base}/support`;
       -webkit-mask: var(--art) right bottom / contain no-repeat;
       mask: var(--art) right bottom / contain no-repeat;
     }
-    /* The drawing at its display size: 480px wide (at most 352 CSS px here,
-       156 on a phone), the 720px cut only for a high-density desktop. */
+    /* The drawing at its display size: 360px wide (at most 352 CSS px here,
+       156 on a phone, so 312 device px), the 720px cut only for a high-density
+       desktop. */
     @media (min-width: 1000px) and (-webkit-min-device-pixel-ratio: 1.5), (min-width: 1000px) and (min-resolution: 1.5dppx) {
       .epic-art { -webkit-mask-image: var(--art-2x); mask-image: var(--art-2x); }
     }

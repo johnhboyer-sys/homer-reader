@@ -1,7 +1,6 @@
 // Data-fetch helpers. All paths relative to /data (public symlink to
 // build/dist/ne). Shards are cached in module-level Maps so a single
 // click won't re-fetch the same shard twice in a session.
-import { linkifyGlossaryRefs } from './glossary';
 import { scheme, schemeFor } from './citation';
 import type { AudioManifest } from './audio';
 import { parseCoastline, type Coastline } from './scenemap';
@@ -771,13 +770,15 @@ export function fetchFootnotes(work: string): Promise<Record<string, string>> {
   const p = fetch(`${workBase(work)}/footnotes.json`).then(r => {
     if (!r.ok) throw new Error(`${work} footnotes: ${r.status}`);
     return r.json();
-  }).then((map: Record<string, string>) =>
+  }).then(async (map: Record<string, string>) => {
     // The NE (Ostwald) footnotes reference glossary entries ("see Glossary,
-    // <term>"); turn those into links to the standalone glossary page.
-    work === 'EN'
-      ? Object.fromEntries(Object.entries(map).map(([k, v]) => [k, linkifyGlossaryRefs(v)]))
-      : map
-  );
+    // <term>"); turn those into links to the standalone glossary page. The
+    // glossary (its 32 KB Markdown source) is imported only here, so no other
+    // work's reader carries it in its first load.
+    if (work !== 'EN') return map;
+    const { linkifyGlossaryRefs } = await import('./glossary');
+    return Object.fromEntries(Object.entries(map).map(([k, v]) => [k, linkifyGlossaryRefs(v)]));
+  });
   // Evict a rejected fetch so it can be retried (don't cache the failure).
   p.catch(() => { if (_footnotesCache.get(work) === p) _footnotesCache.delete(work); });
   _footnotesCache.set(work, p);

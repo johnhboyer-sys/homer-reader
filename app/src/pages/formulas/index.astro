@@ -36,7 +36,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <ThemeInit />
+  <ThemeInit greek="caps" />
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
@@ -71,13 +71,13 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
         <span class="pg-poem-greek" lang="grc" aria-hidden="true">ΙΛΙΑΣ</span>
         <h2 class="pg-poem-title">Iliad</h2>
         <p class="pg-poem-meta">{iliad.length} named figures &middot; {iliadFormulaCount} formulas</p>
-        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad-480.webp');--art-2x:url('${base}/art/hero/iliad-sm.webp')`}></span>
+        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/iliad-320.webp');--art-2x:url('${base}/art/hero/iliad-480.webp')`}></span>
       </a>
       <a class="pg-poem is-odyssey formula-index-card" href={`${base}/formulas/odyssey/`}>
         <span class="pg-poem-greek" lang="grc" aria-hidden="true">ΟΔΥΣΣΕΙΑ</span>
         <h2 class="pg-poem-title">Odyssey</h2>
         <p class="pg-poem-meta">{odyssey.length} named figures &middot; {odysseyFormulaCount} formulas</p>
-        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-480.webp');--art-2x:url('${base}/art/hero/odyssey-sm.webp')`}></span>
+        <span class="pg-poem-art" aria-hidden="true" style={`--art:url('${base}/art/hero/odyssey-320.webp');--art-2x:url('${base}/art/hero/odyssey-480.webp')`}></span>
       </a>
     </div>
     <footer class="pg-note computed-note">Formula counts are computed automatically from the corpus by n-gram analysis; counts are exact.{isDraft && ' English glosses are draft translations, pending review.'}</footer>

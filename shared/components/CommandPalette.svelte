@@ -1,3 +1,8 @@
+<!-- The palette is mounted on first use (app/src/lib/goto.ts), so its styles
+     ride in its own chunk and are injected when it mounts, rather than linked
+     from every page's head. -->
+<svelte:options css="injected" />
+
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { fetchCharacters, fetchColumns, fetchLemmata, fetchPlaces, parseLocation, type ColumnRef, type LemmaRef, type Scene } from '../lib/data';

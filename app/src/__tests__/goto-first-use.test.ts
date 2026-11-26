@@ -58,4 +58,15 @@ describe('Go-to on first use (real palette, loaded on demand)', () => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
     await waitFor(() => expect(dialog()!.textContent).toContain('Chryses begs for his daughter'));
   });
+
+  // The palette's styles ride in its chunk (<svelte:options css="injected">),
+  // since no page links its stylesheet any more: they must arrive with it.
+  it('brings its own styles when it mounts', async () => {
+    document.body.innerHTML = '<a id="go" href="/search" data-goto>Go to</a>';
+    teardown = initGoto({ triggers: [document.getElementById('go')!] });
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true }));
+    await waitFor(() => expect(dialog()).not.toBeNull());
+    const css = [...document.querySelectorAll('style')].map((s) => s.textContent).join('');
+    expect(css).toContain('.cp-backdrop');
+  });
 });
