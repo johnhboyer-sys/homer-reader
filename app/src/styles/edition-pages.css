@@ -138,7 +138,7 @@
   gap: 0.5rem;
   height: 2.5rem;
   padding: 0 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--edge-ui);
   border-radius: var(--radius-pill);
   background: var(--input-bg);
   color: var(--text-mid);
@@ -528,6 +528,29 @@ a.pg-cite:hover { border-color: var(--accent); background: var(--pg-wash); }
 /* A handful of section names wraps on a phone, so each one is in view. */
 @media (max-width: 680px) {
   .pg-jump.is-wrap { flex-wrap: wrap; overflow-x: visible; row-gap: 0.125rem; }
+}
+/* A short, known set (the alphabet, the 24 books) never scrolls: where one
+   line of natural widths runs out it becomes a grid of equal cells, one row
+   on a tablet and two on a phone, the whole set in view inside the gutters.
+   --jump-n is the count and --jump-half half of it, rounded up; both are set
+   on the element. */
+@media (max-width: 1100px) {
+  .pg-jump.is-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--jump-n, 12), minmax(0, 1fr));
+    gap: 0.125rem;
+    overflow: visible;
+    margin: 0;
+    padding: 2px 0;
+  }
+  .pg-jump.is-grid a { min-width: 0; padding: 0; }
+}
+@media (max-width: 680px) {
+  .pg-jump.is-grid { grid-template-columns: repeat(var(--jump-half, 6), minmax(0, 1fr)); }
+  .pg-jump.is-grid a { height: 2.25rem; }
+  .pg-bar:has(> .is-grid) > .pg-bar-label { display: none; }
+  /* Two rows of cells make a taller bar for an anchor to clear. */
+  .pg:has(.pg-jump.is-grid) { --pg-anchor: calc(var(--bar-h) + 6.5rem); }
 }
 
 /* Lemma page: straight to the occurrences. */

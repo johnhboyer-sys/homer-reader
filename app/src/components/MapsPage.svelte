@@ -13,6 +13,7 @@
     shipCircleRadius,
     principalPlace,
     contingentPlaces,
+    contingentNaming,
     placesById as buildPlacesById,
     wanderingsRoute,
     wanderingsStory,
@@ -124,6 +125,11 @@
       .slice(0, MAX_FOCUS_IDS);
   }
   const focusIds: string[] = readFocusParam();
+  // One place asked for by name ("On the map" from its gazetteer entry): the
+  // Leaflet sheets move to its pin and open it, and a list of places with no
+  // site marks it. The Catalogue sheet first chooses the contingent that
+  // names it (below, once the contingents are read).
+  const focusId: string | null = focusIds[0] ?? null;
 
   // Persist the active tab to `?map=` on every switch — same replaceState
   // idiom as setStoryMode below — so the URL a reader copies/reloads always
@@ -156,6 +162,9 @@
   // The existing panel buttons and their matching map circles share one
   // selection state. Activating the selected contingent again restores the
   // complete Catalogue view.
+  const focusContingent = activeTab === 'ships' ? contingentNaming(focusId, achaean, trojan) : null;
+  if (focusContingent?.side === 'achaean') selectedAchaean = focusContingent.id;
+  else if (focusContingent?.side === 'trojan') { shipSubtab = 'trojan'; selectedTrojan = focusContingent.id; }
   function toggleAchaean(id: string) { selectedAchaean = selectedAchaean === id ? null : id; }
   function toggleTrojan(id: string) { selectedTrojan = selectedTrojan === id ? null : id; }
 
@@ -562,6 +571,7 @@
           <div class="mp-map-column">
             <LandmarkMap
               {base}
+              {focusId}
               ariaLabel="Map of the Achaean Catalogue of Ships: one circle per contingent, sized by ship count"
               items={achaeanItems}
               selectedId={selectedAchaean}
@@ -605,6 +615,7 @@
           <div class="mp-map-column">
             <LandmarkMap
               {base}
+              {focusId}
               ariaLabel="Map of the Trojan Catalogue: regions of Troy's allies (Homer gives no ship count for them)"
               items={trojanItems}
               selectedId={selectedTrojan}
@@ -668,6 +679,7 @@
       {:else}
         <LandmarkMap
           {base}
+          {focusId}
           ariaLabel="Map of the Troad: places near Troy"
           items={troadPlaces.located.map((p) => ({ id: p.id, place: p }))}
         />
@@ -675,7 +687,7 @@
           <summary>Not locatable ({troadPlaces.unlocated.length})</summary>
           <ul>
             {#each troadPlaces.unlocated as p}
-              <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+              <li class:mp-focus={p.id === focusId}><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
             {/each}
           </ul>
         </details>
@@ -731,6 +743,7 @@
 
       <LandmarkMap
         {base}
+        {focusId}
         ariaLabel={storyMode
           ? "Map of Odysseus's wanderings in Story mode: the 17 numbered stations of his voyage, Troy to Ithaca, in telling order, with the sea-voyage route (Ismarus to Thrinacia) drawn as the hero route"
           : "Map of Odysseus's wanderings: stations of the Apologoi (Od. 9-12) connected by a dashed route, plus other travel/homecoming places named in the poem"}
@@ -809,7 +822,7 @@
         <summary>Not locatable ({wanderingsPlaces.unlocated.length})</summary>
         <ul>
           {#each wanderingsPlaces.unlocated as p}
-            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+            <li class:mp-focus={p.id === focusId}><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
           {/each}
         </ul>
       </details>
@@ -823,6 +836,7 @@
       </p>
       <LandmarkMap
         {base}
+        {focusId}
         ariaLabel="Map of Greece: homes and homecomings named in the poems"
         items={greecePlaces.located.map((p) => ({ id: p.id, place: p }))}
       />
@@ -830,7 +844,7 @@
         <summary>Not locatable ({greecePlaces.unlocated.length})</summary>
         <ul>
           {#each greecePlaces.unlocated as p}
-            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+            <li class:mp-focus={p.id === focusId}><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
           {/each}
         </ul>
       </details>
@@ -872,6 +886,7 @@
 
       <LandmarkMap
         {base}
+        {focusId}
         ariaLabel="Map of the four nostoi: the homecomings of Odysseus, Menelaus, Nestor, and Telemachus, each a distinct colored and patterned route"
         items={journeysItems}
         journeyRoutes={visibleJourneyRoutes}
@@ -901,7 +916,7 @@
         <summary>Not locatable ({journeysSplit.unlocated.length})</summary>
         <ul>
           {#each journeysSplit.unlocated as p}
-            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+            <li class:mp-focus={p.id === focusId}><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
           {/each}
         </ul>
       </details>
@@ -968,6 +983,13 @@
     border-bottom: 2px solid transparent;
     color: var(--text-mid);
     cursor: pointer;
+  }
+  /* Six sheets are a short set: a phone shows them all, on two rows with a
+     rule under each, not three and a hidden rest off the right edge. */
+  @media (max-width: 680px) {
+    .mp-tabs { flex-wrap: wrap; overflow: visible; gap: 0; border-bottom: 0; }
+    .mp-tab { flex: 1 1 auto; padding: 0 0.75rem; border-bottom: 1px solid var(--border); }
+    .mp-tab[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--accent); }
   }
   .mp-tab[aria-selected="true"], .mp-subtab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
   .mp-tab:hover, .mp-subtab:hover { color: var(--accent); }
@@ -1100,5 +1122,7 @@
   .mp-unlocated ul { margin: 0.5rem 0 0; padding-left: 1.2rem; columns: 2; column-gap: 1.5rem; }
   @media (max-width: 640px) { .mp-unlocated ul { columns: 1; } }
   .mp-unlocated li { margin-bottom: 0.15rem; break-inside: avoid; }
+  /* The place a link opened the sheet for, when it has no site to draw. */
+  .mp-unlocated li.mp-focus { margin-left: -0.5rem; padding: 0.125rem 0.5rem; border-radius: var(--radius-1); background: var(--accent-bg, color-mix(in srgb, var(--accent) 12%, transparent)); color: var(--text); font-weight: 600; }
   .mp-tier-word { color: var(--text-mid); }
 </style>

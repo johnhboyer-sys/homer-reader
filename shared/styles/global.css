@@ -102,6 +102,10 @@
                                 same wine identity) — see docs/DESIGN.md and the dark-theme
                                 block below for the matching shift. */
   --border:       #DFD6C5;  /* Wine-dark --rule: soft decorative hairline */
+  /* The edge of a control or a meter's track: the line that says "this is a
+     field", so it holds 3:1 on every surface here (3.4-4.1:1), where the
+     decorative hairline above need not (WCAG 1.4.11). */
+  --edge-ui:      #857A6C;
   /* Land/sea fills (2026-07-28, contrast fix): land↔sea used to differ by
      only 1.086:1 here and, worse, INVERT in dark theme (land lighter here,
      darker there) — a reader who learns "pale is land" learned the opposite
@@ -397,6 +401,7 @@
                                 contrast-check run). Was #D98BA3. */
   --accent-light: #F0B7A6;  /* Wine-dark --gold-deco dark. Was #E8A6BA. */
   --border:       #393342;  /* Wine-dark --rule dark, a step lighter (round 2) so hairlines show */
+  --edge-ui:      #7A7285;  /* 3.5-4.2:1 on the dark surfaces */
   --scene-map-sea:        #0A1C2A; /* deep Aegean water, deepened so warm land reads
                                        lighter than sea in BOTH themes */
   --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
@@ -4170,12 +4175,37 @@ body.toc-open .toc-sidebar { transform: translateX(0); box-shadow: var(--shadow-
   min-width: 2.5rem;
   text-align: right;
 }
+/* The track is drawn here, not left to the browser, whose unfilled track
+   is about 1.3:1 on these surfaces: the part still to go is --edge-ui (3:1),
+   the part covered the accent. --fill is the value as a percentage, set on
+   the input by Reader.svelte (WebKit has no ::-moz-range-progress). */
 .settings-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  accent-color: var(--accent);
+  height: 1.25rem;
+  margin: 0;
+  background: transparent;
   cursor: pointer;
-  height: 4px;
 }
+.settings-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) var(--fill, 50%), var(--edge-ui) var(--fill, 50%));
+}
+.settings-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: calc(2px - 0.5rem);
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.settings-slider input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--edge-ui); }
+.settings-slider input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--accent); }
+.settings-slider input[type="range"]::-moz-range-thumb { width: 1rem; height: 1rem; border: 0; border-radius: 50%; background: var(--accent); }
+.settings-slider input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 
 .copy-cite-btn {
   position: fixed;
@@ -4229,11 +4259,14 @@ body.toc-open .toc-sidebar { transform: translateX(0); box-shadow: var(--shadow-
 .settings-pill-track {
   position: absolute;
   inset: 0;
-  background: var(--border);
+  /* Off is a state the track alone shows: 3:1, not the hairline colour. */
+  background: var(--edge-ui);
   border-radius: 1rem;
   transition: background 0.18s ease;
 }
 .settings-pill input:checked ~ .settings-pill-track { background: var(--accent); }
+/* The input itself is a 0x0 box: the ring goes on the track a reader sees. */
+.settings-pill input:focus-visible ~ .settings-pill-track { outline: 2px solid var(--accent); outline-offset: 2px; }
 .settings-pill-thumb {
   position: absolute;
   top: 0.175rem;
@@ -5219,7 +5252,7 @@ body[data-work="odyssey"] { --work-accent: var(--odyssey); }
   height: 2.125rem;
   max-width: none;
   padding: 0 1.6rem 0 0.625rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--edge-ui);
   border-radius: var(--radius-1);
   background-color: var(--input-bg);
   background-position: right 0.5rem center;
@@ -5645,7 +5678,7 @@ body:has(.scene-context-rail) .book-head { max-width: 1440px; }
   }
   .reader-page .seg-row { --seg-gap: 1.25rem; }
   .reader-page .reader-body.verse-line .line-num { min-width: 1.375rem; }
-  .reader-page .reader-body.verse-line .line-text { padding-left: 1em; text-indent: -1em; }
+  .reader-page .reader-body.verse-line .line-text { padding-left: 2em; text-indent: -2em; }
 }
 @media (min-width: 681px) and (max-width: 860px) {
   .reader-page .reader-body .seg-row {
@@ -5926,8 +5959,12 @@ body:has(.scene-context-rail) .book-head { max-width: 1440px; }
    that depends on that swap lives at the same number
    (shared/__tests__/edition-breakpoints.test.ts holds them together). */
 @media (max-width: 680px) {
-  /* Greek verse on a phone: sized, and its gutter trimmed, so a hexameter
-     mostly holds one line; a line that must turn over hangs by one em. */
+  /* Greek verse on a phone: sized, tracked a hair tighter and let 6px into
+     the right gutter, so a hexameter mostly holds one line; a line that
+     must turn over hangs two ems, as a printed edition sets a turnover.
+     The spaces between words keep their width. Measured at 375px: Iliad 1
+     turns 43 of 611 lines (was 141), Odyssey 9 16 of 566 (was 103); at
+     390px, 10 and 1 (were 51 and 19). */
   .reader-page .reader-body .seg-row {
     --fs-greek: calc(1.0625rem * var(--fs-scale, 1));
     --fs-english: calc(1.0625rem * var(--fs-scale, 1));
@@ -5940,10 +5977,10 @@ body:has(.scene-context-rail) .book-head { max-width: 1440px; }
   /* Stacked: the English hangs from the same gutter as the Greek above it. */
   .reader-page .reader-body.verse-line .stacked-both .ross-prose { padding-left: calc(1.375rem + 0.35rem); }
   .reader-page .reader-body.verse-line .stacked-both .bk-num { width: 1.375rem; transform: translateY(0.62em); }
-  .reader-page .reader-body.verse-line .greek-col { letter-spacing: -0.005em; }
+  .reader-page .reader-body.verse-line .greek-col { letter-spacing: -0.02em; margin-right: -0.375rem; }
   .reader-page .reader-body.verse-line .stacked-both .line-num,
   .reader-page .reader-body.verse-line.view-greek .line-num { min-width: 1.375rem; }
-  .reader-page .reader-body.verse-line .line-text { padding-left: 1em; text-indent: -1em; }
+  .reader-page .reader-body.verse-line .line-text { padding-left: 2em; text-indent: -2em; }
   .reader-page .align-group + .align-group { margin-top: 1.25rem; padding-top: 1.125rem; }
   .reader-page .reader-body.view-both .stacked-both .greek-col { margin-bottom: 0.625rem; }
 
@@ -6150,6 +6187,16 @@ a.be-link:hover .be-book { color: var(--accent); }
 :root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .english-col .bk-num { display: none; }
 :root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .english-col .ross-prose { padding-left: 0; }
 :root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .verse-bracket-legend { display: none; }
+/* The first scene's card, held in the server markup for this state alone
+   (Reader.svelte, .reading-pending), and the edition line on the reading
+   column's measure, as Reader mode sets them: the text below starts where it
+   will stay. The book-end links wait for the island, which cuts the page to
+   one scene and would otherwise pull them up into view. */
+.reading-pending { display: none; }
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .reading-pending { display: block; }
+:root[data-rposture="reading"][data-rscene] .reader-page .reader-body:not(.reading-mode) .reading-pending { visibility: hidden; }
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .reader-controls { float: none; max-width: 36rem; margin: 0 auto 0.25rem; }
+:root[data-rposture="reading"] .reader-page .book-end { visibility: hidden; }
 
 } /* end @media screen (Edition skin) */
 

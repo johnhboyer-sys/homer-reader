@@ -84,7 +84,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
     </header>
     <nav class="pg-bar" aria-label="Jump to a book">
       <span class="pg-bar-label" aria-hidden="true">Book</span>
-      <div class="pg-jump vocab-jump">
+      <div class="pg-jump vocab-jump is-grid" style={`--jump-n:${books.length};--jump-half:${Math.ceil(books.length / 2)}`}>
         {books.map((book) => <a href={`#book-${book}`}>{book}</a>)}
       </div>
     </nav>

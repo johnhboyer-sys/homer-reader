@@ -9,7 +9,7 @@
   import { formatLocValue } from '../lib/citation';
   import { WORKS, getWork, workPath } from '../lib/works';
   import {
-    SITE_PAGES, hasGreek, nameEntries, rankBooks, rankLemmaSlugs, rankLemmata, rankNames, searchPath, verseCitations,
+    SITE_PAGES, hasGreek, headwordCounts, nameEntries, rankBooks, rankLemmaSlugs, rankLemmata, rankNames, searchPath, verseCitations, withMentions,
     type SiteEntry,
   } from '../lib/palette';
 
@@ -60,6 +60,7 @@
       Promise.all([fetchPlaces(), fetchCharacters()])
         .then(([p, c]) => {
           names = [...SITE_PAGES, ...nameEntries(p.places ?? [], Object.values(c))];
+          if (lemmata) names = withMentions(names, headwordCounts(lemmata));
           if (open) compute(query, true);
         })
         .catch(() => { /* names stay the site's pages */ });
@@ -75,7 +76,13 @@
     lemmataAsked = true;
     try {
       fetchLemmata()
-        .then((l) => { lemmata = l; if (open) compute(query, true); })
+        .then((l) => {
+          lemmata = l;
+          // The lexicon's counts order two names a query matches equally
+          // well: "hec" is Hector (454) before Hecuba (8).
+          names = withMentions(names, headwordCounts(l));
+          if (open) compute(query, true);
+        })
         .catch(() => { /* no word rows */ });
     } catch { /* as above */ }
   }

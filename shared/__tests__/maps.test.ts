@@ -8,6 +8,7 @@ import {
   principalPlace,
   boundsExcludingTroy,
   contingentPlaces,
+  contingentNaming,
   placesById,
   contingentLocValue,
   wanderingsRoute,
@@ -616,5 +617,24 @@ describe('wanderingsPlaybackLegs (real apparatus/places.json)', () => {
   it('returns [] for fewer than 2 stations', () => {
     expect(wanderingsPlaybackLegs([])).toEqual([]);
     expect(wanderingsPlaybackLegs([story[0]!])).toEqual([]);
+  });
+});
+
+// Round 5 (P9): "On the map" from a place entry carried its place to the
+// Troad and Plain sheets only. On the Catalogue sheet a town is drawn once
+// its contingent is chosen, so the link has to find that contingent.
+describe('contingentNaming', () => {
+  const c = (id: string, places: string[]): Contingent => ({ id, name: id, lines: [1, 2], leaders: [], ships: null, places });
+  const achaean = [c('boeotians', ['hyria', 'aulis']), c('athenians', ['athens'])];
+  const trojan = [c('lycians', ['lycia', 'xanthus-lycia'])];
+  it('finds the Achaean contingent that names a town', () => {
+    expect(contingentNaming('aulis', achaean, trojan)).toEqual({ side: 'achaean', id: 'boeotians' });
+  });
+  it('finds a Trojan ally\'s', () => {
+    expect(contingentNaming('xanthus-lycia', achaean, trojan)).toEqual({ side: 'trojan', id: 'lycians' });
+  });
+  it('is null for a place no contingent names, and for no place', () => {
+    expect(contingentNaming('selleeis-troad', achaean, trojan)).toBeNull();
+    expect(contingentNaming(null, achaean, trojan)).toBeNull();
   });
 });

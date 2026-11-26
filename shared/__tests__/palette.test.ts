@@ -77,7 +77,7 @@ describe('rankLemmata', () => {
 });
 
 // ── Round 3: the site-wide Go-to ────────────────────────────────────────────
-import { SITE_PAGES, nameEntries, rankLemmaSlugs, rankNames, searchPath, verseCitations } from '../lib/palette';
+import { SITE_PAGES, headwordCounts, nameEntries, rankLemmaSlugs, rankNames, searchPath, verseCitations, withMentions } from '../lib/palette';
 
 import { ALL_NAV_PATHS } from '../../app/src/lib/site-nav';
 
@@ -142,6 +142,55 @@ describe('rankNames', () => {
   it('ignores an empty query and caps the list', () => {
     expect(rankNames('  ', entries)).toEqual([]);
     expect(rankNames('the', entries, 1).length).toBeLessThanOrEqual(1);
+  });
+});
+
+// Round 5 (P8): "hec" listed Hecuba (8 occurrences) above Hector (454),
+// because the roster's own order broke the tie. The lexicon's counts do.
+describe('rankNames by how often a name occurs', () => {
+  const roster = nameEntries(
+    [
+      { id: 'hecatompylos', name: 'Hecate\u2019s grove', greek: 'ἄλσος' },
+      { id: 'helice', name: 'Helice', greek: 'Ἑλίκη', mentions: ['Il. 2.575', 'Il. 8.203'] },
+    ],
+    [
+      { id: 'hecuba', name: 'Hecuba', greek: 'Ἑκάβη' },
+      { id: 'hector', name: 'Hector', greek: 'Ἕκτωρ' },
+      { id: 'helenus', name: 'Helenus', greek: 'Ἕλενος' },
+      { id: 'helen', name: 'Helen', greek: 'Ἑλένη' },
+    ],
+  );
+  const lexicon: Record<string, LemmaRef> = {
+    'e(/ktwr': { slug: 'hektor', head: 'Ἕκτωρ', count: 454 },
+    'e(ka/bh': { slug: 'hekabe', head: 'Ἑκάβη', count: 8 },
+    'e(le/nh': { slug: 'helene', head: 'Ἑλένη', count: 58 },
+    'e(/lenos': { slug: 'helenos', head: 'Ἕλενος', count: 12 },
+  };
+  const counted = withMentions(roster, headwordCounts(lexicon));
+
+  it('reproduces the complaint without counts: the roster order decides', () => {
+    expect(rankNames('hec', roster).map((e) => e.label).slice(0, 2)).toEqual(['Hecuba', 'Hector']);
+  });
+  it('puts the more frequent of two prefix matches first', () => {
+    expect(rankNames('hec', counted).map((e) => e.label).slice(0, 2)).toEqual(['Hector', 'Hecuba']);
+    expect(rankNames('hel', counted).map((e) => e.label)).toEqual(['Helen', 'Helenus', 'Helice']);
+  });
+  it('still puts the name spelled in full above a more frequent longer one', () => {
+    const more = withMentions(roster, headwordCounts({ ...lexicon, 'e(/lenos': { slug: 'helenos', head: 'Ἕλενος', count: 900 } }));
+    expect(rankNames('helen', more)[0]?.label).toBe('Helen');
+  });
+  it('counts a character by the lexicon and a place by its own list of mentions', () => {
+    const helice = counted.find((e) => e.label === 'Helice');
+    expect(helice?.mentions).toBe(2);
+    expect(counted.find((e) => e.label === 'Hector')?.mentions).toBe(454);
+    const wall = withMentions(nameEntries([{ id: 'wall', name: 'The wall', greek: 'τεῖχος' }], []), headwordCounts({ 'tei=xos': { slug: 'teichos', head: 'τεῖχος', count: 120 } }));
+    expect(wall[0].mentions).toBeUndefined();
+  });
+  it('keeps a page of the site first in its tier, and the given order between equals', () => {
+    const entries = withMentions([...SITE_PAGES, ...roster], headwordCounts(lexicon));
+    expect(rankNames('for', [...entries, { kind: 'Character', label: 'Fortune', path: '/x', mentions: 999 }])[0]?.label).toBe('Formulas');
+    const flat = nameEntries([], [{ id: 'a', name: 'Hecamede' }, { id: 'b', name: 'Hecabe' }]);
+    expect(rankNames('hec', flat).map((e) => e.label)).toEqual(['Hecamede', 'Hecabe']);
   });
 });
 

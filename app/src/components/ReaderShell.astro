@@ -315,7 +315,13 @@ const intro =
         var qm = p2.get('mode'), reading;
         if (qm === 'reading' || qm === 'scholar') reading = qm === 'reading';
         else reading = localStorage.getItem('reader-posture') === 'reading';
-        if (reading) document.documentElement.setAttribute('data-rposture', 'reading');
+        if (reading) {
+          document.documentElement.setAttribute('data-rposture', 'reading');
+          // The card held open before hydration is the first scene's: a link
+          // to another scene or line keeps its space but not its words.
+          var sc = p2.get('scene');
+          if ((sc && sc !== '1') || p2.get('loc')) document.documentElement.setAttribute('data-rscene', '');
+        }
       } catch (e) { /* no bridge: static Scholar markup stands until hydration */ }
       try {
         // First-visit tip (see #reader-tip): hidden before paint once seen.

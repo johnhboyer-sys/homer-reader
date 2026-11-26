@@ -45,4 +45,4 @@ export function initScrollHints(els: Iterable<HTMLElement>): () => void {
 }
 
 /** The site's sideways scrollers: jump rows, the timeline strips, the two charts. */
-export const SCROLLERS = '.pg-jump, .day-strip-scroll, .voyage-strip-scroll, .cn-scroll, .gen-scroll';
+export const SCROLLERS = '.pg-jump, .day-strip-scroll, .voyage-strip-scroll, .gen-scroll';

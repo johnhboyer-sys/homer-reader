@@ -42,34 +42,39 @@ interface SpeechEdgeDatum {
   a: string; b: string;
 }
 
-interface Props {
+interface Sheet {
+  /** "wide" is the landscape sheet; "tall" the portrait one a phone shows. */
+  variant: 'wide' | 'tall';
   width: number;
   height: number;
+  /** Label size in viewBox units. */
+  labelSize: number;
+  /** Scale of discs, gaps and lines against the wide sheet's (1). */
+  unit: number;
   nodes: NodeDatum[];
   kinshipEdges: KinshipEdgeDatum[];
   speechEdges: SpeechEdgeDatum[];
-  /** Label size in viewBox units. */
-  labelSize?: number;
 }
-const { width, height, nodes, kinshipEdges, speechEdges, labelSize = 13 } = Astro.props;
+interface Props { sheets: Sheet[]; }
+const { sheets } = Astro.props;
 // A figure who speaks in both poems is drawn as a split disc: left half the
 // Iliad's colour, right half the Odyssey's.
 const half = (n: NodeDatum, side: 1 | -1) =>
-  `M${n.x},${n.y - n.r}A${n.r},${n.r} 0 0 ${side === 1 ? 1 : 0} ${n.x},${n.y + n.r}Z`;
+  `M${n.x},${n.y - n.r}A${n.r},${n.r} 0 0 ${side === 1 ? 1 : 0} ${n.x},${Math.round((n.y + n.r) * 10) / 10}Z`;
 ---
 <figure class="cn-figure">
-  <div class="cn-scroll">
+  {sheets.map((s) => (
   <svg
-    class="cn-svg"
-    viewBox={`0 0 ${width} ${height}`}
+    class={`cn-svg cn-${s.variant}`}
+    viewBox={`0 0 ${s.width} ${s.height}`}
     preserveAspectRatio="xMidYMid meet"
     role="img"
     aria-hidden="true"
     focusable="false"
-    style={`--cn-label:${labelSize}px`}
+    style={`--cn-label:${s.labelSize}px;--cn-unit:${s.unit}`}
   >
     <g class="cn-edges">
-      {speechEdges.map((e) => (
+      {s.speechEdges.map((e) => (
         <line
           class="cn-edge cn-edge-speech"
           data-a={e.a}
@@ -78,7 +83,7 @@ const half = (n: NodeDatum, side: 1 | -1) =>
           style={`stroke-width:${e.width}`}
         />
       ))}
-      {kinshipEdges.map((e) => (
+      {s.kinshipEdges.map((e) => (
         <line
           class:list={['cn-edge', 'cn-edge-kin', { 'cn-edge-kin-nonhomeric': e.nonHomeric }]}
           data-a={e.source}
@@ -88,7 +93,7 @@ const half = (n: NodeDatum, side: 1 | -1) =>
       ))}
     </g>
     <g class="cn-nodes">
-      {nodes.map((n) => (
+      {s.nodes.map((n) => s.variant === 'wide' ? (
         <g
           class="cn-node"
           data-id={n.id}
@@ -101,11 +106,16 @@ const half = (n: NodeDatum, side: 1 | -1) =>
           {n.poem === 'both' && <path class="cn-half" d={half(n, 1)} />}
           <title>{n.greek ? `${n.name} — ${n.greek}` : n.name}</title>
         </g>
+      ) : (
+        <g class="cn-node" data-id={n.id} data-poem={n.poem ?? 'none'}>
+          <circle class="cn-disc" cx={n.x} cy={n.y} r={n.r} />
+          {n.poem === 'both' && <path class="cn-half" d={half(n, 1)} />}
+        </g>
       ))}
     </g>
     {/* Names sit above every disc and line, so none is ever drawn over. */}
     <g class="cn-labels">
-      {nodes.filter((n) => n.showLabel).map((n) => (
+      {s.nodes.filter((n) => n.showLabel).map((n) => (
         <text
           class="cn-label"
           data-for={n.id}
@@ -116,18 +126,21 @@ const half = (n: NodeDatum, side: 1 | -1) =>
       ))}
     </g>
   </svg>
-  </div>
+  ))}
   <div class="cn-flyout" id="cn-flyout" role="status" hidden></div>
 </figure>
 <style>
   .cn-figure { margin: 0; position: relative; }
-  .cn-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .cn-svg { display: block; width: 100%; height: auto; }
+  /* Two sheets from the same links: the landscape one, and a portrait one
+     laid out for a phone's width, so no figure or name is off the screen. */
+  .cn-tall { display: none; }
   .cn-edge { pointer-events: none; }
   .cn-edge-speech { stroke: var(--text-mid); opacity: 0.2; stroke-linecap: round; }
-  .cn-edge-kin { stroke: var(--rule-strong); stroke-width: 1.5; opacity: 0.9; }
+  .cn-edge-kin { stroke: var(--rule-strong); stroke-width: calc(1.5px * var(--cn-unit, 1)); opacity: 0.9; }
   .cn-edge-kin-nonhomeric { stroke: var(--accent); stroke-dasharray: 5 3.5; }
-  .cn-disc { cursor: pointer; pointer-events: all; stroke: var(--page-bg); stroke-width: 1.5; transition: opacity .12s ease; }
+  .cn-tall .cn-edge-kin-nonhomeric { stroke-dasharray: 7.5 5.25; }
+  .cn-disc { cursor: pointer; pointer-events: all; stroke: var(--page-bg); stroke-width: calc(1.5px * var(--cn-unit, 1)); transition: opacity .12s ease; }
   .cn-half { pointer-events: none; fill: var(--odyssey); transition: opacity .12s ease; }
   .cn-node[data-poem="iliad"] .cn-disc, .cn-node[data-poem="both"] .cn-disc { fill: var(--iliad); }
   .cn-node[data-poem="odyssey"] .cn-disc { fill: var(--odyssey); }
@@ -140,7 +153,7 @@ const half = (n: NodeDatum, side: 1 | -1) =>
     pointer-events: none;
     paint-order: stroke;
     stroke: var(--page-bg);
-    stroke-width: 3.5px;
+    stroke-width: calc(3.5px * var(--cn-unit, 1));
     stroke-linejoin: round;
   }
   /* Hover / focus: one figure and the lines that touch it. */
@@ -174,10 +187,9 @@ const half = (n: NodeDatum, side: 1 | -1) =>
   .cn-flyout :global(.cn-flyout-greek) { font-family: var(--font-greek); font-size: 0.9375rem; color: var(--text-mid); margin-left: 0.4em; }
   .cn-flyout :global(.cn-flyout-role) { display: block; margin-top: 0.25rem; color: var(--text-mid); }
 
-  /* A phone cannot show a hundred figures in its own width: the diagram
-     keeps a legible scale and pans sideways inside its frame. */
   @media (max-width: 760px) {
-    .cn-svg { width: 54rem; max-width: none; }
+    .cn-wide { display: none; }
+    .cn-tall { display: block; }
   }
   @media (prefers-reduced-motion: reduce) { .cn-disc, .cn-half { transition: none; } }
 </style>
@@ -189,18 +201,18 @@ const half = (n: NodeDatum, side: 1 | -1) =>
   // index.astro) — focusing a roster row's name highlights its node here,
   // via the shared `data-char-id` / `#roster-<id>` contract, without adding
   // any new focusable element inside this component's aria-hidden SVG.
-  const svg = document.querySelector<SVGSVGElement>('.cn-svg');
+  const svgs = Array.from(document.querySelectorAll<SVGSVGElement>('.cn-svg'));
   const flyout = document.getElementById('cn-flyout');
-  if (svg && flyout) {
-    const nodeEls = Array.from(svg.querySelectorAll<SVGGElement>('.cn-node'));
-    const edgeEls = Array.from(svg.querySelectorAll<SVGLineElement>('.cn-edge'));
-    const nodeById = new Map(nodeEls.map((el) => [el.dataset.id!, el]));
-    const labelEls = Array.from(svg.querySelectorAll<SVGTextElement>('.cn-label'));
-    // On a phone the diagram pans inside its frame; open it on the middle.
-    const scroller = svg.closest<HTMLElement>('.cn-scroll');
-    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
-      scroller.scrollLeft = (scroller.scrollWidth - scroller.clientWidth) / 2;
-    }
+  if (svgs.length && flyout) {
+    // Both sheets (landscape, and the phone's portrait one) answer together:
+    // only one is on screen, and a class on the hidden one costs nothing.
+    const nodeEls = svgs.flatMap((svg) => Array.from(svg.querySelectorAll<SVGGElement>('.cn-node')));
+    const edgeEls = svgs.flatMap((svg) => Array.from(svg.querySelectorAll<SVGLineElement>('.cn-edge')));
+    const labelEls = svgs.flatMap((svg) => Array.from(svg.querySelectorAll<SVGTextElement>('.cn-label')));
+    // The portrait sheet's nodes carry an id only; a figure's name, Greek and
+    // role are read from its node on the landscape sheet.
+    const nodeById = new Map<string, SVGGElement>();
+    for (const el of nodeEls) if (!nodeById.has(el.dataset.id!)) nodeById.set(el.dataset.id!, el);
 
     // id -> edges + neighbor node ids touching it, built once from the
     // data-a/data-b attributes every edge already carries.
@@ -219,7 +231,7 @@ const half = (n: NodeDatum, side: 1 | -1) =>
     let active: string | null = null;
     function clear() {
       active = null;
-      svg?.classList.remove('is-highlighting');
+      for (const svg of svgs) svg.classList.remove('is-highlighting');
       for (const el of nodeEls) el.classList.remove('is-active');
       for (const el of edgeEls) el.classList.remove('is-active');
       for (const el of labelEls) el.classList.remove('is-active');
@@ -228,7 +240,7 @@ const half = (n: NodeDatum, side: 1 | -1) =>
     function highlight(id: string) {
       if (!nodeById.has(id)) return;
       active = id;
-      svg?.classList.add('is-highlighting');
+      for (const svg of svgs) svg.classList.add('is-highlighting');
       for (const el of nodeEls) el.classList.toggle('is-active', el.dataset.id === id);
       const entry = neighborsOf.get(id);
       const connected = entry?.nodes ?? new Set<string>();
@@ -245,14 +257,15 @@ const half = (n: NodeDatum, side: 1 | -1) =>
     }
     function showFlyout(el: SVGGElement, clientX: number, clientY: number) {
       if (!flyout) return;
-      const name = el.dataset.name ?? '';
-      const greek = el.dataset.greek ?? '';
-      const role = el.dataset.role ?? '';
+      const info = nodeById.get(el.dataset.id!) ?? el;
+      const name = info.dataset.name ?? '';
+      const greek = info.dataset.greek ?? '';
+      const role = info.dataset.role ?? '';
       flyout.innerHTML =
         `<span class="cn-flyout-name">${name}</span>` +
         (greek ? `<span class="cn-flyout-greek" lang="grc">${greek}</span>` : '') +
         (role ? `<span class="cn-flyout-role">${role}</span>` : '');
-      const host = svg!.closest('.cn-figure') as HTMLElement;
+      const host = el.closest('.cn-figure') as HTMLElement;
       const hostRect = host.getBoundingClientRect();
       flyout.style.left = `${Math.max(4, clientX - hostRect.left + 12)}px`;
       flyout.style.top = `${Math.max(4, clientY - hostRect.top + 12)}px`;

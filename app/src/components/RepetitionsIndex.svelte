@@ -97,7 +97,7 @@
   .filters { flex-wrap: wrap; }
   .filter-field { display: flex; align-items: center; gap: 0.75rem; flex: 1 1 24rem; max-width: 34rem; min-width: 0; }
   .filter-label { flex: none; font: 600 var(--step--1)/1 var(--font-ui); color: var(--text-mid); }
-  .filter-field input { flex: 1 1 auto; min-width: 0; height: 2.5rem; padding: 0 1rem; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--input-bg); color: var(--text); font-family: var(--font-greek); font-size: 1.125rem; }
+  .filter-field input { flex: 1 1 auto; min-width: 0; height: 2.5rem; padding: 0 1rem; border: 1px solid var(--edge-ui); border-radius: var(--radius-pill); background: var(--input-bg); color: var(--text); font-family: var(--font-greek); font-size: 1.125rem; }
   .filter-field input::placeholder { font: 500 0.9375rem/1 var(--font-ui); color: var(--text-light); opacity: 1; }
   .filter-field input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
   .cross-filter input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -126,7 +126,12 @@
     .filter-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .filters { flex-wrap: nowrap; gap: var(--space-2); }
     .cross-filter { padding: 0 0.75rem; }
-    .repetition-row { grid-template-columns: minmax(0, 1fr); }
+    /* A phone row is the phrase, then one line of its count and places: the
+       count no longer drops to a line of its own when the phrase fills the
+       measure, and every row has the same two-part shape. */
+    .repetition-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem 0.75rem; }
+    .repetition-main, .references { display: contents; }
+    .repetition-text { flex: 1 1 100%; }
     .repetition-text { font-size: 1.25rem; }
   }
 </style>

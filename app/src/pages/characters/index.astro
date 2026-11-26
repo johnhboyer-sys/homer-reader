@@ -103,17 +103,30 @@ const poemOf = (id: string): Poem =>
 const POEM_LABEL: Record<Poem, string> = { iliad: 'Iliad', odyssey: 'Odyssey', both: 'Both poems', none: 'No speech' };
 const poemOrder: Poem[] = ['iliad', 'odyssey', 'both', 'none'];
 
-const WIDTH = 1000;
-const HEIGHT = 700;
+const charById = new Map(characters.map((c) => [c.id, c]));
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+// Cap the visual weight range so a handful of shouting matches (Eumaeus/
+// Odysseus, 37 speeches; Odysseus/Telemachus, 32) don't dwarf the rest —
+// stated in the caption, never silently applied.
+const MAX_SPEECH_WIDTH_COUNT = 20;
 const layoutEdges = [
   ...kinshipEdges.map((e) => ({ source: e.source, target: e.target, weight: 1 })),
   ...speechEdgesRaw.map((e) => ({ source: e.a, target: e.b, weight: e.count })),
 ];
-const rawPositions = layoutNetwork(connectedIds, layoutEdges, { width: WIDTH, height: HEIGHT });
-const charById = new Map(characters.map((c) => [c.id, c]));
+// One decimal is a tenth of a viewBox unit: nothing the eye can see, and a
+// third of the markup the unrounded floats cost.
+const r1 = (v: number) => Math.round(v * 10) / 10;
 
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-const radiusFor = (w: number) => clamp(4.5 + Math.sqrt(w) * 1.35, 4.5, 22);
+// The diagram is drawn twice from the same links: a landscape sheet for a
+// wide screen and a portrait one for a phone, each laid out for its own
+// frame so every figure and every name it carries is inside the screen.
+// `unit` scales discs, gaps and lines with the label, so the portrait sheet
+// (drawn at about 0.6 screen pixels to the unit) keeps the landscape one's
+// proportions on screen.
+interface Sheet { width: number; height: number; labelSize: number; unit: number; padX: number; padTop: number; padBottom: number; charW: number; gap: number; }
+function drawNetwork({ width: WIDTH, height: HEIGHT, labelSize: LABEL_SIZE, unit, padX: PAD_X, padTop: PAD_TOP, padBottom: PAD_BOTTOM, charW, gap }: Sheet) {
+const rawPositions = layoutNetwork(connectedIds, layoutEdges, { width: WIDTH, height: HEIGHT });
+const radiusFor = (w: number) => clamp(4.5 + Math.sqrt(w) * 1.35, 4.5, 22) * unit;
 
 // Presentation pass over the force layout (the positions carry no data, only
 // the links do). The simulation packs the best-connected figures into a knot
@@ -123,9 +136,6 @@ const radiusFor = (w: number) => clamp(4.5 + Math.sqrt(w) * 1.35, 4.5, 22);
 //      power < 1, so the middle spreads and the rim comes in;
 //   2. fit the result to the canvas, with room for a name under every node;
 //   3. push apart any two discs that still touch.
-const PAD_X = 64;
-const PAD_TOP = 26;
-const PAD_BOTTOM = 40;
 const positions = (() => {
   const pts = rawPositions.map((p) => ({ id: p.id, x: p.x, y: p.y, r: radiusFor(weightOf(p.id)) }));
   const mx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
@@ -149,7 +159,7 @@ const positions = (() => {
     }
   };
   fit();
-  const GAP = 30;
+  const GAP = gap * unit;
   for (let iter = 0; iter < 120; iter++) {
     for (let i = 0; i < pts.length; i++) {
       for (let j = i + 1; j < pts.length; j++) {
@@ -180,8 +190,7 @@ const positionById = new Map(positions.map((p) => [p.id, p]));
 // of eight positions round its disc that touches no other name and no other
 // disc. A node with no free position goes unnamed (hover or the roster names
 // it), so no two labels ever collide. The caption reports the count.
-const LABEL_SIZE = 13;
-const CHAR_W = LABEL_SIZE * 0.58;
+const CHAR_W = LABEL_SIZE * charW;
 type Anchor = 'middle' | 'start' | 'end';
 interface LabelSpot { x: number; y: number; anchor: Anchor; }
 interface Box { x0: number; y0: number; x1: number; y1: number; }
@@ -193,8 +202,8 @@ for (const id of connectedIds) {
   const name = charById.get(id)!.name;
   const w = name.length * CHAR_W + 4;
   const h = LABEL_SIZE + 3;
-  const g = p.r + 4;
-  const diag = p.r * 0.72 + 3;
+  const g = p.r + 4 * unit;
+  const diag = p.r * 0.72 + 3 * unit;
   const candidates: { spot: LabelSpot; box: Box }[] = [
     { spot: { x: p.x, y: p.y + g + LABEL_SIZE - 2, anchor: 'middle' }, box: { x0: p.x - w / 2, y0: p.y + g, x1: p.x + w / 2, y1: p.y + g + h } },
     { spot: { x: p.x, y: p.y - g - 3, anchor: 'middle' }, box: { x0: p.x - w / 2, y0: p.y - g - h, x1: p.x + w / 2, y1: p.y - g } },
@@ -227,36 +236,40 @@ const nodes = connectedIds.map((id) => {
     greek: c.greek,
     role: c.role,
     poem: poemOf(id),
-    x: p.x,
-    y: p.y,
-    r: p.r,
+    x: r1(p.x),
+    y: r1(p.y),
+    r: r1(p.r),
     showLabel: Boolean(spot),
-    labelX: spot?.x,
-    labelY: spot?.y,
+    labelX: spot ? r1(spot.x) : undefined,
+    labelY: spot ? r1(spot.y) : undefined,
     labelAnchor: spot?.anchor,
   };
 });
 const labeledCount = nodes.filter((n) => n.showLabel).length;
 
+const at = (id: string) => { const p = positionById.get(id)!; return { x: r1(p.x), y: r1(p.y) }; };
 const kinshipEdgeData = kinshipEdges
   .filter((e) => positionById.has(e.source) && positionById.has(e.target))
   .map((e) => {
-    const p1 = positionById.get(e.source)!;
-    const p2 = positionById.get(e.target)!;
+    const p1 = at(e.source);
+    const p2 = at(e.target);
     return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, nonHomeric: e.nonHomeric, source: e.source, target: e.target };
   });
 
-// Cap the visual weight range so a handful of shouting matches (Eumaeus/
-// Odysseus, 37 speeches; Odysseus/Telemachus, 32) don't dwarf the rest —
-// stated in the caption, never silently applied.
-const MAX_SPEECH_WIDTH_COUNT = 20;
 const speechWidth = (count: number) =>
-  clamp(0.75 + Math.sqrt(Math.min(count, MAX_SPEECH_WIDTH_COUNT)) * 0.85, 0.75, 5);
+  clamp(0.75 + Math.sqrt(Math.min(count, MAX_SPEECH_WIDTH_COUNT)) * 0.85, 0.75, 5) * unit;
 const speechEdgeData = speechEdgesRaw.map((e) => {
-  const p1 = positionById.get(e.a)!;
-  const p2 = positionById.get(e.b)!;
-  return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, width: speechWidth(e.count), count: e.count, a: e.a, b: e.b };
+  const p1 = at(e.a);
+  const p2 = at(e.b);
+  return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, width: Math.round(speechWidth(e.count) * 100) / 100, count: e.count, a: e.a, b: e.b };
 });
+return { width: WIDTH, height: HEIGHT, labelSize: LABEL_SIZE, unit, nodes, kinshipEdges: kinshipEdgeData, speechEdges: speechEdgeData, labeledCount };
+}
+const wide = drawNetwork({ width: 1000, height: 700, labelSize: 13, unit: 1, padX: 64, padTop: 26, padBottom: 40, charW: 0.58, gap: 30 });
+// A phone: 600 units across a 343-358px column is 0.57-0.6px to the unit,
+// so a 20-unit name is set at 11.5-12px.
+const tall = drawNetwork({ width: 600, height: 1500, labelSize: 20, unit: 1.4, padX: 70, padTop: 40, padBottom: 60, charW: 0.66, gap: 42 });
+
 
 // Deep links to /formulas/: only when the character actually has a formula
 // entry for that work (FormulaLedger.astro's anchor id scheme: `${work}-${entity}`).
@@ -380,6 +393,12 @@ const jsonLd = {
     .chars-legend-swatch.nonhomeric { border-top-color: var(--accent); border-top-style: dashed; }
     .chars-legend-swatch.speech { border-top-color: var(--text-mid); border-top-width: 3px; opacity: .55; }
     .chars-legend-dot { flex: none; display: inline-block; width: 1.75rem; height: 0.875rem; background: radial-gradient(circle at 0.3rem 50%, var(--text-mid) 0.2rem, transparent 0.22rem), radial-gradient(circle at 1.3rem 50%, var(--text-mid) 0.42rem, transparent 0.44rem); }
+    /* The caption counts the names on the sheet a reader is shown. */
+    .chars-n-tall { display: none; }
+    @media (max-width: 760px) {
+      .chars-n-wide { display: none; }
+      .chars-n-tall { display: inline; }
+    }
     .chars-caption { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); font: 400 0.875rem/1.55 var(--font-ui); color: var(--text-mid); }
 
     .chars-roster-head { display: flex; align-items: baseline; gap: var(--space-4); margin-top: var(--space-7); padding-bottom: var(--space-4); }
@@ -441,7 +460,7 @@ const jsonLd = {
     <section class="chars-network" aria-labelledby="network-heading">
       <h2 id="network-heading" class="sr-only">Character relationship network</h2>
       <div class="chars-figure">
-        <CharacterNetwork width={WIDTH} height={HEIGHT} labelSize={LABEL_SIZE} nodes={nodes} kinshipEdges={kinshipEdgeData} speechEdges={speechEdgeData} />
+        <CharacterNetwork sheets={[{ ...wide, variant: 'wide' }, { ...tall, variant: 'tall' }]} />
       </div>
       <div class="chars-side">
         <h3>Nodes: the poem a figure speaks in</h3>
@@ -457,7 +476,7 @@ const jsonLd = {
         </div>
         <p class="chars-caption">
           All {connectedIds.length} of {characters.length} characters with at least one kinship or dialogue link are
-          shown ({isolateCount} with neither link in the joined data appear in the roster only). {labeledCount} of the
+          shown ({isolateCount} with neither link in the joined data appear in the roster only). {wide.labeledCount === tall.labeledCount ? wide.labeledCount : <><span class="chars-n-wide">{wide.labeledCount}</span><span class="chars-n-tall">{tall.labeledCount}</span></>} of the
           most-connected are labeled directly; hover a node, or Tab to a roster name below, to see the rest. Node size scales with
           kinship + dialogue links. {kinshipEdges.length} kinship lines come from this edition's genealogy data ({nonHomericKinshipCount} dashed,
           attested outside Homer). {speechEdgesRaw.length} dialogue lines aggregate {joinedSpeechCount} of {totalSpeechCount} DICES-derived
@@ -472,7 +491,7 @@ const jsonLd = {
       <h2 class="pg-h2 chars-roster-heading" id="roster">Roster</h2>
     </div>
     <nav class="pg-bar" aria-label="Jump to a letter">
-      <div class="pg-jump chars-jump">
+      <div class="pg-jump chars-jump is-grid" style={`--jump-n:${letters.length};--jump-half:${Math.ceil(letters.length / 2)}`}>
         {letters.map((letter) => <a href={`#letter-${letter}`} data-letter={letter}>{letter}</a>)}
       </div>
     </nav>
@@ -511,12 +530,13 @@ const jsonLd = {
       // The same filter dims the diagram: the nodes that are not showing in
       // the roster fall back, so a name or a poem can be picked out of it.
       onChange(visible) {
-        const svg = document.querySelector('.cn-svg');
-        if (!svg) return;
-        svg.classList.toggle('is-filtered', visible !== null);
-        svg.querySelectorAll<SVGGElement>('.cn-node').forEach((n) => n.classList.toggle('is-match', visible !== null && visible.has(n.dataset.id ?? '')));
-        svg.querySelectorAll<SVGTextElement>('.cn-label').forEach((t) => t.classList.toggle('is-match', visible !== null && visible.has(t.dataset.for ?? '')));
-        svg.querySelectorAll<SVGLineElement>('.cn-edge').forEach((e) => e.classList.toggle('is-match', visible !== null && visible.has(e.dataset.a ?? '') && visible.has(e.dataset.b ?? '')));
+        // Both sheets of the diagram (the landscape one and the phone's).
+        document.querySelectorAll('.cn-svg').forEach((svg) => {
+          svg.classList.toggle('is-filtered', visible !== null);
+          svg.querySelectorAll<SVGGElement>('.cn-node').forEach((n) => n.classList.toggle('is-match', visible !== null && visible.has(n.dataset.id ?? '')));
+          svg.querySelectorAll<SVGTextElement>('.cn-label').forEach((t) => t.classList.toggle('is-match', visible !== null && visible.has(t.dataset.for ?? '')));
+          svg.querySelectorAll<SVGLineElement>('.cn-edge').forEach((e) => e.classList.toggle('is-match', visible !== null && visible.has(e.dataset.a ?? '') && visible.has(e.dataset.b ?? '')));
+        });
       },
     });
   </script>

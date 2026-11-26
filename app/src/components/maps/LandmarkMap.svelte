@@ -50,6 +50,10 @@
   // Wanderings map only). Empty elsewhere.
   export let polyline: Place[] = [];
   export let selectedId: string | null = null;
+  /** A link's place (?focus= on /maps/): once, when its pin or its town pin
+   * is on this map, the map moves to it and opens its popup. It is kept out
+   * of the cluster badges, so the pin the link promised is always there. */
+  export let focusId: string | null = null;
   export let onSelect: ((id: string) => void) | null = null;
   // Ships/Catalogue only: located towns named by the selected contingent.
   // They stay distinct from the larger contingent anchor circles.
@@ -120,6 +124,8 @@
   let tailLayers: any[] = [];
   let journeyLayers: any[] = [];
   let selectedCityLayers: any[] = [];
+  const cityLayerById = new Map<string, any>();
+  let focusShown = false;
   let resizeObserver: ResizeObserver | null = null;
 
   // ── Story-mode Play control (John's directive, 2026-07-18) ────────────────
@@ -214,7 +220,7 @@
     for (const item of items) {
       const p = item.place;
       const layer = p.coords ? layers.get(item.id) : null;
-      if (!layer) continue;
+      if (!layer || item.id === focusId) continue;
       entries.push({ id: item.id, pt: map.latLngToContainerPoint(p.coords as [number, number]), coords: p.coords as [number, number] });
     }
     const n = entries.length;
@@ -1137,6 +1143,7 @@
     layers.clear();
     for (const l of selectedCityLayers) map.removeLayer(l);
     selectedCityLayers = [];
+    cityLayerById.clear();
     if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
 
     const storyNumberById = new Map(storyStations.map((s) => [s.place.id, s.number]));
@@ -1212,6 +1219,7 @@
       cityLayer.bindPopup(popupNode({ id: `city:${p.id}`, place: p }));
       cityLayer.addTo(map);
       selectedCityLayers.push(cityLayer);
+      cityLayerById.set(p.id, cityLayer);
     }
 
     // Render one station-owned badge per coordless Story station, separate
@@ -1401,6 +1409,20 @@
       map.panTo(layer.getLatLng());
       layer.openPopup?.();
     }
+  }
+
+  // The place a link opened this sheet for. After render()'s own fit to the
+  // whole sheet has run (the layer is looked up then, not now: a re-render
+  // in between replaces every layer), so the two camera moves do not fight.
+  $: if (map && focusId && !focusShown && (cityLayerById.has(focusId) || layers.has(focusId))) {
+    focusShown = true;
+    const id = focusId;
+    setTimeout(() => {
+      const layer = cityLayerById.get(id) ?? layers.get(id);
+      if (!map || !layer?.getLatLng) return;
+      map.panTo(layer.getLatLng(), { animate: !prefersReducedMotion });
+      layer.openPopup?.();
+    }, prefersReducedMotion ? 0 : 600);
   }
 
   // ── Story-mode Play control: engage / step / disengage ────────────────────

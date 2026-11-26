@@ -2751,6 +2751,7 @@
     // isn't shadowed by the bridge's CSS (`:root[data-rposture="reading"]
     // .nav-chart-room`/`.nav-view-toggle`, global.css).
     document.documentElement.removeAttribute('data-rposture');
+    document.documentElement.removeAttribute('data-rscene');
     // A shareable ?mode=reading|scholar overrides the saved posture (matches the
     // read-on-load convention of ?view / ?trans; posture is not written back).
     // UNTOUCHED by the navPrehydrated fix — see the choke point right below.
@@ -3650,10 +3651,10 @@
        once resolution confirms no mappable place (never an empty box in the
        settled state) — see the ensurePlateData block above for the tradeoff
        this accepts on a session's very first scene view. -->
-  {#snippet readingSceneHead(s: Scene, idx: number, total: number)}
+  {#snippet readingSceneHead(s: Scene, idx: number, total: number, bare: boolean)}
     <header class="reading-scene-head">
-      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !hasChartMap && !schematicPending}>
-        {#if !plateDataLoaded || hasChartMap || schematicPending}
+      <div class="reading-plate" class:reading-plate-nomap={bare || (plateDataLoaded && !hasChartMap && !schematicPending)}>
+        {#if !bare && (!plateDataLoaded || hasChartMap || schematicPending)}
           <div class="reading-plate-map" style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
             {@render chartPlateBody()}
           </div>
@@ -3693,7 +3694,7 @@
         {/each}
       {:else if scenes.length && readingHasSceneAnchors}
         {@const s = scenes[clampedSceneIndex]}
-        {@render readingSceneHead(s, clampedSceneIndex, scenes.length)}
+        {@render readingSceneHead(s, clampedSceneIndex, scenes.length, false)}
         {#if readingTransCuratedTicks}
           <!-- T3 lane (2026-07-21): Pope's pages ARE scene-anchored (curated
                ticks, exact at the boundary) but the prose BETWEEN those
@@ -3856,6 +3857,20 @@
       <!-- Reading Mode: single column, one translation, minimal chrome. -->
       {@render readingView()}
     {:else}
+    {#if !mounted && !flowRows && scenes.length}
+      <!-- Reader mode pending: the server's page is the Scholar markup, and a
+           reader who chose Reader mode gets the first scene's card with
+           hydration. This is that card's words (no map: whether the scene has
+           one is known only once the gazetteer loads), in the place it will
+           take, shown by CSS only while <html data-rposture="reading"> is set
+           before paint, so the text under it does not jump down when the
+           island wakes. Gone on mount in either posture. (Whether the
+           translation pages by scene is worked out only in Reader mode; one
+           that does not swaps this card for its notice on mount.) -->
+      <div class="reading-col reading-pending" aria-hidden="true">
+        {@render readingSceneHead(scenes[0], 0, scenes.length, true)}
+      </div>
+    {/if}
     {#if flowRows}
       <!-- Dialogue book: the continuous turn flow replaces the per-section
            segment blocks; Stephanus tokens float as gutter ticks. -->
@@ -4206,7 +4221,7 @@
           <span class="settings-slider-name">Size</span>
           <span class="settings-slider-val">{Math.round(fsScale * 100)}%</span>
         </div>
-        <input type="range" min="0.75" max="1.4" step="0.05" bind:value={fsScale} on:change={saveFs} aria-label="Text size" />
+        <input type="range" min="0.75" max="1.4" step="0.05" bind:value={fsScale} style="--fill:{Math.round(((fsScale - 0.75) / 0.65) * 100)}%" on:change={saveFs} aria-label="Text size" />
       </label>
     </div>
 
@@ -4217,7 +4232,7 @@
           <span class="settings-slider-name">Spacing</span>
           <span class="settings-slider-val">{Math.round(lhScale * 100)}%</span>
         </div>
-        <input type="range" min="0.8" max="1.4" step="0.05" bind:value={lhScale} on:change={saveLh} aria-label="Line spacing" />
+        <input type="range" min="0.8" max="1.4" step="0.05" bind:value={lhScale} style="--fill:{Math.round(((lhScale - 0.8) / 0.60) * 100)}%" on:change={saveLh} aria-label="Line spacing" />
       </label>
     </div>
 
@@ -4228,7 +4243,7 @@
           <span class="settings-slider-name">Width</span>
           <span class="settings-slider-val">{Math.round(colScale * 100)}%</span>
         </div>
-        <input type="range" min="0.75" max="1.3" step="0.05" bind:value={colScale} on:change={saveColw} aria-label="Column width" />
+        <input type="range" min="0.75" max="1.3" step="0.05" bind:value={colScale} style="--fill:{Math.round(((colScale - 0.75) / 0.55) * 100)}%" on:change={saveColw} aria-label="Column width" />
       </label>
     </div>
 

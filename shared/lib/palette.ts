@@ -123,6 +123,9 @@ export interface SiteEntry {
   path: string;
   /** Extra words the entry answers to, lowercase. */
   also?: string[];
+  /** How often the name occurs in the poems (see withMentions): the tiebreak
+   * between two names a query matches equally well. */
+  mentions?: number;
 }
 
 /** The pages of the site a reader may want by name. Paths are the header's. */
@@ -142,7 +145,7 @@ export const SITE_PAGES: SiteEntry[] = [
   { kind: 'Page', label: 'About', path: '/about' },
 ];
 
-interface NamedPlace { id: string; name: string; greek?: string }
+interface NamedPlace { id: string; name: string; greek?: string; mentions?: readonly unknown[] }
 interface NamedCharacter { id: string; name: string; greek?: string }
 
 /** Places and characters as palette entries. The anchors are the ones their
@@ -151,8 +154,33 @@ interface NamedCharacter { id: string; name: string; greek?: string }
 export function nameEntries(places: readonly NamedPlace[], characters: readonly NamedCharacter[]): SiteEntry[] {
   return [
     ...characters.map((c): SiteEntry => ({ kind: 'Character', label: c.name, greek: c.greek, path: `/characters/#roster-${c.id}` })),
-    ...places.map((p): SiteEntry => ({ kind: 'Place', label: p.name, greek: p.greek, path: `/places/#place-${p.id}` })),
+    ...places.map((p): SiteEntry => ({
+      kind: 'Place', label: p.name, greek: p.greek, path: `/places/#place-${p.id}`,
+      ...(p.mentions?.length ? { mentions: p.mentions.length } : {}),
+    })),
   ];
+}
+
+/** The lexicon's occurrence counts by folded headword (Ἕκτωρ: 454). */
+export function headwordCounts(lemmata: Record<string, LemmaRef>): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const ref of Object.values(lemmata)) {
+    const key = greekFold(ref.head);
+    if (key && ref.count > (out.get(key) ?? 0)) out.set(key, ref.count);
+  }
+  return out;
+}
+
+/** Give each character the count of its Greek name as a headword. Only a
+ * one-word name is looked up (Αἴας Τελαμώνιος is not Αἴας alone), and only a
+ * character's: a place called τεῖχος is not every wall in the poems, and
+ * keeps its own list of mentions. */
+export function withMentions(entries: readonly SiteEntry[], counts: ReadonlyMap<string, number>): SiteEntry[] {
+  return entries.map((e) => {
+    const g = e.kind === 'Character' ? e.greek?.trim() : undefined;
+    const n = g && !/\s/.test(g) ? counts.get(greekFold(g)) : undefined;
+    return n ? { ...e, mentions: n } : e;
+  });
 }
 
 const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -161,8 +189,9 @@ const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerC
  * with it, then a word inside the name (or an alias) that does. Two letters
  * match too many of 270 places to mean anything, so a query under three
  * letters only finds a name it spells in full. A Greek query matches the
- * Greek name, accents and breathings ignored. Order within a tier is the
- * order given (pages, then characters, then places). */
+ * Greek name, accents and breathings ignored. Within a tier a page of the
+ * site comes first, then the name the poems use more often (Hector before
+ * Hecuba for "hec"), then the order given (characters, then places). */
 export function rankNames(q: string, entries: readonly SiteEntry[], limit = 6): SiteEntry[] {
   const greek = hasGreek(q);
   const needle = greek ? greekFold(q.trim()) : plain(q.trim());
@@ -183,7 +212,10 @@ export function rankNames(q: string, entries: readonly SiteEntry[], limit = 6): 
   return entries
     .map((e, i) => ({ e, i, t: tier(e) }))
     .filter((x) => x.t >= 0)
-    .sort((a, b) => a.t - b.t || a.i - b.i)
+    .sort((a, b) => a.t - b.t
+      || Number(b.e.kind === 'Page') - Number(a.e.kind === 'Page')
+      || (b.e.mentions ?? 0) - (a.e.mentions ?? 0)
+      || a.i - b.i)
     .slice(0, limit)
     .map((x) => x.e);
 }

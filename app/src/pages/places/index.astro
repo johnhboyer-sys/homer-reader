@@ -82,8 +82,8 @@ const MAP_TAB: Record<string, string> = {
 const mapHref = (place: Place) => {
   const tab = place.maps.map((m) => MAP_TAB[m]).find(Boolean);
   if (!tab) return null;
-  const focus = tab === 'plain' || tab === 'troad' ? `&focus=${encodeURIComponent(place.id)}` : '';
-  return `${base}/maps/?map=${tab}${focus}`;
+  // Every sheet takes the place it was opened for (MapsPage reads `focus`).
+  return `${base}/maps/?map=${tab}&focus=${encodeURIComponent(place.id)}`;
 };
 const searchHref = (place: Place) =>
   place.greek && !/\s/.test(place.greek.trim()) ? `${base}/search?g=${encodeURIComponent(place.greek.trim())}` : null;
@@ -148,7 +148,7 @@ const searchHref = (place: Place) =>
       <span class="pg-count" id="places-count" aria-live="polite"></span>
     </div>
     <nav class="pg-bar" aria-label="Jump to a letter">
-      <div class="pg-jump places-jump">
+      <div class="pg-jump places-jump is-grid" style={`--jump-n:${letters.length};--jump-half:${Math.ceil(letters.length / 2)}`}>
         {letters.map((letter) => <a href={`#letter-${letter}`} data-letter={letter}>{letter}</a>)}
       </div>
     </nav>

@@ -164,6 +164,22 @@ export function contingentPlaces(
   };
 }
 
+// The Catalogue contingent that names a place: the Catalogue sheet draws a
+// town only once its contingent is chosen, so a link to a town ("On the map"
+// from the gazetteer) opens the sheet with that contingent chosen. The first
+// to name it, Achaeans before Trojans, in catalogue order.
+export function contingentNaming(
+  placeId: string | null,
+  achaean: readonly Contingent[],
+  trojan: readonly Contingent[],
+): { side: 'achaean' | 'trojan'; id: string } | null {
+  if (!placeId) return null;
+  const a = achaean.find((c) => c.places.includes(placeId));
+  if (a) return { side: 'achaean', id: a.id };
+  const t = trojan.find((c) => c.places.includes(placeId));
+  return t ? { side: 'trojan', id: t.id } : null;
+}
+
 export function placesById(places: Place[]): Map<string, Place> {
   return new Map(places.map((p) => [p.id, p]));
 }
