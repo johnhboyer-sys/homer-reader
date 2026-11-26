@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import { greekFold } from '@shared/lib/search';
@@ -95,7 +96,7 @@ const jsonLd = {
   <SiteHeader section="Greek Lexicon" />
   <main class="pg lxi-body">
     <header class="pg-head">
-    <p class="pg-eyebrow">Language</p>
+    <Crumbs />
     <h1 class="pg-title lxi-h1">Lexicon of Homer's Greek</h1>
     <p class="pg-intro lxi-lede">
       {entries.length} key terms from Homer's vocabulary — each with its LSJ definition,

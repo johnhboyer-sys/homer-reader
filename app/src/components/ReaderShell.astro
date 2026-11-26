@@ -21,6 +21,7 @@ import { setSsrBook } from '@shared/lib/ssr-book';
 import { bookArguments, type BookArgument } from '../lib/book-apparatus';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
+import { GROUPS } from '../lib/site-nav';
 import { jsonLdSafe } from '../lib/jsonld';
 
 interface Props { workId: string; n: number; }
@@ -686,7 +687,10 @@ const intro =
         <span class="toc-action-hint">Word frequency &amp; concordance</span>
       </a>
     </div>
-    <div class="toc-work-head"><span class="toc-work">{work.title}</span></div>
+    <div class="toc-work-head">
+      <span class="toc-work">{work.title}</span>
+      {!bookless && <a class="toc-work-all" href={`${base}${workLanding(workId)}`}>All books &amp; translations ›</a>}
+    </div>
     <nav class="toc-outline">
       {tocHasDraftArgument && (
         <div class="toc-draft-note">
@@ -818,7 +822,18 @@ const intro =
         ))
       )}
     </nav>
+    <nav class="toc-site" aria-label="The rest of the edition">
+      {GROUPS.map((g) => (
+        <div class="toc-site-group">
+          <span class="toc-site-label">{g.label}</span>
+          {g.items.map((i) => <a href={`${base}${i.path}`}>{i.label}</a>)}
+        </div>
+      ))}
+    </nav>
     <div class="toc-actions toc-actions-bottom">
+      <a class="toc-action" href={SUPPORT_URL} target="_blank" rel="noopener">
+        <span class="toc-action-name">Support the site</span>
+      </a>
       <a class="toc-action" href={`${base}/attribution`}>
         <span class="toc-action-name">Texts &amp; Licences</span>
       </a>
@@ -1219,7 +1234,8 @@ const intro =
       <div class="bh-inner">
         <div class="bh-titles">
           {cartoucheGreek && <div class="bh-greek" lang="grc">{cartoucheGreek}</div>}
-          <div class="bh-en">{work.title} · Book {label}</div>
+          {/* You are here: the poem's name leads back to its book list. */}
+          <nav class="bh-en" aria-label="You are here"><a href={`${base}${workLanding(workId)}`} title={`All ${work.books} books of the ${work.title}`}>{work.title}</a> · Book {label}</nav>
           {apparatus?.draft && (apparatus.argument || apparatus.where || apparatus.who?.length || apparatus.day) && (
             <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
           )}
@@ -1246,7 +1262,7 @@ const intro =
               {apparatus.day && (
                 <>
                   <span class="sep">·</span>
-                  <span title={dayIsTelling ? 'The day of the telling; the events narrated here lie years earlier.' : undefined}>
+                  <span class="bh-day" title={dayIsTelling ? 'The day of the telling; the events narrated here lie years earlier.' : undefined}>
                     Day {apparatus.day}{dayIsTelling && ' · telling'}
                   </span>
                 </>
@@ -1301,6 +1317,38 @@ const intro =
   <CommandPalette work={workId} bookNum={n} scenes={clientBookData.scenes ?? []} client:idle />
   <ParsePopupTour client:load />
 
+  {!bookless && (
+    // The end of a book (round 3): the book before, the book after, and every
+    // book of the poem as a number, so the next step never means scrolling
+    // back to the bar. The arguments are the Contents drawer's own.
+    <nav class="book-end" aria-label={`Books of the ${work.title}`}>
+      <div class="be-step">
+        {n > 1 ? (
+          <a class="be-link be-prev" href={`${base}${workPath(workId, n - 1)}`} rel="prev">
+            <span class="be-dir"><span aria-hidden="true">← </span>Previous</span>
+            <span class="be-book">Book {bookLabel(work, n - 1)}</span>
+            {tocArguments[n - 2]?.argument && <span class="be-arg">{tocArguments[n - 2].argument}</span>}
+          </a>
+        ) : <span class="be-link be-none" aria-hidden="true"></span>}
+        {n < work.books ? (
+          <a class="be-link be-next" href={`${base}${workPath(workId, n + 1)}`} rel="next">
+            <span class="be-dir">Next<span aria-hidden="true"> →</span></span>
+            <span class="be-book">Book {bookLabel(work, n + 1)}</span>
+            {tocArguments[n]?.argument && <span class="be-arg">{tocArguments[n].argument}</span>}
+          </a>
+        ) : <span class="be-link be-none" aria-hidden="true"></span>}
+      </div>
+      <div class="be-all">
+        <a class="be-all-link" href={`${base}${workLanding(workId)}`}>All books of the {work.title}</a>
+        <ol class="be-grid">
+          {outline.map((b) => (
+            <li><a href={`${base}${workPath(workId, b.book)}`} aria-label={`Book ${b.label}`} aria-current={b.book === n ? 'page' : undefined}>{b.label}</a></li>
+          ))}
+        </ol>
+      </div>
+    </nav>
+  )}
+
   <footer class="site-footer">
     <span>Greek text: {work.greekSource.short} ({work.greekSource.licence})</span>
     <span class="footer-sep" aria-hidden="true">·</span>
@@ -1309,6 +1357,8 @@ const intro =
     <a href={`${base}/attribution`}>Texts &amp; Licences</a>
     <span class="footer-sep" aria-hidden="true">·</span>
     <a href={`${base}/about`}>About</a>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={SUPPORT_URL} target="_blank" rel="noopener">Support the site</a>
   </footer>
   <!-- Phone dock (<=690px): the four things a reader reaches for, labelled,
        under the thumb. Each button forwards to the header control that owns

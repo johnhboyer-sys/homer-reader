@@ -8,6 +8,7 @@
 import { GREEK_BOOK_LETTERS, WORKS, type Work } from './works';
 import { greekFold } from './search';
 import type { LemmaRef } from './data';
+import { parseVerseCitation, type VerseCitation } from './citation';
 
 export function hasGreek(q: string): boolean {
   return /[Ͱ-Ͽἀ-῿]/.test(q);
@@ -86,4 +87,124 @@ export function rankLemmata(
     if (greekFold(ref.head).startsWith(needle)) out.push(ref);
   }
   return out.sort((a, b) => b.count - a.count).slice(0, limit);
+}
+
+// ── Site-wide Go-to (round 3) ───────────────────────────────────────────────
+// The palette is the one finder on every page: a citation, a book, a page of
+// the site, a place, a character, or a Greek word. Everything below is pure,
+// so the ranking is tested without mounting the component.
+
+
+/** Every reading of a typed citation, best first. A work prefix ("Il. 6.237")
+ * names one poem. A bare "6.237" reads in the poem that is open, then in the
+ * other; with no poem open (the home page, a reference page) it reads in each
+ * poem in canonical order. The grammar is parseVerseCitation's own: this only
+ * decides which poems to ask it about. */
+export function verseCitations(raw: string, currentWork?: string | null): VerseCitation[] {
+  const out: VerseCitation[] = [];
+  const add = (c: VerseCitation | null) => {
+    if (c && !out.some((o) => o.work === c.work && o.book === c.book && o.line === c.line)) out.push(c);
+  };
+  add(parseVerseCitation(raw, currentWork ?? undefined));
+  for (const w of WORKS) {
+    if (w.citation?.scheme === 'verse-line') add(parseVerseCitation(raw, w.id));
+  }
+  return out;
+}
+
+export type SiteEntryKind = 'Page' | 'Place' | 'Character' | 'Word';
+export interface SiteEntry {
+  kind: SiteEntryKind;
+  /** What the row shows: an English name, or a Greek headword. */
+  label: string;
+  /** A second, quieter name beside it (the Greek of a place or person). */
+  greek?: string;
+  /** Path under the site base, with its anchor: "/places/#place-ithaca". */
+  path: string;
+  /** Extra words the entry answers to, lowercase. */
+  also?: string[];
+}
+
+/** The pages of the site a reader may want by name. Paths are the header's. */
+export const SITE_PAGES: SiteEntry[] = [
+  { kind: 'Page', label: 'Maps', path: '/maps/', also: ['atlas', 'map'] },
+  { kind: 'Page', label: 'Places', path: '/places/', also: ['gazetteer'] },
+  { kind: 'Page', label: 'Timeline', path: '/timeline/', also: ['calendar', 'days'] },
+  { kind: 'Page', label: 'Characters', path: '/characters/', also: ['people', 'roster'] },
+  { kind: 'Page', label: 'Genealogies', path: '/genealogies/', also: ['family trees', 'houses'] },
+  { kind: 'Page', label: 'Vocabulary', path: '/vocabulary/', also: ['words'] },
+  { kind: 'Page', label: 'Formulas', path: '/formulas/', also: ['epithets'] },
+  { kind: 'Page', label: 'Repetitions', path: '/repetitions/', also: ['repeated lines'] },
+  { kind: 'Page', label: 'Phrases', path: '/phrases/' },
+  { kind: 'Page', label: 'Lexicon', path: '/lemma/', also: ['dictionary', 'greek words'] },
+  { kind: 'Page', label: 'Search', path: '/search' },
+  { kind: 'Page', label: 'Advanced search', path: '/advanced' },
+  { kind: 'Page', label: 'About', path: '/about' },
+];
+
+interface NamedPlace { id: string; name: string; greek?: string }
+interface NamedCharacter { id: string; name: string; greek?: string }
+
+/** Places and characters as palette entries. The anchors are the ones their
+ * pages render: /places/ gives every entry id="place-<id>", /characters/
+ * id="roster-<id>". */
+export function nameEntries(places: readonly NamedPlace[], characters: readonly NamedCharacter[]): SiteEntry[] {
+  return [
+    ...characters.map((c): SiteEntry => ({ kind: 'Character', label: c.name, greek: c.greek, path: `/characters/#roster-${c.id}` })),
+    ...places.map((p): SiteEntry => ({ kind: 'Place', label: p.name, greek: p.greek, path: `/places/#place-${p.id}` })),
+  ];
+}
+
+const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/** Rank named entries for a query: the whole name, then a name that starts
+ * with it, then a word inside the name (or an alias) that does. Two letters
+ * match too many of 270 places to mean anything, so a query under three
+ * letters only finds a name it spells in full. A Greek query matches the
+ * Greek name, accents and breathings ignored. Order within a tier is the
+ * order given (pages, then characters, then places). */
+export function rankNames(q: string, entries: readonly SiteEntry[], limit = 6): SiteEntry[] {
+  const greek = hasGreek(q);
+  const needle = greek ? greekFold(q.trim()) : plain(q.trim());
+  if (!needle) return [];
+  const tier = (e: SiteEntry): number => {
+    if (greek) {
+      const g = e.greek ? greekFold(e.greek) : '';
+      if (!g) return -1;
+      return g === needle ? 0 : g.startsWith(needle) ? 1 : -1;
+    }
+    const name = plain(e.label);
+    if (name === needle || e.also?.includes(needle)) return 0;
+    if (needle.length < 3) return -1;
+    if (name.startsWith(needle)) return 1;
+    if (name.includes(` ${needle}`) || e.also?.some((a) => a.startsWith(needle) || a.includes(` ${needle}`))) return 2;
+    return -1;
+  };
+  return entries
+    .map((e, i) => ({ e, i, t: tier(e) }))
+    .filter((x) => x.t >= 0)
+    .sort((a, b) => a.t - b.t || a.i - b.i)
+    .slice(0, limit)
+    .map((x) => x.e);
+}
+
+/** Lemmata for a query typed in Latin letters, by the transliterated slug a
+ * lemma page is served at ("menis" finds μῆνις): the slug itself first, then
+ * slugs that start with it, most frequent first. Three letters at least. */
+export function rankLemmaSlugs(q: string, lemmata: Record<string, LemmaRef>, limit = 3): LemmaRef[] {
+  const needle = plain(q.trim());
+  if (needle.length < 3 || !/^[a-z]+$/.test(needle)) return [];
+  const out: LemmaRef[] = [];
+  for (const ref of Object.values(lemmata)) if (ref.slug.startsWith(needle)) out.push(ref);
+  return out
+    .sort((a, b) => Number(b.slug === needle) - Number(a.slug === needle) || b.count - a.count)
+    .slice(0, limit);
+}
+
+/** Where the full-text search opens for a query the palette could not place:
+ * search.astro reads ?q= and sends Greek script to the Greek box, anything
+ * else to the English one. */
+export function searchPath(q: string): string {
+  const t = q.trim();
+  return t ? `/search?q=${encodeURIComponent(t)}` : '/search';
 }

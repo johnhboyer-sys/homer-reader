@@ -9,6 +9,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
+import Crumbs from '../../../components/Crumbs.astro';
 import Pwa from '../../../components/Pwa.astro';
 import FormulaLedger from '../../../components/FormulaLedger.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
@@ -67,7 +68,7 @@ const characterGreek = (id: string) => characters.get(id)?.greek;
   <SiteHeader section="Iliad Formulas" />
   <main class="pg formula-body">
     <header class="pg-head">
-    <p class="pg-eyebrow"><span>Language</span><span class="sep" aria-hidden="true">/</span><a href={`${base}/formulas/`}>Formulas</a></p>
+    <Crumbs />
     <h1 class="pg-title">Iliad epithets &amp; formulas {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
     <p class="pg-intro formula-intro">Repeated phrases attached to named figures in the Iliad. Each Greek formula carries an English gloss and citations that open the corresponding verse in the reader. See also <a href={`${base}/formulas/odyssey/`}>Odyssey formulas</a>.</p>
     </header>

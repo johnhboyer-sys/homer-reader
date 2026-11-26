@@ -1246,3 +1246,21 @@ ring, empty inside the wall and with no ground under it.
   only (references to the deleted sheet).
 - `shared/components/Search.svelte`, `shared/lib/{data,english-place,paired-hit}.ts`, new `shared/lib/{row-table,greek-lines}.ts`, new `app/src/pages/data/[work]/rows.json.ts`, `shared/styles/b-search.css` (the phrase list's Show button, 44px wide) — the row table from aristotle-reader PR #208 (c61eee5b40): page 1 of a search reads only its own books, the phrase list reads its words when opened; every view pages by the table's rows, as aristotle-reader does (John, 17 Nov: by form and by grammar regroup By work's passages, a page there may draw more than N). No plato-reader counterpart.
 - `shared/components/Search.svelte`, `shared/lib/search-pages.ts` (`hitsInFor`) — the hit figure from aristotle-reader PR #212 (a2c5545d6a): "and/or" and "or" count Greek and English hits where one translation is chosen (each Homer poem has four), else scenes alone; a proximity search counts Greek hits. No plato-reader counterpart.
+
+## 2026-11-25 — Redesign round 3: one Go-to palette on every page
+
+- `shared/components/CommandPalette.svelte` — the reader's palette is now the
+  site's: `work` may be null (a bare "6.237" offers both poems), an empty
+  query shows every book of both poems and the site's pages, and typing finds
+  places, characters and lexicon words as well as books, scenes and
+  citations. What it cannot place goes to `/search?q=`. Names and words load
+  through `data.ts` on first open. No plato-reader counterpart.
+- `shared/lib/palette.ts` — `verseCitations` (wraps `parseVerseCitation`, the
+  one citation grammar), `SITE_PAGES`, `nameEntries`, `rankNames`,
+  `rankLemmaSlugs`, `searchPath`. Additive.
+- `shared/styles/global.css` — a "Round 3" block at the end of the Edition
+  skin: end-of-book navigation, the Contents drawer's site links and Support
+  row, the reader's phone header circles, the book-head metadata line, and the
+  Reader-mode first paint (`data-rposture`). Additive. Also the `--hero-*`
+  tokens in both theme blocks (the night heroes' colours, moved out of the
+  page styles so a variable swap reverts them).

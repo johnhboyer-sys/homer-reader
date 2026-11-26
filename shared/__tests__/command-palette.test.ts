@@ -1,7 +1,11 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CommandPalette from '../components/CommandPalette.svelte';
 
+// The palette asks for the name and word indexes when it opens. There is no
+// server here; it must work without them, as it does offline.
+beforeEach(() => { vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('no network in tests')))); });
+afterEach(() => { vi.unstubAllGlobals(); });
 afterEach(cleanup);
 
 async function openFrom(trigger: HTMLButtonElement) {
@@ -104,6 +108,93 @@ describe('CommandPalette', () => {
     const input = await openFrom(trigger);
     await fireEvent.input(input, { target: { value: 'Il. 99.1' } });
     expect(screen.queryByText(/Iliad · Book 99/)).not.toBeInTheDocument();
+    trigger.remove();
+  });
+});
+
+// ── Round 3: the same palette on every page ────────────────────────────────
+describe('CommandPalette, with no poem open', () => {
+  it('reads a bare citation in both poems and opens the Iliad on Enter', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    const onNavigate = vi.fn();
+    render(CommandPalette, { props: { onNavigate } });
+
+    const input = await openFrom(trigger);
+    await fireEvent.input(input, { target: { value: '6.237' } });
+    const options = screen.getAllByRole('option').map((o) => o.textContent);
+    expect(options[0]).toContain('Iliad · Book 6, line 237');
+    expect(options[1]).toContain('Odyssey · Book 6, line 237');
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigate).toHaveBeenCalledWith('/iliad/book/6?loc=6.237');
+    trigger.remove();
+  });
+
+  it('shows every book of both poems before anything is typed, one link each', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    const onNavigate = vi.fn();
+    render(CommandPalette, { props: { onNavigate } });
+
+    await openFrom(trigger);
+    const books = screen.getByRole('navigation', { name: 'Every book' });
+    expect(books.querySelectorAll('ol a').length).toBe(48);
+    const od23 = screen.getByRole('link', { name: 'Odyssey, Book 23' });
+    expect(od23.getAttribute('href')).toBe('/odyssey/book/23');
+    await fireEvent.click(od23);
+    expect(onNavigate).toHaveBeenCalledWith('/odyssey/book/23');
+    trigger.remove();
+  });
+
+  it('marks the open book in the grid when the reader mounts it', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    render(CommandPalette, { props: { work: 'iliad', bookNum: 6, onNavigate: vi.fn() } });
+    await openFrom(trigger);
+    expect(screen.getByRole('link', { name: 'Iliad, Book 6' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: 'Odyssey, Book 6' }).hasAttribute('aria-current')).toBe(false);
+    trigger.remove();
+  });
+
+  it('finds a page of the site by name', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    const onNavigate = vi.fn();
+    render(CommandPalette, { props: { onNavigate } });
+    const input = await openFrom(trigger);
+    await fireEvent.input(input, { target: { value: 'genealog' } });
+    expect(screen.getByRole('option', { name: /Genealogies/ })).toBeInTheDocument();
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigate).toHaveBeenCalledWith('/genealogies/');
+    trigger.remove();
+  });
+
+  it('hands what it cannot place to the full-text search, by Enter or by its link', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    const onNavigate = vi.fn();
+    render(CommandPalette, { props: { onNavigate } });
+
+    let input = await openFrom(trigger);
+    await fireEvent.input(input, { target: { value: 'rosy-fingered' } });
+    expect(screen.queryAllByRole('option').length).toBe(0);
+    const link = screen.getByRole('link', { name: /Search the poems for “rosy-fingered”/ });
+    expect(link.getAttribute('href')).toBe('/search?q=rosy-fingered');
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigate).toHaveBeenCalledWith('/search?q=rosy-fingered');
+
+    input = await openFrom(trigger);
+    await fireEvent.input(input, { target: { value: 'od' } });
+    await fireEvent.click(screen.getByRole('link', { name: /Search the poems for “od”/ }));
+    expect(onNavigate).toHaveBeenLastCalledWith('/search?q=od');
+    trigger.remove();
+  });
+
+  it('keeps Tab inside the dialog, its links included', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    render(CommandPalette, { props: { onNavigate: vi.fn() } });
+    const input = await openFrom(trigger);
+    const dialog = screen.getByRole('dialog');
+    const focusables = dialog.querySelectorAll<HTMLElement>('input, button, a[href]');
+    const last = focusables[focusables.length - 1];
+    last.focus();
+    await fireEvent.keyDown(last, { key: 'Tab' });
+    expect(document.activeElement).toBe(input);
     trigger.remove();
   });
 });

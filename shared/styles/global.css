@@ -301,6 +301,25 @@
   --target-bg:    #fff3d6;   /* jumped-to line tint */
   --mark-bg:      #ffe29b;   /* <mark> in English/search results */
   --error:        #b22323;
+
+  /* Night heroes: the two poems' doors (home, /start/, the poem indexes, the
+     landing pages, the poem cards on reference pages). They are night in both
+     themes, so both theme blocks carry the same values; swap them here and
+     every hero follows. Translucent tints are mixed from these in place. */
+  --hero-ground:        #14101A;   /* behind the pair on the home page */
+  --hero-ink:           #F6F0E4;   /* titles, body, the filled button */
+  --hero-ink-soft:      #DDD3C5;   /* meta lines */
+  --hero-on-ink:        #1F1A17;   /* text on the filled button */
+  --hero-ink-hover:     #FFFFFF;   /* the filled button, hovered */
+  --hero-iliad-accent:  #F0B28A;
+  --hero-iliad-glow:    #D66A2E;   /* firelight, inner */
+  --hero-iliad-ember:   #A03E1E;   /* firelight, outer */
+  --hero-iliad-night:   linear-gradient(180deg, #1B1218 0%, #261419 52%, #32171A 100%);
+  --hero-odyssey-accent: #A9D6E8;
+  --hero-odyssey-glow:  #4A8EB0;   /* sea light, inner */
+  --hero-odyssey-deep:  #286082;   /* sea light, outer */
+  --hero-odyssey-night: linear-gradient(180deg, #0F2434 0%, #0E2030 55%, #0B1826 100%);
+  --hero-both-night:    linear-gradient(180deg, #17151C 0%, #1B1820 100%);
   color-scheme:   light;
 
   /* Greek (Palatino) and English (Iowan Old Style) balanced so neither column
@@ -435,6 +454,25 @@
   --target-bg:    rgba(255, 196, 110, 0.14);
   --mark-bg:      rgba(255, 196, 110, 0.30);
   --error:        #f08a82;
+
+  /* Night heroes: the two poems' doors (home, /start/, the poem indexes, the
+     landing pages, the poem cards on reference pages). They are night in both
+     themes, so both theme blocks carry the same values; swap them here and
+     every hero follows. Translucent tints are mixed from these in place. */
+  --hero-ground:        #14101A;   /* behind the pair on the home page */
+  --hero-ink:           #F6F0E4;   /* titles, body, the filled button */
+  --hero-ink-soft:      #DDD3C5;   /* meta lines */
+  --hero-on-ink:        #1F1A17;   /* text on the filled button */
+  --hero-ink-hover:     #FFFFFF;   /* the filled button, hovered */
+  --hero-iliad-accent:  #F0B28A;
+  --hero-iliad-glow:    #D66A2E;   /* firelight, inner */
+  --hero-iliad-ember:   #A03E1E;   /* firelight, outer */
+  --hero-iliad-night:   linear-gradient(180deg, #1B1218 0%, #261419 52%, #32171A 100%);
+  --hero-odyssey-accent: #A9D6E8;
+  --hero-odyssey-glow:  #4A8EB0;   /* sea light, inner */
+  --hero-odyssey-deep:  #286082;   /* sea light, outer */
+  --hero-odyssey-night: linear-gradient(180deg, #0F2434 0%, #0E2030 55%, #0B1826 100%);
+  --hero-both-night:    linear-gradient(180deg, #17151C 0%, #1B1820 100%);
   color-scheme:   dark;
 
   --surface-sunk: #0E0C12;
@@ -5969,6 +6007,149 @@ body:has(.scene-context-rail) .book-head { max-width: 1440px; }
   letter-spacing: 0;
 }
 .site-footer .footer-sep { color: var(--rule-strong); }
+
+
+/* ── Round 3: wayfinding in the reader ──────────────────────────────────── */
+
+/* You are here: the poem's name in the book head leads to its book list. */
+.bh-en a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); text-underline-offset: 0.2em; border-radius: 2px; }
+.bh-en a:hover { text-decoration-color: currentColor; }
+.bh-en a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Where / who / day: each item after the first carries a dot BEFORE it, and
+   the strip is clipped by that dot's width on the left, so a line that wraps
+   neither ends on a dot nor starts with one (round-2 finding M6). */
+.bh-meta { gap: 0; margin-left: -1rem; clip-path: inset(0 0 0 1rem); }
+.bh-meta > span:not(.sep) { position: relative; padding-left: 1rem; }
+.bh-meta > span:not(.sep):not(:last-child)::after { content: none; }
+.bh-meta > span:not(.sep)::before { content: '·'; position: absolute; left: 0; width: 1rem; text-align: center; color: var(--rule-strong); }
+.bh-meta .bh-day { white-space: nowrap; }
+
+/* The end of a book: the book before, the book after, every book. */
+.book-end {
+  box-sizing: border-box;
+  max-width: calc(1160px * var(--colw-scale, 1));
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+  font-family: var(--font-ui);
+}
+.be-step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 2rem; border-top: 2px solid var(--text); }
+.be-link { display: block; padding: 1rem 0 1.25rem; color: var(--text); text-decoration: none; }
+.be-next { text-align: right; }
+.be-dir { display: block; font-size: var(--step--1); font-weight: 600; color: var(--accent); }
+.be-book { display: block; margin-top: 0.25rem; font-family: var(--font-display); font-size: var(--step-2); line-height: 1.15; letter-spacing: -0.01em; }
+.be-arg { display: block; margin-top: 0.375rem; font-family: var(--font-english); font-size: 1rem; font-style: italic; line-height: 1.4; color: var(--text-mid); text-wrap: pretty; }
+a.be-link:hover .be-book { color: var(--accent); }
+.be-all { display: flex; align-items: center; gap: 0.75rem 1.5rem; flex-wrap: wrap; padding: 0.875rem 0 0; border-top: 1px solid var(--border); }
+.be-all-link { font-size: var(--step--1); font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.be-all-link::after { content: '→'; margin-left: 0.3em; font-weight: 400; }
+.be-all-link:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.be-grid { flex: 1 1 28rem; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 0.25rem; list-style: none; margin: 0; padding: 0; }
+.be-grid a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--col-bg);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: lining-nums tabular-nums;
+  text-decoration: none;
+}
+.be-grid a:hover { border-color: var(--accent); color: var(--accent); }
+.be-grid a[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.book-end a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.reader-page .book-end + .site-footer { margin-top: 2rem; }
+@media (max-width: 900px) {
+  .be-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+@media (max-width: 690px) {
+  .book-end { padding: 0 0.875rem; margin-top: 2rem; }
+  .be-step { grid-template-columns: minmax(0, 1fr); }
+  .be-next { order: -1; text-align: left; border-bottom: 1px solid var(--border); }
+  .be-none { display: none; }
+  .be-link { padding: 0.875rem 0 1rem; }
+  .be-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); flex-basis: 100%; }
+  .be-grid a { height: 2.5rem; font-size: 0.9375rem; }
+  .be-all-link { min-height: 2.75rem; display: inline-flex; align-items: center; }
+}
+
+/* Contents: the way to the poem's own index, and to the rest of the edition. */
+.reader-page .toc-work-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+.toc-work-all { font-family: var(--font-ui); font-size: var(--step--1); font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.toc-work-all:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.toc-site { flex: none; display: grid; gap: 0.25rem; padding: 0.875rem 1.25rem 0.75rem; border-top: 1px solid var(--border); font-family: var(--font-ui); }
+.toc-site-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.125rem; min-width: 0; }
+.toc-site-label { flex: 0 0 4.75rem; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mid); }
+.toc-site a { display: inline-flex; align-items: center; min-height: 2rem; padding: 0 0.375rem; border-radius: 4px; font-size: var(--step--1); font-weight: 500; color: var(--text); text-decoration: none; }
+.toc-site a:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.toc-site a:focus-visible, .toc-work-all:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 690px) {
+  .toc-site a { min-height: 2.5rem; padding: 0 0.5rem; }
+  .toc-site-label { flex-basis: 100%; margin-top: 0.375rem; }
+  /* On a phone the drawer is the way to the whole site, so it scrolls as one
+     sheet: the book list no longer has to fit in what the rows above and
+     below leave it. */
+  .reader-page .toc-sidebar { overflow-y: auto; overscroll-behavior: contain; }
+  .reader-page .toc-sidebar .toc-outline { flex: none; overflow: visible; padding-bottom: 0.5rem; }
+  .reader-page .toc-sidebar .toc-head { position: sticky; top: 0; z-index: 1; background: var(--col-bg); }
+}
+
+/* Phone header: the theme switch and Support are the same round button the
+   site header uses for search, theme and menu (round-2 finding M5). */
+@media (max-width: 690px) {
+  .page-header.rh .bar-actions { gap: 0.375rem; }
+  .page-header.rh :is(.theme-toggle, .header-support) {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--col-bg);
+    color: var(--text);
+    justify-content: center;
+  }
+  .page-header.rh .header-support .hsup-heart { color: var(--accent); }
+  .page-header.rh :is(.theme-toggle, .header-support):hover { border-color: var(--accent); }
+}
+/* Support never leaves the page: where the bar has no room for it (1024 to
+   1379px, and under 350px) it is in Contents and in the footer, both of which
+   are there at every width (round-2 finding M1). */
+
+/* The first-visit tip: its lines break evenly, so "More tips" never sits on a
+   line of its own (M6). */
+.reader-tip .tip-copy { text-wrap: balance; }
+
+@media (max-width: 680px) {
+  /* A hexameter that runs over the phone's measure turns over at a word
+     boundary that leaves at least two words below, not one (M6). */
+  .reader-page .reader-body.verse-line .line-text { text-wrap: pretty; }
+}
+
+/* Reader mode pending (data-rposture, stamped before paint): the page that
+   hydrates is ONE translation in one column and no Greek, whatever the
+   saved view. Paint that from the server's two-column markup, so a phone
+   never shows two scholar columns first (round-2 finding M3), and a wide
+   screen does not either. The island drops the attribute on mount and its
+   own reading-mode markup takes over. */
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .seg-row {
+  grid-template-columns: 1fr;
+  /* Reader mode's own size (Reader.svelte FS_ENG_BASE), not the two-column one. */
+  --fs-english: calc(1.1875rem * var(--fs-scale, 1));
+}
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .seg-row > .greek-col { display: none; }
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .seg-row > .english-col {
+  display: block;
+  max-width: 36rem;
+  margin: 0 auto;
+  font-size: var(--fs-english);
+  line-height: var(--lh-english);
+}
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .english-col .bk-num { display: none; }
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .english-col .ross-prose { padding-left: 0; }
+:root[data-rposture="reading"] .reader-page .reader-body:not(.reading-mode) .verse-bracket-legend { display: none; }
 
 } /* end @media screen (Edition skin) */
 

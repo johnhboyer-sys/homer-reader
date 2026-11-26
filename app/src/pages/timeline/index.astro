@@ -18,6 +18,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import {
@@ -390,7 +391,7 @@ function spanKey(e: DayStripEntry & { kind: 'span' }): string {
   <SiteHeader section="Timeline" />
   <main class="pg timeline-body">
     <header class="pg-head">
-    <p class="pg-eyebrow">Atlas</p>
+    <Crumbs />
     <h1 class="pg-title">Timeline {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
     <p class="pg-intro timeline-intro">
       A day-by-day chronology of the Iliad and Odyssey, derived from each book’s scene apparatus.

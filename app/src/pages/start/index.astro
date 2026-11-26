@@ -74,16 +74,14 @@ const jsonLd = {
        right), so an outside visitor lands on the same edition the home page
        shows. Colours are the home hero's, local until they are tokens. */
     .start-hero {
-      --hero-ink: #F6F0E4;
-      --hero-ink-soft: #D5CABB;
       position: relative;
       overflow: hidden;
       isolation: isolate;
       color: var(--hero-ink);
       background:
-        radial-gradient(70% 90% at 8% 130%, rgba(214, 106, 46, 0.55) 0%, rgba(160, 62, 30, 0.22) 40%, rgba(160, 62, 30, 0) 70%),
-        radial-gradient(60% 90% at 96% -30%, rgba(74, 142, 176, 0.5) 0%, rgba(40, 96, 130, 0.22) 42%, rgba(40, 96, 130, 0) 72%),
-        linear-gradient(180deg, #17151C 0%, #1B1820 100%);
+        radial-gradient(70% 90% at 8% 130%, color-mix(in srgb, var(--hero-iliad-glow) 55%, transparent) 0%, color-mix(in srgb, var(--hero-iliad-ember) 22%, transparent) 40%, transparent 70%),
+        radial-gradient(60% 90% at 96% -30%, color-mix(in srgb, var(--hero-odyssey-glow) 50%, transparent) 0%, color-mix(in srgb, var(--hero-odyssey-deep) 22%, transparent) 42%, transparent 72%),
+        var(--hero-both-night);
     }
     .start-hero-inner {
       position: relative;
@@ -91,8 +89,8 @@ const jsonLd = {
       margin: 0 auto;
       padding: clamp(2.5rem, 10vh, 6.5rem) var(--space-5) clamp(2.5rem, 9vh, 6rem);
     }
-    .start-eyebrow { font-family: var(--font-greek); font-size: 0.875rem; letter-spacing: 0.34em; color: #F0B28A; margin: 0 0 1rem; }
-    .start-eyebrow span + span { color: #A9D6E8; margin-left: 1.25rem; }
+    .start-eyebrow { font-family: var(--font-greek); font-size: 0.875rem; letter-spacing: 0.34em; color: var(--hero-iliad-accent); margin: 0 0 1rem; }
+    .start-eyebrow span + span { color: var(--hero-odyssey-accent); margin-left: 1.25rem; }
     h1 {
       font-family: var(--font-display);
       font-weight: 400;
@@ -117,7 +115,7 @@ const jsonLd = {
       bottom: 0;
       width: min(42%, 34rem);
       height: 82%;
-      background: #A9D6E8;
+      background: var(--hero-odyssey-accent);
       opacity: 0.4;
       -webkit-mask: var(--art) right bottom / contain no-repeat;
       mask: var(--art) right bottom / contain no-repeat;

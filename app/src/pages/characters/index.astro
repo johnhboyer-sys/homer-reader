@@ -19,6 +19,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import CharacterNetwork from '../../components/CharacterNetwork.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -53,7 +54,7 @@ interface Character {
   dicesId: string | null;
 }
 interface CharactersFile { status: 'draft' | 'reviewed'; characters: Character[]; }
-interface SpeechRecord { book: number; speaker: string[]; addressee: string[]; }
+interface SpeechRecord { book: number; lines?: [number, number]; speaker: string[]; addressee: string[]; }
 interface SpeechesFile { work: string; status: string; speeches: SpeechRecord[]; }
 
 const charactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8')) as CharactersFile;
@@ -270,6 +271,38 @@ const formulaLinks = (id: string) => {
   return links;
 };
 
+// Onward links from a roster entry, all to pages and anchors that exist: the
+// family tree the character stands in (/genealogies/ gives each tree its id),
+// and the first speech the speech records give them (Iliad before Odyssey, as
+// the books run).
+const TREE_LABEL: Record<string, string> = {
+  atreus: 'House of Atreus', aeacus: 'House of Aeacus', troy: 'House of Troy', olympians: 'The Olympians',
+};
+const treeLink = (c: Character) =>
+  c.genealogy && TREE_LABEL[c.genealogy.tree]
+    ? { href: `${base}/genealogies/#${c.genealogy.tree}`, label: `Family tree: ${TREE_LABEL[c.genealogy.tree]}` }
+    : null;
+const firstSpeech = (id: string) => {
+  for (const [work, abbr, speeches] of [['iliad', 'Il.', iliadSpeeches], ['odyssey', 'Od.', odysseySpeeches]] as const) {
+    const own = speeches.filter((sp) => sp.lines && sp.speaker.includes(id));
+    if (!own.length) continue;
+    const sp = own.reduce((a, b) => (b.book < a.book || (b.book === a.book && b.lines![0] < a.lines![0]) ? b : a));
+    return {
+      href: `${base}/${work}/book/${sp.book}?loc=${sp.book}.${sp.lines![0]}`,
+      label: `First speech: ${abbr} ${sp.book}.${sp.lines![0]}`,
+    };
+  }
+  return null;
+};
+const onward = (c: Character) => {
+  const links: { href: string; label: string }[] = [];
+  const tree = treeLink(c);
+  if (tree) links.push(tree);
+  const speech = firstSpeech(c.id);
+  if (speech) links.push({ href: speech.href, label: speech.label });
+  return [...links, ...formulaLinks(c.id)];
+};
+
 // Roster: every character, alphabetical, grouped by initial letter — same
 // jump-nav idiom as /places/index.astro.
 const rosterCharacters = characters.slice().sort((a, b) => a.name.localeCompare(b.name, 'en'));
@@ -382,7 +415,7 @@ const jsonLd = {
   <SiteHeader section="Characters" />
   <main class="pg chars-body">
     <header class="pg-head">
-      <p class="pg-eyebrow">People</p>
+      <Crumbs />
       <h1 class="pg-title">Characters {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
       <p class="pg-intro chars-intro">
         Every named figure in this edition's character apparatus, with a computed network of who is kin to whom and
@@ -455,9 +488,9 @@ const jsonLd = {
           <p class="roster-role">{row.character.role}</p>
           <div class="roster-meta">
             <span class="roster-poem"><span class="poem-mark" data-poem={poemOf(row.character.id)} aria-hidden="true"></span>{POEM_LABEL[poemOf(row.character.id)]}</span>
-            {formulaLinks(row.character.id).length > 0 && (
+            {onward(row.character).length > 0 && (
               <div class="pg-cites roster-links">
-                {formulaLinks(row.character.id).map((l) => <a class="pg-cite" href={l.href}>{l.label}</a>)}
+                {onward(row.character).map((l) => <a class="pg-cite" href={l.href}>{l.label}</a>)}
               </div>
             )}
           </div>
@@ -474,7 +507,7 @@ const jsonLd = {
     import { wireIndexFilter } from '../../lib/index-filter';
     wireIndexFilter({
       list: 'roster-list', input: 'chars-find', count: 'chars-count', empty: 'chars-empty',
-      chips: '.chars-key [data-poem]', chipKey: 'poem',
+      chips: '.chars-key button[data-poem]', chipKey: 'poem',
       // The same filter dims the diagram: the nodes that are not showing in
       // the roster fall back, so a name or a poem can be picked out of it.
       onChange(visible) {

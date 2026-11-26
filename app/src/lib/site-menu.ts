@@ -48,7 +48,10 @@ export function initSiteMenus(header: HTMLElement): () => void {
       else { open(g); pinned.add(g); }
     });
     on(g, 'mouseenter', () => { if (!isOpen(g)) open(g); });
-    on(g, 'mouseleave', () => { if (!pinned.has(g)) close(g); });
+    // The pointer leaving closes a menu it opened by hovering, but not while
+    // keyboard focus is on one of its links: the link would go on holding
+    // focus, hidden. Focus leaving the group (focusout, below) closes it then.
+    on(g, 'mouseleave', () => { if (!pinned.has(g) && !g.contains(document.activeElement)) close(g); });
     on(g, 'focusout', (e) => {
       const next = e.relatedTarget;
       if (!(next instanceof Node) || !g.contains(next)) close(g);

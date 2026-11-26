@@ -17,6 +17,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import GenNode from '../../components/GenNode.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -362,7 +363,7 @@ function connectorPath(c: {
 
   <main class="pg gen-body">
     <header class="pg-head">
-    <p class="pg-eyebrow">People</p>
+    <Crumbs />
     <h1 class="pg-title">
       Genealogies
       {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}
@@ -384,7 +385,7 @@ function connectorPath(c: {
     </header>
 
     <nav class="pg-bar" aria-label="Jump to a tree">
-      <div class="pg-jump gen-jump">
+      <div class="pg-jump gen-jump is-wrap">
         {trees.map((t) => <a href={`#${t.id}`}>{t.label}</a>)}
       </div>
     </nav>

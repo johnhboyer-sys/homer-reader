@@ -1,0 +1,34 @@
+---
+// "You are here" on a reference page: Home, the group the page sits in, and
+// the group's pages side by side with this one marked, so the neighbours
+// (Maps beside Places, Genealogies beside Characters) are one click away on
+// any screen, the phone included, where the header's menus are folded.
+// A page under one of those (a lemma, a poem's vocabulary) marks its parent,
+// which stays a link back up. The list is lib/site-nav.ts, the header's own.
+import { locate, isCurrent } from '../lib/site-nav';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pathname = base && Astro.url.pathname.startsWith(`${base}/`)
+  ? Astro.url.pathname.slice(base.length)
+  : Astro.url.pathname;
+const here = locate(pathname);
+const trimmed = pathname.replace(/\/$/, '');
+---
+{here && (
+  <nav class="pg-crumbs" aria-label="You are here">
+    <a class="pg-crumbs-home" href={`${base}/`}>Home</a>
+    <span class="sep" aria-hidden="true">/</span>
+    <span class="pg-crumbs-group">{here.group.label}</span>
+    <ul>
+      {here.group.items.map((i) => {
+        const current = isCurrent(pathname, i);
+        const exact = trimmed === i.prefix;
+        return (
+          <li>
+            <a class:list={{ 'is-current': current }} href={`${base}${i.path}`} aria-current={exact ? 'page' : current ? 'true' : undefined}>{i.label}</a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+)}

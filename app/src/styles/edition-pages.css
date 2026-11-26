@@ -210,6 +210,9 @@ span.pg-chip { cursor: default; }
 .pg-tier[data-certainty="certain"]::before { background: currentColor; }
 .pg-tier[data-certainty="speculative"]::before { border-style: dashed; }
 .pg-tier[data-certainty="mythical"]::before { border-radius: 0; width: 0.5625rem; height: 0.5625rem; transform: rotate(45deg); margin: 0 0.03rem; }
+/* Inside a pressed chip the label takes the chip's colour: the chip is filled
+   with --text, which is the colour .pg-tier names for itself. */
+.pg-chip[aria-pressed="true"] .pg-tier { color: inherit; }
 
 /* ── Sections ───────────────────────────────────────────────────────── */
 .pg-section { margin-top: var(--space-7); padding-top: var(--space-6); border-top: 1px solid var(--border); scroll-margin-top: var(--pg-anchor); }
@@ -233,7 +236,7 @@ span.pg-chip { cursor: default; }
 
 /* ── Reference rows ─────────────────────────────────────────────────── */
 .pg-rows { list-style: none; padding: 0; }
-.pg-letter { scroll-margin-top: var(--pg-anchor); padding-top: var(--space-6); }
+.pg-letter { padding-top: var(--space-6); }
 .pg-letter:first-child { padding-top: var(--space-5); }
 .pg-letter > :is(h2, h3) {
   font-family: var(--font-display);
@@ -243,6 +246,8 @@ span.pg-chip { cursor: default; }
   color: var(--accent);
   padding-bottom: var(--space-3);
   border-bottom: 2px solid var(--text);
+  /* The letter's id is on the heading, so the heading clears the bars. */
+  scroll-margin-top: var(--pg-anchor);
 }
 .pg-entry {
   display: grid;
@@ -325,37 +330,35 @@ a.pg-cite:hover { border-color: var(--accent); background: var(--pg-wash); }
 }
 
 /* The two poems as a pair of doors, in the home page's own night colours
-   (the values are the home hero's; local here until they become tokens). */
+   (the --hero-* tokens in shared/styles/global.css). */
 .pg-poems { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
 .pg-poem {
-  --poem-ink: #F6F0E4;
-  --poem-ink-soft: #D5CABB;
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 15rem;
   padding: var(--space-6);
   border-radius: var(--radius-3);
-  color: var(--poem-ink);
+  color: var(--hero-ink);
   text-decoration: none;
   overflow: hidden;
   isolation: isolate;
 }
 .pg-poem.is-iliad {
-  --poem-accent: #F0B28A;
+  --poem-accent: var(--hero-iliad-accent);
   background:
-    radial-gradient(120% 70% at 30% 118%, rgba(214, 106, 46, 0.62) 0%, rgba(160, 62, 30, 0.28) 38%, rgba(160, 62, 30, 0) 68%),
-    linear-gradient(180deg, #1B1218 0%, #261419 52%, #32171A 100%);
+    radial-gradient(120% 70% at 30% 118%, color-mix(in srgb, var(--hero-iliad-glow) 62%, transparent) 0%, color-mix(in srgb, var(--hero-iliad-ember) 28%, transparent) 38%, transparent 68%),
+    var(--hero-iliad-night);
 }
 .pg-poem.is-odyssey {
-  --poem-accent: #A9D6E8;
+  --poem-accent: var(--hero-odyssey-accent);
   background:
-    radial-gradient(110% 75% at 78% -18%, rgba(74, 142, 176, 0.55) 0%, rgba(40, 96, 130, 0.25) 40%, rgba(40, 96, 130, 0) 70%),
-    linear-gradient(180deg, #0F2434 0%, #0E2030 55%, #0B1826 100%);
+    radial-gradient(110% 75% at 78% -18%, color-mix(in srgb, var(--hero-odyssey-glow) 55%, transparent) 0%, color-mix(in srgb, var(--hero-odyssey-deep) 25%, transparent) 40%, transparent 70%),
+    var(--hero-odyssey-night);
 }
 .pg-poem-greek { font-family: var(--font-greek); font-size: 0.8125rem; letter-spacing: 0.34em; color: var(--poem-accent); }
-.pg-poem-title { margin-top: 0.375rem; font-family: var(--font-display); font-weight: 400; font-size: clamp(2.25rem, 4vw, 3.25rem); line-height: 1; letter-spacing: -0.02em; color: var(--poem-ink); }
-.pg-poem-meta { margin-top: 0.75rem; font: 500 0.9375rem/1.4 var(--font-ui); color: var(--poem-ink-soft); font-variant-numeric: tabular-nums; }
+.pg-poem-title { margin-top: 0.375rem; font-family: var(--font-display); font-weight: 400; font-size: clamp(2.25rem, 4vw, 3.25rem); line-height: 1; letter-spacing: -0.02em; color: var(--hero-ink); }
+.pg-poem-meta { margin-top: 0.75rem; font: 500 0.9375rem/1.4 var(--font-ui); color: var(--hero-ink-soft); font-variant-numeric: tabular-nums; }
 .pg-poem-go {
   margin-top: auto;
   align-self: flex-start;
@@ -365,11 +368,11 @@ a.pg-cite:hover { border-color: var(--accent); background: var(--pg-wash); }
   height: 2.5rem;
   padding: 0 1.125rem;
   border-radius: var(--radius-pill);
-  background: var(--poem-ink);
-  color: #1F1A17;
+  background: var(--hero-ink);
+  color: var(--hero-on-ink);
   font: 600 0.875rem/1 var(--font-ui);
 }
-.pg-poem:hover .pg-poem-go { background: #fff; }
+.pg-poem:hover .pg-poem-go { background: var(--hero-ink-hover); }
 .pg-poem:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .pg-poem-art {
   position: absolute;
@@ -448,3 +451,89 @@ a.pg-cite:hover { border-color: var(--accent); background: var(--pg-wash); }
   .pg-prose > :is(h2, .pg-prose-label) + *, .pg-prose > :is(h2, .pg-prose-label):first-child + * { margin-top: 0; padding-top: 0; border-top: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .pg-btn { transition: none; } }
+
+/* ── Round 3: wayfinding ─────────────────────────────────────────────── */
+/* "You are here": Home / group, then the group's pages with this one marked.
+   It wraps; it never scrolls sideways. */
+.pg-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem 0;
+  margin: 0 0 0.75rem -0.5rem;
+  font: 500 var(--step--1)/1.2 var(--font-ui);
+  color: var(--text-mid);
+}
+.pg-crumbs ul { display: flex; flex-wrap: wrap; gap: 0.125rem 0.125rem; list-style: none; margin: 0 0 0 0.25rem; padding: 0; }
+.pg-crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border-radius: var(--radius-pill);
+  color: var(--text-mid);
+  text-decoration: none;
+}
+.pg-crumbs a:hover { color: var(--accent); background: var(--pg-wash); }
+.pg-crumbs a.is-current { color: var(--accent); font-weight: 600; background: var(--pg-wash); }
+.pg-crumbs .sep { color: var(--text-light); margin: 0 0.125rem; }
+.pg-crumbs-group { padding: 0 0.375rem 0 0.5rem; font-weight: 600; color: var(--text); }
+.pg-crumbs-group::after { content: ':'; }
+
+/* An entry reached by its own address (Go to, a link from another page)
+   shows which one it is: the wash it had, and a rule down its left edge. */
+.pg-entry:target { position: relative; }
+.pg-entry:target::before { content: ''; position: absolute; left: -0.75rem; top: -0.75rem; bottom: -0.75rem; width: 3px; background: var(--accent); }
+/* Room for the wash above the entry, under the sticky bar. */
+.pg-entry:target { scroll-margin-top: calc(var(--pg-anchor) + 0.75rem); }
+
+/* Where an entry leads next: plain links with an arrow, under its passages. */
+.pg-entry-body > p.pg-onward,
+.pg-onward {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.625rem;
+  font: 600 var(--step--1)/1.3 var(--font-ui);
+}
+.pg-onward a { display: inline-flex; align-items: center; min-height: 1.75rem; color: var(--accent); text-decoration: none; }
+.pg-onward a::after { content: '→'; margin-left: 0.375em; font-weight: 400; }
+.pg-onward a:hover { text-decoration: underline; }
+
+@media (max-width: 760px) {
+  .pg-crumbs a { min-height: 2.25rem; }
+  .pg-onward a { min-height: 2.25rem; }
+}
+
+/* A sideways scroller fades the edge that has more beyond it
+   (lib/scroll-hint.ts sets data-more as the reader scrolls). */
+[data-more] { --more-fade: 2.5rem; }
+[data-more="end"] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--more-fade)), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--more-fade)), transparent);
+}
+[data-more="start"] {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - var(--more-fade)), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - var(--more-fade)), transparent);
+}
+[data-more="both"] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--more-fade), #000 calc(100% - var(--more-fade)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--more-fade), #000 calc(100% - var(--more-fade)), transparent);
+}
+/* A handful of section names wraps on a phone, so each one is in view. */
+@media (max-width: 680px) {
+  .pg-jump.is-wrap { flex-wrap: wrap; overflow-x: visible; row-gap: 0.125rem; }
+}
+
+/* Lemma page: straight to the occurrences. */
+.lx-onward { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: var(--space-4) 0 0; font: 600 var(--step--1)/1.3 var(--font-ui); }
+.lx-onward a { display: inline-flex; align-items: center; gap: 0.3em; min-height: 2rem; color: var(--accent); text-decoration: none; }
+.lx-onward a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.lx-onward a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+@media (max-width: 680px) {
+  .lx-onward { flex-direction: column; gap: 0; }
+  .lx-onward a { min-height: 2.75rem; }
+  /* A group of many pages would wrap to three lines above the title on a
+     phone: it names the page the reader is on, and the menu has the rest. */
+  .pg-crumbs ul:has(> li:nth-child(5)) > li:not(:has(.is-current)) { display: none; }
+}

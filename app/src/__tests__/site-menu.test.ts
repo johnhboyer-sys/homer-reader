@@ -92,4 +92,19 @@ describe('site header menus', () => {
     g.dispatchEvent(new MouseEvent('mouseleave'));
     expect(atlas.getAttribute('aria-expanded')).toBe('true');
   });
+
+  // Round-2 review finding M2: a hover-opened menu closed on mouseleave even
+  // with keyboard focus on one of its links, which then sat focused and hidden.
+  it('a hover-opened menu stays open on mouseleave while focus is inside it, and closes when focus leaves', () => {
+    const g = group(atlas);
+    g.dispatchEvent(new MouseEvent('mouseenter'));
+    const link = g.querySelector('a') as HTMLAnchorElement;
+    link.focus();
+    expect(document.activeElement).toBe(link);
+    g.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(atlas.getAttribute('aria-expanded')).toBe('true');
+    expect(g.classList.contains('is-open')).toBe(true);
+    link.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: document.getElementById('outside') }));
+    expect(atlas.getAttribute('aria-expanded')).toBe('false');
+  });
 });

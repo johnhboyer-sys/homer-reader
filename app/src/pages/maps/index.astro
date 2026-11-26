@@ -16,6 +16,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import MapsPage from '../../components/MapsPage.svelte';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -95,7 +96,7 @@ const jsonLd = {
 
   <main class="pg maps-body">
     <header class="pg-head">
-    <p class="pg-eyebrow">Atlas</p>
+    <Crumbs />
     <h1 class="pg-title">Maps</h1>
     <p class="pg-intro maps-intro">
       Every place named in the Iliad and Odyssey that a real map can show:

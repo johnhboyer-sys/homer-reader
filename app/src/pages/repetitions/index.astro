@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import RepetitionsIndex from '../../components/RepetitionsIndex.svelte';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -56,7 +57,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <SiteHeader section="Repetitions" />
   <main class="pg repetitions-body">
     <header class="pg-head">
-    <p class="pg-eyebrow">Language</p>
+    <Crumbs />
     <h1 class="pg-title">Repeated lines &amp; phrases</h1>
     <p class="pg-intro repetitions-intro">The three hundred most frequent repetitions in the two poems, with the full corpus ready when you search. The small Il+Od marker identifies phrases that occur in both epics.</p>
     </header>

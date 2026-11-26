@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
+import Crumbs from '../../../components/Crumbs.astro';
 import Pwa from '../../../components/Pwa.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import { betaToGreek } from '@shared/lib/betacode';
@@ -77,7 +78,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <SiteHeader section="Odyssey Vocabulary" />
   <main class="pg vocab-body">
     <header class="pg-head">
-    <p class="pg-eyebrow"><span>Language</span><span class="sep" aria-hidden="true">/</span><a href={`${base}/vocabulary/`}>Vocabulary</a></p>
+    <Crumbs />
     <h1 class="pg-title">Odyssey vocabulary {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
     <p class="pg-intro vocab-intro">Words to know before each book of the Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus. See also <a href={`${base}/vocabulary/iliad/`}>Iliad vocabulary</a>.</p>
     </header>

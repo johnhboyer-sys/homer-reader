@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import Crumbs from '../../components/Crumbs.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
@@ -70,6 +71,22 @@ const citationText = (mention: Mention) => {
 const citationHref = (mention: Mention) => `${base}/${mention.work}/book/${mention.book}?loc=${mention.book}.${mention.lines[0]}`;
 const citationLabel = (mention: Mention) => `${mention.work === 'iliad' ? 'Iliad' : 'Odyssey'} ${mention.book}.${mention.lines[0]}${mention.lines[mention.lines.length - 1] !== mention.lines[0] ? ` to ${mention.lines[mention.lines.length - 1]}` : ''}`;
 const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'mythical'];
+
+// Two ways on from an entry, both to pages that exist: the map the place is
+// drawn on (the /maps/ tab ids, MapsPage.svelte's TABS; the two plates take a
+// focus), and a search of the Greek for the name in any form (a one-word
+// name only: the search box reads several words as several terms).
+const MAP_TAB: Record<string, string> = {
+  ships: 'ships', troad: 'troad', 'troad-plain': 'plain', wanderings: 'wanderings', greece: 'greece', journeys: 'journeys',
+};
+const mapHref = (place: Place) => {
+  const tab = place.maps.map((m) => MAP_TAB[m]).find(Boolean);
+  if (!tab) return null;
+  const focus = tab === 'plain' || tab === 'troad' ? `&focus=${encodeURIComponent(place.id)}` : '';
+  return `${base}/maps/?map=${tab}${focus}`;
+};
+const searchHref = (place: Place) =>
+  place.greek && !/\s/.test(place.greek.trim()) ? `${base}/search?g=${encodeURIComponent(place.greek.trim())}` : null;
 ---
 <html lang="en">
 <head>
@@ -113,7 +130,7 @@ const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'm
   <SiteHeader section="Places" />
   <main class="pg places-body">
     <header class="pg-head">
-      <p class="pg-eyebrow">Atlas</p>
+      <Crumbs />
       <h1 class="pg-title">Places {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
       <p class="pg-intro places-intro">A gazetteer for the Iliad and Odyssey. Each entry cites its anchoring passage(s); these curated citations are not an exhaustive concordance.</p>
     </header>
@@ -139,7 +156,7 @@ const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'm
       {placeRows.map((row) => row.kind === 'letter' ? (
         <li class="pg-letter place-letter" data-letter={row.letter}><h2 id={`letter-${row.letter}`}>{row.letter}</h2></li>
       ) : (
-        <li class="pg-entry place-entry" data-name={row.place.name} data-tier={row.place.certainty} data-letter={row.place.name.charAt(0).toUpperCase()}>
+        <li class="pg-entry place-entry" id={`place-${row.place.id}`} data-name={row.place.name} data-tier={row.place.certainty} data-letter={row.place.name.charAt(0).toUpperCase()}>
           <div class="place-heading">
             <h3 class="pg-entry-name">{row.place.name}</h3>
             <span class="pg-entry-greek place-greek" lang="grc">{row.place.greek}</span>
@@ -152,6 +169,12 @@ const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'm
               {row.place.pleiades && <a class="pg-cite" href={row.place.pleiades} target="_blank" rel="noopener">Pleiades</a>}
               {row.place.mentions.map((mention) => <a class="pg-cite" href={citationHref(mention)} aria-label={citationLabel(mention)}>{citationText(mention)}</a>)}
             </div>
+            {(mapHref(row.place) || searchHref(row.place)) && (
+              <p class="pg-onward">
+                {mapHref(row.place) && <a href={mapHref(row.place)} aria-label={`${row.place.name} on the map`}>On the map</a>}
+                {searchHref(row.place) && <a href={searchHref(row.place)} aria-label={`Search the Greek text for ${row.place.name}`}>Every mention in the Greek</a>}
+              </p>
+            )}
           </div>
         </li>
       ))}

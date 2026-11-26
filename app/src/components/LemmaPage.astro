@@ -9,6 +9,7 @@
 import { readFileSync } from 'node:fs';
 import ThemeInit from './ThemeInit.astro';
 import SiteHeader from './SiteHeader.astro';
+import Crumbs from './Crumbs.astro';
 import Pwa from './Pwa.astro';
 import { getWork, workPath, workLanding, bookLabel, isBookless } from '@shared/lib/works';
 import { jsonLdSafe } from '../lib/jsonld';
@@ -58,6 +59,9 @@ const worksView = data.instancesByWork.map((w) => {
   return {
     ...w,
     bookless,
+    // A poem is cited book.line and has no chapters: its occurrences read
+    // "1.75", under the book alone.
+    verse: ww?.citation?.scheme === 'verse-line',
     flat: w.shown <= 30,             // small entries render fully expanded
     capped: w.shown < w.count,       // per-lemma INSTANCE_CAP truncated this work
     barPct: Math.max(2, (w.count / maxWork) * 100),
@@ -207,21 +211,25 @@ const breadcrumb = Astro.site ? {
 
   <main class="pg lx-body">
     <header class="pg-head lx-top">
-    <p class="pg-eyebrow"><span>Language</span><span class="sep" aria-hidden="true">/</span><a href={`${base}/lemma/`}>Lexicon</a></p>
+    <Crumbs />
     <h1 class="lx-head-gk" lang="grc">{data.head}</h1>
     <p class="lx-translit">{data.slug}</p>
     {gloss && <p class="lx-gloss">{data.glosses.join('; ')}</p>}
     <p class="lx-freq">Appears <b>{data.count.toLocaleString()}</b> times across Homer's epics.</p>
+    <p class="lx-onward">
+      <a href="#lx-uses">Every occurrence, by book and line</a>
+      <a href={`${base}/search?g=${encodeURIComponent(data.head)}`}>Read them in context <span aria-hidden="true">→</span></a>
+    </p>
     </header>
 
     <div class="lx-cols">
 
-    <h2 class="lx-h">Frequency by work</h2>
+    <h2 class="lx-h" id="lx-uses">Frequency by work</h2>
     <p class="lx-note">Click a work to list every occurrence by book &amp; line — each links into the reader.</p>
     <ul class="lx-freqbars">
       {worksView.map((w) => (
         <li>
-          <details class="fb-item" data-work={w.work}>
+          <details class="fb-item" data-work={w.work} open={w.flat}>
             <summary>
               <span class="fb-name">{w.title}</span>
               <span class="fb-track"><span class="fb-fill" style={`width:${w.barPct}%`}></span></span>
@@ -257,13 +265,15 @@ const breadcrumb = Astro.site ? {
                     <div class="fb-book-body">
                       {bk.chapters.map((ch) => (
                         <div class="fb-chapter">
-                          <div class="fb-ch-head">
-                            <span class="fb-ch-label">Chapter {ch.chapter}</span>
-                            {ch.bekker && <span class="fb-ch-bekker">{ch.bekker}</span>}
-                          </div>
+                          {!w.verse && (
+                            <div class="fb-ch-head">
+                              <span class="fb-ch-label">Chapter {ch.chapter}</span>
+                              {ch.bekker && <span class="fb-ch-bekker">{ch.bekker}</span>}
+                            </div>
+                          )}
                           <ul class="fb-citelist">
                             {ch.instances.map((inst) => (
-                              <li><a href={instHref(w.work, bk.book, inst)}>{inst[0]}{inst[1]}</a></li>
+                              <li><a href={instHref(w.work, bk.book, inst)}>{w.verse ? `${inst[0]}.${inst[1]}` : `${inst[0]}${inst[1]}`}</a></li>
                             ))}
                           </ul>
                         </div>
