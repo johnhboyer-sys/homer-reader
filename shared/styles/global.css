@@ -63,7 +63,8 @@
 :root {
   --font-greek:   "Gentium Book Plus", "Gentium Plus", Palatino, "Palatino Linotype", "Times New Roman", serif;
   --font-english: "Gentium Book Plus", "Iowan Old Style", Charter, Georgia, serif;
-  --font-ui:      Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Round 4 experiment: the controls in the system UI face (no Inter download). */
+  --font-ui:      system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   /* Display face: cartouche titles, masthead wordmark, section headings that
      want a bit more presence than the UI face. Not used pre-Aegean, so no
      prior value to record above. */

@@ -1282,3 +1282,6 @@ ring, empty inside the wall and with no ground under it.
 - `shared/components/CommandPalette.svelte` — `<svelte:options
   css="injected" />`: the palette is mounted on first use, so its styles come
   with its chunk instead of a stylesheet linked from every page.
+- `shared/styles/global.css` — `--font-ui` is the system UI stack
+  (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`), not Inter:
+  the round-4 experiment, its own commit so it can be dropped alone.
