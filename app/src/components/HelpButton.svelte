@@ -1,26 +1,14 @@
 <script lang="ts">
   // A small "?" button for the reader header that opens a Help modal explaining
-  // the reader's features. The one-time tip that surfaces click-a-word-to-parse
-  // is static markup in ReaderShell.astro's book head; this component marks it
-  // seen (SEEN_KEY) when Help is opened.
+  // the reader's features.
   //
-  // The button renders inline in the header; the modal and tip are position:fixed
-  // overlays, so where this component sits in the DOM doesn't affect layout.
+  // The button renders inline in the header; the modal is a position:fixed
+  // overlay, so where this component sits in the DOM doesn't affect layout.
   import { onMount, onDestroy, tick } from 'svelte';
-
-  const SEEN_KEY = 'ar-help-seen';
 
   let showHelp = false;
   let helpModal: HTMLDivElement;
   let helpTrigger: HTMLElement | null = null;
-
-  function markSeen() {
-    try { localStorage.setItem(SEEN_KEY, '1'); } catch {}
-    // The first-visit tip is static markup in the book head (ReaderShell.astro),
-    // in the page flow so it never sits over the poem; this attribute is what
-    // hides it once it has been seen.
-    document.documentElement.setAttribute('data-tip-seen', '');
-  }
 
   async function openHelp(e?: Event) {
     helpTrigger = e?.currentTarget instanceof HTMLElement
@@ -30,7 +18,6 @@
         : null;
     showHelp = true;
     (window as unknown as { __arHelpPending?: boolean }).__arHelpPending = false;
-    markSeen();
     await tick();
     helpModal?.focus();
   }
@@ -73,8 +60,8 @@
     // The Contents sidebar (mobile) opens this same modal via a custom event,
     // since its own "?" trigger is hidden on mobile.
     window.addEventListener('open-help', openHelp);
-    // The book head's "More tips" may have been clicked before this island
-    // mounted (ReaderShell.astro sets the flag); open now rather than lose it.
+    // Help in Contents may have been pressed before this island mounted
+    // (ReaderShell.astro sets the flag); open now rather than lose it.
     if ((window as unknown as { __arHelpPending?: boolean }).__arHelpPending) openHelp();
   });
   onDestroy(() => {

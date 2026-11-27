@@ -5518,75 +5518,6 @@ body[data-work="odyssey"] { --work-accent: var(--odyssey); }
    with a separator. */
 .bh-meta .sep { display: none; }
 .bh-meta > span:not(.sep):not(:last-child)::after { content: '\00a0\00a0·'; color: var(--rule-strong); }
-/* The first-visit tip: a small card where the Flaxman drawing sits, so it
-   costs the poem no height, never shares the title's line, and leaves no
-   gap when it is dismissed (the drawing takes the cell back). On a phone it
-   is a strip of its own under the head. */
-.reader-tip {
-  grid-area: art;
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem 0.875rem;
-  width: 24.5rem;
-  max-width: 44vw;
-  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
-  border-radius: var(--radius-2);
-  background: var(--surface-sunk);
-  font-family: var(--font-ui);
-  font-size: var(--step--1);
-  line-height: 1.45;
-  color: var(--text);
-}
-.reader-tip .tip-copy { flex: 1 1 auto; min-width: 0; }
-.reader-tip .tip-text { font-weight: 500; }
-.reader-tip .tip-text::before {
-  content: '';
-  display: inline-block;
-  width: 0.4375rem;
-  height: 0.4375rem;
-  margin-right: 0.5rem;
-  border-radius: 50%;
-  background: var(--accent);
-  vertical-align: 0.05em;
-}
-.reader-tip button {
-  font-family: var(--font-ui);
-  font-size: var(--step--1);
-  font-weight: 600;
-  cursor: pointer;
-}
-.reader-tip .tip-more {
-  margin-left: 0.25rem;
-  padding: 0.125rem 0.125rem;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--accent);
-  white-space: nowrap;
-}
-.reader-tip .tip-more:hover { text-decoration: underline; text-underline-offset: 0.2em; }
-.reader-tip .tip-got {
-  flex: 0 0 auto;
-  height: 2rem;
-  padding: 0 0.875rem;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: var(--on-accent);
-  white-space: nowrap;
-}
-.reader-tip .tip-got:hover { background: var(--accent-light); border-color: var(--accent-light); }
-.reader-tip button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-:root[data-tip-seen] .reader-tip { display: none; }
-:root[data-rposture="reading"] .book-head .reader-tip,
-body:has(.reader-body.reading-mode) .book-head .reader-tip { display: none; }
-@media (min-width: 691px) {
-  /* While the tip shows, it has the drawing's cell. */
-  :root:not([data-tip-seen]):not([data-rposture="reading"]) .book-head:has(.reader-tip) .bh-art { display: none; }
-  :root:not([data-tip-seen]) body:has(.reader-body.reading-mode) .book-head:has(.reader-tip) .bh-art { display: block; }
-}
-
 /* ── Reader body ────────────────────────────────────────────────────────── */
 .reader-page .reader-body {
   max-width: calc(1160px * var(--colw-scale, 1));
@@ -5919,14 +5850,11 @@ body:has(.scene-context-rail) .book-head { max-width: 1440px; }
   .dock-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 
   .book-head { padding: 0.75rem 0.875rem 0; }
-  .bh-inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "titles" "argument" "foot" "tip"; padding-bottom: 0.625rem; }
+  .bh-inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "titles" "argument" "foot"; padding-bottom: 0.625rem; }
   .bh-art { display: none; }
   .bh-greek { font-size: var(--step-2); }
   .bh-argument { font-size: 1rem; line-height: 1.4; }
   .bh-meta { font-size: 0.75rem; }
-  .reader-tip { grid-area: tip; width: auto; max-width: none; gap: 0.75rem; margin-top: 0.625rem; padding: 0.5rem 0.5rem 0.5rem 0.75rem; }
-  .reader-tip .tip-more { padding: 0.125rem 0; }
-  .reader-tip .tip-got { height: 2.25rem; }
 
   .reader-page .reader-body { padding: 0.5rem 0.875rem 10rem; }
   /* The mode switch lives in the dock on a phone, so the strip that held it
@@ -6155,10 +6083,6 @@ a.be-link:hover .be-book { color: var(--accent); }
    1379px, and under 350px) it is in Contents and in the footer, both of which
    are there at every width (round-2 finding M1). */
 
-/* The first-visit tip: its lines break evenly, so "More tips" never sits on a
-   line of its own (M6). */
-.reader-tip .tip-copy { text-wrap: balance; }
-
 @media (max-width: 680px) {
   /* A hexameter that runs over the phone's measure turns over at a word
      boundary that leaves at least two words below, not one (M6). */
@@ -6201,7 +6125,7 @@ a.be-link:hover .be-book { color: var(--accent); }
 } /* end @media screen (Edition skin) */
 
 @media print {
-  .reader-dock, .reader-tip, .bh-art, .book-end { display: none !important; }
+  .reader-dock, .bh-art, .book-end { display: none !important; }
   /* The book head on paper (its screen rules above are screen-only): the
      Greek title and English label on one line, the argument, the where /
      who / day line, and a hairline before the poem. Ink colours match the

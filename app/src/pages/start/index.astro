@@ -21,12 +21,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // The three doors are the shared DoorCards component (labels + copy canonical
 // there, unified with the homepage — punch-list #10). Only the destinations
-// differ per surface: this funnel's Greek door arms `tour=parse`, the one-time
-// 5-step parse-popup walkthrough (ParsePopupTour.svelte, mounted in
-// ReaderShell) — gated to arrivals via this door, never shown on a plain visit.
+// differ per surface.
 const doorHrefs: [string, string, string] = [
   `${base}${workPath('odyssey', 9)}?mode=reading`,
-  `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`,
+  `${base}${workPath('iliad', 1)}?mode=scholar`,
   `${base}/maps/`,
 ];
 

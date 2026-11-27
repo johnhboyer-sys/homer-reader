@@ -323,10 +323,6 @@ const intro =
           if ((sc && sc !== '1') || p2.get('loc')) document.documentElement.setAttribute('data-rscene', '');
         }
       } catch (e) { /* no bridge: static Scholar markup stands until hydration */ }
-      try {
-        // First-visit tip (see #reader-tip): hidden before paint once seen.
-        if (localStorage.getItem('ar-help-seen')) document.documentElement.setAttribute('data-tip-seen', '');
-      } catch (e) { /* storage blocked: the tip shows, and Got it still hides it for this page */ }
     })();
   </script>
   <title>{pageTitle}</title>
@@ -850,7 +846,6 @@ const intro =
 
   <script>
     import { initGoto, type GotoBook } from '../lib/goto';
-    import { initParseTour } from '../lib/parse-tour';
     // Contents sidebar (full-work outline) drawer. On mobile this is the single
     // navigation hub (the old Menu dropdown is gone); on desktop the nav panel is
     // always visible (CSS) and the sidebar holds just the outline.
@@ -868,7 +863,6 @@ const intro =
     let gotoBook: GotoBook | null = null;
     try { gotoBook = JSON.parse(document.getElementById('goto-book')?.textContent || 'null'); } catch { /* the palette still opens, without scenes */ }
     initGoto({ triggers: gotoTrigger ? [gotoTrigger] : [], work: document.body.dataset.work || null, book: gotoBook });
-    initParseTour(location.search)?.catch(() => { /* the tour is an extra; the page reads without it */ });
     const sidebar = document.getElementById('toc-sidebar');
     const backdrop = document.getElementById('toc-backdrop');
     // The closed drawer is off-screen but its links/buttons stay in the DOM, so
@@ -1200,8 +1194,8 @@ const intro =
     });
     // The sidebar "Help" entry opens the shared Help modal (HelpButton listens for
     // this event) and closes the drawer so the modal isn't hidden behind it.
-    // HelpButton hydrates at idle: a press before then is kept, as "More
-    // tips" keeps one, and honoured when it mounts.
+    // A press that lands before HelpButton has mounted is kept and honoured
+    // when it mounts.
     sidebar?.querySelector('.toc-help')?.addEventListener('click', () => {
       setToc(false);
       (window as unknown as { __arHelpPending?: boolean }).__arHelpPending = true;
@@ -1284,40 +1278,9 @@ const intro =
             </div>
           )}
         </div>
-        {/* First-visit tip: static markup in the page flow (never a toast
-            over the text). On a wide screen it is a card in the drawing's
-            cell of the head, so it costs the poem no height and nothing
-            shifts when it goes; on a phone it is a strip under the head.
-            The head script hides it before paint once it has been seen. */}
-        <div class="reader-tip" id="reader-tip" role="status">
-          <span class="tip-copy">
-            <span class="tip-text">Click on any Greek word to parse it and see its definition(s)!</span>
-            <button type="button" class="tip-more" id="tip-more">More tips →</button>
-          </span>
-          <button type="button" class="tip-got" id="tip-got">Got it</button>
-        </div>
       </div>
     </section>
   )}
-  <script is:inline>
-    (function () {
-      var seen = function () {
-        try { localStorage.setItem('ar-help-seen', '1'); } catch (e) {}
-        document.documentElement.setAttribute('data-tip-seen', '');
-      };
-      var got = document.getElementById('tip-got');
-      var more = document.getElementById('tip-more');
-      if (got) got.addEventListener('click', seen);
-      // "More tips" does not mark the tip seen itself: Help does that when
-      // it actually opens (HelpButton's markSeen). A click that lands before
-      // the Help island has mounted is kept in __arHelpPending, which the
-      // island honours on mount, so the tip is never dismissed for nothing.
-      if (more) more.addEventListener('click', function () {
-        window.__arHelpPending = true;
-        window.dispatchEvent(new CustomEvent('open-help'));
-      });
-    })();
-  </script>
   <!-- The reading surface is fully server-rendered above (text is in the static
        HTML), so the island only needs to hydrate the INTERACTIVITY (token
        lookup, posture / translation toggles, jump-to-line). Deferred to idle so
